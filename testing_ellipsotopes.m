@@ -5,9 +5,9 @@ G = [1 0 2;
 G = pinv([0.6056   -0.2487 ;
    -0.2487    0.5434]) ;
 %  % constraints
-% A = [0 -0.1 0.1] ;
-% b = 0 ;
-% tol = 1e-2 ;
+A = [0 -0.1 0.1] ;
+b = 0 ;
+tol = 1e-2 ;
 
 % norm to consider
 norm_p = 2 ;
@@ -22,8 +22,8 @@ n_G = size(G,2) ;
 B = make_grid(repmat([-1,1],1,n_G),n_P*ones(1,n_G)) ;
 
 % % evaluate which points obey the constraints
-% C_log = abs(A*B - b) <= tol ;
-% B = B(:,C_log) ; 
+C_log = abs(A*B - b) <= tol ;
+B = B(:,C_log) ; 
 % sum(C_log)
 
 % evaluate which points obey the norm

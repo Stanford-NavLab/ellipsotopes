@@ -71,6 +71,10 @@ classdef ellipsotope < handle
             end
         end
         
+        function E = rand_ellipsotope()
+            
+        end
+        
         %% property tests
         function out = is_basic(E)
             % out = is_basic(E)
@@ -164,10 +168,6 @@ classdef ellipsotope < handle
                 end
                 
                 E.plot_handle = h ;
-            % if E is constrained
-            elseif E.is_constrained()
-                % sampling based plotting for now?
-                
             else
                 error('Plotting for non-basic ellipsotopes is not working yet')
             end

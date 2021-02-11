@@ -71,10 +71,6 @@ classdef ellipsotope < handle
             end
         end
         
-        function E = rand_ellipsotope()
-            
-        end
-        
         %% property tests
         function out = is_basic(E)
             % out = is_basic(E)
@@ -117,6 +113,8 @@ classdef ellipsotope < handle
         function out = mtimes(A, E)
             out = ellipsotope(E.p_norm, A*E.center, A*E.generators, E.constraint_A, E.constraint_B, E.index_set);
         end
+        
+        
         
         %% plotting
         function plot(E,varargin)
@@ -168,8 +166,32 @@ classdef ellipsotope < handle
                 end
                 
                 E.plot_handle = h ;
+            % otherwise, resort to sampling
             else
-                error('Plotting for non-basic ellipsotopes is not working yet')
+                %error('Plotting for non-basic ellipsotopes is not working yet')
+                
+                % generate hyperplane defined by constraints
+                n_P = 1000;
+                b_samp = [-2,2];
+                N = null(E.constraints_A);
+                null_dim = size(N,2);
+                B = make_grid(repmat(b_samp,1,null_dim),n_P*ones(1,null_dim)) ;
+                B = N*B + linsolve(E.constraints_A,E.constraints_b);
+                
+                % evaluate which points obey the norm
+                for i = 1:length(E.index_set)
+                    N_log = vecnorm(B(E.index_set{i},:),E.p_norm) <= 1 ;
+                    B = B(:,N_log) ;
+                end
+                
+                % get all the points and plot them
+                P = E.center + E.generators*B;
+                if nargin == 1
+                    h = plot_path(P,'r.');
+                else
+                    h = plot_path(P,varargin{:});
+                end
+                E.plot_handle = h ;
             end
         end
     end

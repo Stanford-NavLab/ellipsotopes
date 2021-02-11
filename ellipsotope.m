@@ -110,8 +110,20 @@ classdef ellipsotope < handle
         
         
         %% operations
+        % linear map (overloads *)
         function out = mtimes(A, E)
             out = ellipsotope(E.p_norm, A*E.center, A*E.generators, E.constraint_A, E.constraint_B, E.index_set);
+        end
+        
+        % intersection (overloads &)
+        % assumes both inputs have same p_norm and are basic 
+        function out = and(E1, E2)
+            c = E1.center;
+            G = [E1.generators zeros(size(E1.generators))];
+            A = [E1.generators -E2.generators];
+            b = E2.center - E1.center;
+            I = {1:E1.order,E1.order+1:E1.order+E2.order};
+            out = ellipsotope(E1.p_norm, c, G, A, b, I);
         end
         
         %% plotting
@@ -154,6 +166,9 @@ classdef ellipsotope < handle
                 % map the vertices using the generator matrix (amazing!)
                 V = (G*V')' ;
                 
+                % shift vertices by center
+                V = V + E.center' ;
+                
                 % plot the ellipsotope
                 if nargin == 1
                     h = patch('faces',F,'vertices',V,...
@@ -164,12 +179,32 @@ classdef ellipsotope < handle
                 end
                 
                 E.plot_handle = h ;
-            % if E is constrained
-            elseif E.is_constrained()
-                % sampling based plotting for now?
-                
+            % otherwise, resort to sampling
             else
-                error('Plotting for non-basic ellipsotopes is not working yet')
+                %error('Plotting for non-basic ellipsotopes is not working yet')
+                
+                % generate hyperplane defined by constraints
+                n_P = 1000;
+                b_samp = [-2,2];
+                N = null(E.constraint_A);
+                null_dim = size(N,2);
+                B = make_grid(repmat(b_samp,1,null_dim),n_P*ones(1,null_dim)) ;
+                B = N*B + linsolve(E.constraint_A,E.constraint_b);
+                
+                % evaluate which points obey the norm
+                for i = 1:length(E.index_set)
+                    N_log = vecnorm(B(E.index_set{i},:),E.p_norm) <= 1 ;
+                    B = B(:,N_log) ;
+                end
+                
+                % get all the points and plot them
+                P = E.center + E.generators*B;
+                if nargin == 1
+                    h = plot_path(P,'r.');
+                else
+                    h = plot_path(P,varargin{:});
+                end
+                E.plot_handle = h ;
             end
         end
     end

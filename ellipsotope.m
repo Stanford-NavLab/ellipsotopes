@@ -5,6 +5,8 @@ classdef ellipsotope < handle
     %
     % Authors: Shreyas Kousik and Adam Dai
     % Created: 10 Feb 2021
+    % Updated: 5 Mar 2021
+    
     properties
         % basic ellipsotope properties
         p_norm = 2 ; % \in 2*N, default is p = 2, zonotope is p = Inf
@@ -116,7 +118,7 @@ classdef ellipsotope < handle
         end
         
         % intersection (overloads &)
-        % assumes both inputs have same p_norm and are basic 
+        % assumes both inputs have same p_norm and are basic
         function out = and(E1, E2)
             c = E1.center;
             G = [E1.generators zeros(size(E1.generators))];
@@ -125,6 +127,13 @@ classdef ellipsotope < handle
             I = {1:E1.order,E1.order+1:E1.order+E2.order};
             out = ellipsotope(E1.p_norm, c, G, A, b, I);
         end
+        
+        % containment
+        %         function out = in(E, p)
+        %             % out = in(E, p)
+        %             %
+        %             % Test if a point p \in \R^n is inside the ellipsotope E
+        %         end
         
         %% plotting
         function plot(E,varargin)
@@ -160,26 +169,33 @@ classdef ellipsotope < handle
                     G = reduce_ellipsotope_generator_matrix(G) ;
                 end
                 
-                % make a circle of points
-                [F,V] = make_circle(1,100) ;
-                
-                % map the vertices using the generator matrix (amazing!)
-                V = (G*V')' ;
-                
-                % shift vertices by center
-                V = V + E.center' ;
-                
-                % plot the ellipsotope
-                if nargin == 1
-                    h = patch('faces',F,'vertices',V,...
-                        'facecolor','b','edgecolor','b',...
-                        'facealpha',0.1,'edgealpha',1) ;
+                if isempty(G)
+                    % the ellipsotope is a point
+                    V = E.center ;
+                    h = plot_path(V,'b.') ;
                 else
-                    h = patch('faces',F,'vertices',V,varargin{:}) ;
+                    % make a circle of points
+                    [F,V] = make_unit_superellipse_2D(E.p_norm,100) ;
+                    
+                    % map the vertices using the generator matrix (amazing!)
+                    V = (G*V')' ;
+                    
+                    % shift vertices by center
+                    V = V + E.center' ;
+                    
+                    % plot the ellipsotope
+                    if nargin == 1
+                        % default colors
+                        h = patch('faces',F,'vertices',V,...
+                            'facecolor','b','edgecolor','b',...
+                            'facealpha',0.1,'edgealpha',1) ;
+                    else
+                        h = patch('faces',F,'vertices',V,varargin{:}) ;
+                    end
                 end
                 
                 E.plot_handle = h ;
-            % otherwise, resort to sampling
+                % otherwise, resort to sampling
             else
                 %error('Plotting for non-basic ellipsotopes is not working yet')
                 

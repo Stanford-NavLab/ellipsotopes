@@ -2,15 +2,14 @@
 % generator matrix (this should always have three columns)
 G = [1 0 2;
      2 1 1] ;
-G = pinv([0.6056   -0.2487 ;
-   -0.2487    0.5434]) ;
+
 %  % constraints
 A = [0 -0.1 0.1] ;
 b = 0 ;
 tol = 1e-2 ;
 
 % norm to consider
-norm_p = 2 ;
+p_norm = 6 ;
 
 % number of points to use for generating the plot
 n_P = 30 ;
@@ -27,7 +26,7 @@ B = B(:,C_log) ;
 % sum(C_log)
 
 % evaluate which points obey the norm
-N_log = vecnorm(B,norm_p) <= 1 ;
+N_log = vecnorm(B,p_norm) <= 1 ;
 B = B(:,N_log) ;
 
 % get all the points
@@ -56,9 +55,9 @@ V_log = V <= 1 ;
 X = X(:,V_log) ;
 K_X = boundary(X') ;
 
-%% map of a unit circle
-[F,V] = make_circle() ;
-V = (G*V')' ;
+% %% map of a unit circle
+% [F,V] = make_circle() ;
+% V = (G*V')' ;
 
 %% plotting
 figure(1) ; clf ; axis equal ; hold on ; grid on ;

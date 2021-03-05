@@ -1,0 +1,18 @@
+%% user parameters
+p = 4 ;
+% r = 0.5 ;
+
+%% automated from here
+% X = make_unit_superellipse_3D(p_norm) ;
+% X = make_superellipse_2D(r,p_norm,200) ;
+
+% make angle vector
+t = [linspace(0,pi/4,100) ;
+
+X = [cos(t).^(2/p) ; sin(t).^(2/p) ] ;
+
+%% plotting=
+figure(1) ; clf ; axis equal ; hold on ; grid on ; % view(3)
+
+plot_path(X,'b.')
+% patch('faces',F,'vertices',V,'facealpha',0.1)

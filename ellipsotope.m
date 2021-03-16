@@ -5,7 +5,7 @@ classdef ellipsotope < handle
     %
     % Authors: Shreyas Kousik and Adam Dai
     % Created: 10 Feb 2021
-    % Updated: 5 Mar 2021
+    % Updated: 15 Mar 2021
     
     properties
         % basic ellipsotope properties
@@ -138,7 +138,7 @@ classdef ellipsotope < handle
         %% plotting
         function plot(E,varargin)
             % plot(E)
-            % plot(E,'projdims',[dim1 dim1], other_input_args...)
+            % plot(E,'projdims',[dim1 dim2], other_input_args...)
             % plot(E,'facecolor',color,'edgecolor',color,'facealpha',...)
             %
             % Plot the ellipsotope if it is 2-D. This creates a patch
@@ -160,68 +160,107 @@ classdef ellipsotope < handle
                 end
             end
             
-            % check if E is basic
-            if E.is_basic()
-                G = E.generators ;
-                
+            % get important properties
+            p = E.p_norm ;
+            c = E.center ;
+            G = E.generators ;
+            d = E.dimension ;
+            
+            % set proj dims if dimension is greater than 3
+            if ~exist('proj_dims','var')
+                if d <= 3
+                    proj_dims = 1:d ;
+                else
+                    proj_dims = 1:3 ;
+                    warning(['Only plotting first ',num2str(d),' dimensions!'])
+                end
+            end
+            G = G(proj_dims,:) ;
+            
+            % check if E is basic, which allows us to reduce the
+            % generator matrix nicely
+            if E.is_basic() && (p == 2)          
                 % check if E is reduced
-                if E.is_reduced()
+                if ~E.is_reduced()
                     G = reduce_ellipsotope_generator_matrix(G) ;
                 end
+            end
+            
+            % generate a bunch of points in the unit hypercube space and
+            % plot the resulting object; we use "B" for "beta" which
+            % we've used in our paper's notation for the ellipsotope
+            % coefficients
+            d_B = size(G,2) ; % dimension of coefficient unit hypercube
+            switch d_B
+                case 2
+                    n_plot = 100 ;
+                    B = make_superellipse_2D(p,1,zeros(2,1),n_plot) ;
+                case 3
+                    n_plot = 1000 ;
+                    B = make_superellipse_3D(p,1,zeros(3,1),n_plot) ;
+                otherwise
+                    % get points on superellipse
+                    n_plot = 10000 ; % we can be smarter than this I guess
+                    B = make_unit_superellipse_ND(p,d_B,n_plot) ;
+            end
+            
+            % check if we need to project the points onto a constraint
+            if E.is_constrained()
+                % get the constraints
+                A = E.constraint_A ;
+                b = E.constraint_b ;
                 
-                if isempty(G)
-                    % the ellipsotope is a point
-                    V = E.center ;
-                    h = plot_path(V,'b.') ;
-                else
-                    % make a circle of points
-                    [F,V] = make_unit_superellipse_2D(E.p_norm,100) ;
-                    
-                    % map the vertices using the generator matrix (amazing!)
-                    V = (G*V')' ;
-                    
-                    % shift vertices by center
-                    V = V + E.center' ;
-                    
-                    % plot the ellipsotope
-                    if nargin == 1
-                        % default colors
-                        h = patch('faces',F,'vertices',V,...
-                            'facecolor','b','edgecolor','b',...
-                            'facealpha',0.1,'edgealpha',1) ;
-                    else
-                        h = patch('faces',F,'vertices',V,varargin{:}) ;
-                    end
-                end
+                % get a basis for the constraint space
+                N = null(A) ;
+                b_offset = pinv(A)*b ;
                 
-                E.plot_handle = h ;
-                % otherwise, resort to sampling
-            else
-                %error('Plotting for non-basic ellipsotopes is not working yet')
+                % project points onto the plane
+                B = pinv(N*N')*(B - b_offset) + b_offset ;
                 
-                % generate hyperplane defined by constraints
-                n_P = 1000;
-                b_samp = [-2,2];
-                N = null(E.constraint_A);
-                null_dim = size(N,2);
-                B = make_grid(repmat(b_samp,1,null_dim),n_P*ones(1,null_dim)) ;
-                B = N*B + linsolve(E.constraint_A,E.constraint_b);
+                % add some more points in the nullspace (shrugs)
+                n_extra = 10000 ;
+                B_extra = 4*rand(size(N,2),n_extra) - 2 ;
+                B = [B, N*B_extra + b_offset] ;
                 
-                % evaluate which points obey the norm
-                for i = 1:length(E.index_set)
-                    N_log = vecnorm(B(E.index_set{i},:),E.p_norm) <= 1 ;
+                % keep the points that obey the norm
+                for idx = 1:length(E.index_set)
+                    N_log = vecnorm(B(E.index_set{idx},:),p) <= 1 ;
                     B = B(:,N_log) ;
                 end
-                
-                % get all the points and plot them
-                P = E.center + E.generators*B;
-                if nargin == 1
-                    h = plot_path(P,'r.');
-                else
-                    h = plot_path(P,varargin{:});
-                end
-                E.plot_handle = h ;
             end
+            
+            % map points to the ellipsotope's proj dims (recall that the
+            % generators have already been projected)
+            try
+                P = G*B + repmat(c,1,size(B,2)) ;
+            catch
+                dbstop in ellipsotope at 233
+            end
+            
+            % get the convex hull of the points
+            ch = convhull(P') ;
+            
+            % set default plot inputs
+            if nargin == 1
+                varargin = {'facecolor','b','edgecolor','b',...
+                    'facealpha',0.1,'edgealpha',1} ;
+            end
+            
+            % plot!
+            switch length(proj_dims)
+                case 1
+                    error('1-D plot is not implemented yet!')
+                case 2
+                    P = P(:,ch) ;
+                    P = points_to_CCW(P) ;
+                    F = [1:size(P,2),1] ;
+                    h = patch('faces',F,'vertices',P',varargin{:}) ;
+                case 3
+                    h = trisurf(ch,P(1,:)',P(2,:)',P(3,:)',varargin{:}) ;
+            end
+            
+            % finish up
+            E.plot_handle = h ;
         end
     end
 end

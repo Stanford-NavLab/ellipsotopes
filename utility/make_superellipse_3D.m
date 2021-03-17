@@ -1,4 +1,4 @@
-function [out_1,out_2] = make_superellipse_3D(p,r,c,n)
+function varargout = make_superellipse_3D(p,r,c,n)
 % E = make_superellipse_3D(p,r,c,n)
 % [F,V] = make_superellipse_3D(p,r,c,n)
 %
@@ -23,7 +23,7 @@ function [out_1,out_2] = make_superellipse_3D(p,r,c,n)
 %
 % Authors: Shreyas Kousik
 % Created: 05 Mar 2021
-% Updated: 15 Mar 2021
+% Updated: 17 Mar 2021
 
     if nargin < 1
         p = 2 ;
@@ -55,18 +55,12 @@ function [out_1,out_2] = make_superellipse_3D(p,r,c,n)
     
     % create output
     if nargout == 1
-        out_1 = E ;
+        varargout = {E} ;
     elseif nargout == 2
-        E_1 = E(1,:) ;
-        E_2 = E(2,:) ;
-        E_3 = E(3,:) ;
-        
-        n_E = sqrt(length(E_1)) ;
-        
-        E_1 = reshape(E_1,n_E,n_E) ;
-        E_2 = reshape(E_2,n_E,n_E) ;
-        E_3 = reshape(E_3,n_E,n_E) ;
-        
-        [out_1,out_2] = surf2patch(E_1,E_2,E_3) ;
+        E_1 = E(1,:)' ;
+        E_2 = E(2,:)' ;
+        E_3 = E(3,:)' ;
+        F = convhull(E_1,E_2,E_3) ;
+        varargout = {F, E'} ;
     end
 end

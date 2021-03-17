@@ -16,7 +16,7 @@
 r = 2 ;
 
 % center
-c = rand(3,1) ;
+c = zeros(3,1) ;
 
 % number of points
 n = 200 ;
@@ -25,22 +25,39 @@ n = 200 ;
 % compute golden angle per http://blog.marmakoide.org/?p=1
 ga = pi*(3 - sqrt(5)) ;
 
+% % create theta angles
+% T = ga * (0:(n-1)) ;
+% 
+% % create z values
+% Z = linspace(1 - (1/n), (1/n) - 1, n) ;
+% 
+% % create radii
+% R = sqrt(1 - Z.^2) ;
+% 
+% % create points at the given cylindrical coordinates
+% S = [R.*cos(T) ;
+%     R.*sin(T) ;
+%     Z] ;
+% 
+% % dilate points by r and shift to c
+% S = r.*S + repmat(c,1,n) ;
+
 % create theta angles
-T = ga * (0:(n-1)) ;
+T = [0,0,ga * (0:(n-3))] ;
 
 % create z values
-Z = linspace(1 - (1/n), (1/n) - 1, n) ;
+Z = [-1,1,linspace(1 - (1/n), (1/n) - 1, n - 2)] ;
 
 % create radii
 R = sqrt(1 - Z.^2) ;
 
 % create points at the given cylindrical coordinates
-P = [R.*cos(T) ;
+S = [R.*cos(T) ;
     R.*sin(T) ;
     Z] ;
 
 % dilate points by r and shift to c
-P = r.*P + repmat(c,1,n) ;
+S = r.*S + repmat(c,1,n) ;
 
 %% test functionized version
 [F,V] = make_sphere(r,c,n) ;
@@ -48,5 +65,5 @@ P = r.*P + repmat(c,1,n) ;
 %% plotting
 figure(1) ; clf ; axis equal ; hold on ; grid on ; view(3) ;
 
-plot_path(P,'b.','markersize',12)
-patch('faces',F,'vertices',V,'facealpha',0.1)
+plot_path(S,'b.','markersize',12)
+patch('faces',F,'vertices',V,'facealpha',0.1,'edgealpha',0.3)

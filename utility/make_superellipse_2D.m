@@ -23,7 +23,7 @@ function [out_1,out_2] = make_superellipse_2D(p,r,c,n)
 %
 % Authors: Shreyas Kousik
 % Created: 05 Mar 2021
-% Updated: 15 Mar 2021
+% Updated: 17 Mar 2021
     
     if nargin < 1
         p = 2 ;
@@ -44,14 +44,9 @@ function [out_1,out_2] = make_superellipse_2D(p,r,c,n)
     % create points using 2-norm
     E = make_circle(1,n) ;
     
-    % if the desired norm is not the 2-norm, then dilate the points using
-    % the given p-norm; here, we also shift the points to c
-    if r ~= 1
-        N_E = vecnorm(E,p) ;
-        E = r.*E./N_E + repmat(c,1,n);
-    else
-        E = r.*E + repmat(c,1,n) ;
-    end
+    % dilate the points using the given p-norm and shift the points to c
+    N_E = vecnorm(E,p) ;
+    E = r.*E./N_E + repmat(c,1,n);
     
     % create output
     if nargout == 1

@@ -9,13 +9,13 @@
 rng(10) ;
 
 % p norm
-p = 8 ;
+p = 10 ;
 
 % center
 c = rand(2,1) ;
 
 % generators
-G = rand(2,12) ;
+G = 2*rand(2,2) - 1 ;
 
 %% automated from here
 % make ellipsotope

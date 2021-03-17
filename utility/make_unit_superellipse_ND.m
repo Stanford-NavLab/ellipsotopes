@@ -12,6 +12,7 @@ function C = make_unit_superellipse_ND(p,d,n)
 %
 % Authors: Shreyas Kousik
 % Created: 15 Mar 2021
+% Updated: 17 Mar 2021
 
     %% set default inputs
     if nargin < 1
@@ -23,7 +24,7 @@ function C = make_unit_superellipse_ND(p,d,n)
     end
 
     if nargin < 3
-        n = 100 ;
+        n = 1000 ;
     end
     
     n_2 = 2^d ;
@@ -32,8 +33,8 @@ function C = make_unit_superellipse_ND(p,d,n)
         % so without things blowing up
         P = make_grid(repmat([-1,1],1,d),repmat(2,1,d)) ;
         
-        % add additional points to fill things in
-        P = [P, 2*rand(2,n_2 - n) - 1] ;
+        % add additional points to fill things in (hopefully)
+        P = [P, 2*rand(d,n - n_2) - 1] ;
     else
         % generate n points
         P = 2.*rand(d,n) - 1 ;

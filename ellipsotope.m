@@ -231,20 +231,14 @@ classdef ellipsotope < handle
             
             % map points to the ellipsotope's proj dims (recall that the
             % generators have already been projected)
-            try
-                P = G*B + repmat(c,1,size(B,2)) ;
-            catch
-                dbstop in ellipsotope at 233
-            end
+            P = G*B + repmat(c,1,size(B,2)) ;
             
             % get the convex hull of the points
             ch = convhull(P') ;
             
             % set default plot inputs
-            if nargin == 1
-                varargin = {'facecolor','b','edgecolor','b',...
-                    'facealpha',0.1,'edgealpha',1} ;
-            end
+            patch_options = [{'facecolor','b','edgecolor','b',...
+                    'facealpha',0.1,'edgealpha',1}, varargin] ;
             
             % plot!
             switch length(proj_dims)
@@ -254,9 +248,9 @@ classdef ellipsotope < handle
                     P = P(:,ch) ;
                     P = points_to_CCW(P) ;
                     F = [1:size(P,2),1] ;
-                    h = patch('faces',F,'vertices',P',varargin{:}) ;
+                    h = patch('faces',F,'vertices',P',patch_options{:}) ;
                 case 3
-                    h = trisurf(ch,P(1,:)',P(2,:)',P(3,:)',varargin{:}) ;
+                    h = trisurf(ch,P(1,:)',P(2,:)',P(3,:)',patch_options{:}) ;
             end
             
             % finish up

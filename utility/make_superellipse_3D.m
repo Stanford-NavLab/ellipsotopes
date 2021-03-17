@@ -44,14 +44,9 @@ function varargout = make_superellipse_3D(p,r,c,n)
     % create points using 2-norm
     E = make_sphere(1,zeros(3,1),n) ;
     
-    % if the desired norm is not the 2-norm, then dilate the points using
-    % the given p-norm; here, we also shift the points to c
-    if r ~= 1
-        N_E = vecnorm(E,p) ;
-        E = r.*E./repmat(N_E,3,1) + repmat(c,1,size(E,2));
-    else
-        E = E + repmat(c,1,size(E,2)) ;
-    end
+    % dilate the points using the given p-norm and shift the points to c
+    N_E = vecnorm(E,p) ;
+    E = r.*E./repmat(N_E,3,1) + repmat(c,1,size(E,2)) ;
     
     % create output
     if nargout == 1

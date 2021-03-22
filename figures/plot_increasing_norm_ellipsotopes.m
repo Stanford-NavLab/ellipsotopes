@@ -3,20 +3,21 @@
 %
 % Authors: Shreyas Kousik
 % Created: 15 Mar 2021
-% Updated: 17 Mar 2021
+% Updated: 22 Mar 2021
 %
 %% user parameters
 % list of norms
 p_list = 2:2:10 ;
 
 % rng seed
-rng(10) ;
+rng(1) ;
 
 % center
 c = rand(2,1) ;
 
 % generators
-G = 2*rand(2,10) - 1 ;
+n_gen = 5 ;
+G = 2*rand(2,n_gen) - 1 ;
 
 %% automated from here
 % list of ellipsotopes
@@ -45,4 +46,4 @@ xlabel('x_1')
 ylabel('x_2')
 
 set(gca,'fontsize',15)
-% save_figure_to_png(h,'ellipsotope_increasing_norm.png') ;
+save_figure_to_png(h,'ellipsotope_increasing_norm.png') ;

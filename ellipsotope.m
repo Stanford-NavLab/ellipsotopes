@@ -114,7 +114,23 @@ classdef ellipsotope < handle
         %% operations
         % linear map (overloads *)
         function out = mtimes(A, E)
-            out = ellipsotope(E.p_norm, A*E.center, A*E.generators, E.constraint_A, E.constraint_B, E.index_set);
+            % basic
+            if is_basic(E)
+                out = ellipsotope(E.p_norm, A*E.center, A*E.generators);
+            % constrained
+            elseif is_constrained(E)
+                % generalized (and constrained)
+                if is_general(E)
+                    out = ellipsotope(E.p_norm, A*E.center, A*E.generators, E.constraint_A, E.constraint_B, E.index_set);
+                % not generalized (and constrained)
+                else
+                    out = ellipsotope(E.p_norm, A*E.center, A*E.generators, E.constraint_A, E.constraint_B);
+                end
+            % not constrained 
+            else
+                % generalized (and not constrained)
+                out = ellipsotope(E.p_norm, A*E.center, A*E.generators, [], [], E.index_set);
+            end
         end
         
         % intersection (overloads &)
@@ -122,10 +138,27 @@ classdef ellipsotope < handle
         function out = and(E1, E2)
             c = E1.center;
             G = [E1.generators zeros(size(E1.generators))];
-            A = [E1.generators -E2.generators];
-            b = E2.center - E1.center;
-            I = {1:E1.order,E1.order+1:E1.order+E2.order};
+            if is_constrained(E)
+                A = [E1.generators -E2.generators];
+                b = E2.center - E1.center;
+            else
+                A = []; b= [];
+            end
+            if is_general(E)
+                I = {1:E1.order,E1.order+1:E1.order+E2.order};
+            else
+                I = [];
+            end
             out = ellipsotope(E1.p_norm, c, G, A, b, I);
+        end
+        
+        % minkowski addition (overloads +)
+        % for basic 
+        function out = plus(E1, E2)
+            c = E1.center + E2.center;
+            G = [E1.generators E2.generators];
+            I = {1:E1.order,E1.order+1:E1.order+E2.order};
+            out = ellipsotope(E1.p_norm, c, G, [], [], I);
         end
         
         % containment

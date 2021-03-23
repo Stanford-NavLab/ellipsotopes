@@ -1,3 +1,12 @@
+%% description
+% This script visualizes our lemma that the intersection of a plane with a
+% 2-norm ball in n dimensions is the affine map of a 2-norm ball in n-1
+% dimensions.
+%
+% Authors: Shreyas Kousik
+% Created: shrug
+% Updated: 22 Mar 2021
+%
 %% user parameters
 % hyperplane in 3-D
 A = [1 1 1] ;

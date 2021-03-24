@@ -1,3 +1,12 @@
+%% description
+% This script tests a simple reachability example using ellipsotopes.
+% An initial ellipsotope is created and propagated through a linear 
+% dynamical system.
+%
+% Authors: Adam Dai
+% Created: 24 Mar 2021
+% Updated: 
+%
 %% user parameters
 
 % initial e-tope

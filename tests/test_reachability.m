@@ -1,27 +1,38 @@
 %% user parameters
-% center
-c = [0; 0];
-% generator matrix 
-G = [1 0 0 0;
-     0 1 0 0] ;
-% %  % constraints
-% A = [1 0 -1  0;
-%      0 1  0 -1] ;
-% b = [1; 0];
-% tol = 1e-2 ;
-% % index set
-% J = {[1,2],[3,4]};
+
+% initial e-tope
+c = [0; 0]; % center
+G = [1 0 2;
+     0 1 -1]; % generator matrix 
+ 
+% system
+A = [1 0.1;
+     0.1 1];
+B = [0.5 0;
+     0 0.5];
+
+% nominal trajectory
+N = 10;
+U = ones(2,N);
 
 % norm to consider
-norm_p = 2 ;
+p = 2 ;
 
-E1 = ellipsotope(norm_p,c,G);
-plot(E);
-axis equal
+x_0 = ellipsotope(p,c,G);
 
- 
 %% automated from here
-% get number of generators
+% reachability
+R = {};
 
+x = x_0;
+for i = 1:N
+    u_nom = U(:,i);
+    u = u_nom;
+    x = A * x + B * u; 
+    R{i} = x;
+end
 
 %% plotting
+for i = 1:N
+   plot(R{i}); 
+end

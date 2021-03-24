@@ -138,27 +138,42 @@ classdef ellipsotope < handle
         function out = and(E1, E2)
             c = E1.center;
             G = [E1.generators zeros(size(E1.generators))];
-            if is_constrained(E)
-                A = [E1.generators -E2.generators];
-                b = E2.center - E1.center;
-            else
-                A = []; b= [];
-            end
-            if is_general(E)
-                I = {1:E1.order,E1.order+1:E1.order+E2.order};
-            else
-                I = [];
-            end
+            A = [E1.generators -E2.generators];
+            b = E2.center - E1.center;
+            I = {1:E1.order,E1.order+1:E1.order+E2.order};
+%             if is_constrained(E1)
+%                 
+%             else
+%                 A = []; b= [];
+%             end
+%             if is_general(E)
+%             else
+%                 I = [];
+%             end
             out = ellipsotope(E1.p_norm, c, G, A, b, I);
         end
         
         % minkowski addition (overloads +)
-        % for basic 
-        function out = plus(E1, E2)
-            c = E1.center + E2.center;
-            G = [E1.generators E2.generators];
-            I = {1:E1.order,E1.order+1:E1.order+E2.order};
-            out = ellipsotope(E1.p_norm, c, G, [], [], I);
+        % for 2 basic ellipsotopes or ellipsotope and vector
+        function out = plus(s1, s2)
+            % determine ellipsotope
+            if isa(s1,'ellipsotope')
+                out = s1;
+                summand = s2;
+            elseif isa(s2,'ellipsotope')
+                out = s2;
+                summand = s1;
+            end
+            
+            % ellipsotope + ellipsotope
+            if isa(summand,'ellipsotope')
+                out.center = out.center + summand.center;
+                out.generators = [out.generators summand.generators];
+                out.index_set = {1:out.order,out.order+1:out.order+summand.order};
+            % ellipsotope + vector
+            elseif isnumeric(summand)
+                out.center = out.center + summand;
+            end
         end
         
         % containment

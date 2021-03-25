@@ -8,7 +8,7 @@
 %
 %% user parameters
 % specify the two ellipsotopes
-E1 = ellipsotope(2,[0;0],eye(2));
+E1 = ellipsotope(2,[0;0],diag([1,2]));
 E2 = ellipsotope(2,[1;0],eye(2));
 
 %% automated from here

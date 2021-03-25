@@ -154,7 +154,7 @@ classdef ellipsotope < handle
         end
         
         % minkowski addition (overloads +)
-        % for 2 basic ellipsotopes or ellipsotope and vector
+        % 
         function out = plus(s1, s2)
             % determine ellipsotope
             if isa(s1,'ellipsotope')
@@ -167,9 +167,19 @@ classdef ellipsotope < handle
             
             % ellipsotope + ellipsotope
             if isa(summand,'ellipsotope')
-                out.center = out.center + summand.center;
-                out.generators = [out.generators summand.generators];
-                out.index_set = {1:out.order,out.order+1:out.order+summand.order};
+                % both basic
+                if is_basic(out) && is_basic(summand)
+                    out.center = out.center + summand.center;
+                    out.generators = [out.generators summand.generators];
+                    out.index_set = {1:out.order,out.order+1:out.order+summand.order};
+                % general case (constrained and generalized)
+                else
+                    out.center = out.center + summand.center;
+                    out.generators = [out.generators summand.generators];
+                    out.index_set = combine_indices(out.index_set, summand.index_set);
+                    out.constraint_A = blkdiag(out.constraint_A, summand.constraint_A);
+                    out.constraint_b = [out.constraint_b; summand.constraint_b];
+                end
             % ellipsotope + vector
             elseif isnumeric(summand)
                 out.center = out.center + summand;

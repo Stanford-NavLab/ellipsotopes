@@ -12,6 +12,9 @@ c = [0;0] ;
 G = [1 2 ; -1 1] ;
 p_norm = 6 ;
 
+% constrained ellipsotope
+
+
 %% automated from here
 % make ellipsotope
 E = ellipsotope(p_norm,c,G) ;

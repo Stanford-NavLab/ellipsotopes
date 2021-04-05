@@ -13,7 +13,7 @@ clear;clc
 p_norm = 2 ;
 
 % index set
-I = {[1,2],[3,4],[5, 6]} ;
+I = {[1,2],[3,4]} ;
 
 % number of points
 n_P = 5000 ;
@@ -43,7 +43,7 @@ for idx_P = 1:n_P
     % for each point (we can vectorize this to make it faster)...
     p_idx = P_orig(:,idx_P) ;
     
-    % pick at random which 
+    % pick at random which
     idx_J_to_enf = rand_int(1,n_I) ;
     
     for idx_I = 1:n_I
@@ -61,7 +61,7 @@ for idx_P = 1:n_P
             end
         end
     end
-
+    
     P_proj(:,idx_P) = p_idx ;
 end
 toc
@@ -73,10 +73,18 @@ if n_dim == 3
     axis equal ; hold on ; view(3) ;
     
     % plot original points
-    plot_path(P_orig,'r.','markersize',2)
-
+    plot_path(P_orig,'r.','markersize',4)
+    
     % plot projected points
-    plot_path(P_proj,'b.','markersize',2)
+    plot_path(P_proj,'b.','markersize',4)
+    
+    % labeling
+    xlabel('x_1') ;
+    ylabel('x_2') ;
+    zlabel('x_3') ;
+    legend('original points','points on boundary')
+    
+    set(gca,'fontsize',15)
 else
     % create a bunch of 2-D subplots
     n_plot = n_dim - 1 ;

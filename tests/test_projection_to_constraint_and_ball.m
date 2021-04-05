@@ -81,7 +81,7 @@ V_H = 2.*[K' ; -K'] + repmat(t',4,1) ;
 
 % plotting
 % create figure
-figure(1) ; clf ; axis equal ; hold on ; grid on ; view(3)
+fh = figure(1) ; clf ; axis equal ; hold on ; grid on ; view(3)
 
 % plot superellipsoid
 h_E = patch('faces',F_E,'vertices',V_E,'facealpha',0.1','edgealpha',0,'facecolor','b') ;
@@ -131,3 +131,5 @@ xlabel('x_1')
 ylabel('x_2')
 zlabel('x_3')
 set(gca,'fontsize',15)
+
+save_figure_to_png(fh,'ellipsotope_proj_to_cons.png')

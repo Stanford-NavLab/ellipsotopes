@@ -9,14 +9,17 @@
 % Udpated: not yet
 clear;clc
 %% user parameters
+% rng seed
+rng(0) ;
+
 % p norm
 p_norm = 2 ;
 
 % index set
-I = {[1,2],[3,4]} ;
+I = {[1,2],[3,4],[5,6],[7,8,9]} ;
 
 % number of points
-n_P = 5000 ;
+n_P = 10000 ;
 
 %% automated from here
 % sanity check the index set
@@ -35,36 +38,32 @@ end
 
 % create a bunch of points in the space
 P_orig = 2*rand(n_dim,n_P) - 1 ;
-P_proj = nan(size(P_orig)) ;
+P_proj = P_orig ;
 
-%% construct points that obey projection
+%% construct points in generalized e'tope ball
 tic
-for idx_P = 1:n_P
-    % for each point (we can vectorize this to make it faster)...
-    p_idx = P_orig(:,idx_P) ;
+
+% make random list of which norm to enforce per point
+idxs_J_to_enf = rand_int(1,n_I,[],[],1,n_P) ;
+
+% iterate through the index list and enforce things on points...
+for idx_J = 1:n_I
+    % get current index from the index set
+    J = I{idx_J} ;
     
-    % pick at random which
-    idx_J_to_enf = rand_int(1,n_I) ;
+    % get the norm of all points for the current index set
+    V = vecnorm(P_proj(J,:),p_norm,1) ;
     
-    for idx_I = 1:n_I
-        J = I{idx_I} ;
-        
-        v = vecnorm(p_idx(J),p_norm) ;
-        
-        if idx_I == idx_J_to_enf
-            % enforce the norm
-            p_idx(J) = p_idx(J)./v ;
-        else
-            % check if the norm needs to be enforced
-            if v > 1
-                p_idx(J) = p_idx(J)./v ;
-            end
-        end
-    end
+    % get all points on which to enforce the norm for this index, which
+    % includes all points for which the norm is violated by being too big
+    idxs_J = (idxs_J_to_enf == idx_J) | (V > 1) ;
     
-    P_proj(:,idx_P) = p_idx ;
+    % enforce the norm
+    P_proj(J,idxs_J) = P_proj(J,idxs_J) ./ repmat(V(idxs_J),length(J),1) ;   
 end
 toc
+
+%% validate that all points obey the norms/indices
 
 %% plotting
 figure(1) ; clf ;

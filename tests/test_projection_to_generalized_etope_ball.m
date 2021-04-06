@@ -6,7 +6,7 @@
 %
 % Authors: Shreyas Kousik
 % Created: 4 Apr 2021
-% Udpated: not yet
+% Udpated: 5 Apr 2021
 clear;clc
 %% user parameters
 % rng seed
@@ -16,51 +16,30 @@ rng(0) ;
 p_norm = 2 ;
 
 % index set
-I = {[1,2],[3,4],[5,6],[7,8,9]} ;
+I = {[1,2],[3,4]} ;
 
 % number of points
-n_P = 10000 ;
+n_P = 5000 ;
 
 %% automated from here
 % sanity check the index set
-n_I = length(I) ;
-D = [] ;
-for idx = 1:length(I)
-    D = [D, I{idx}] ;
-end
-
-% get the dimension
-n_dim = max(D) ;
-
-if length(unique(D)) < length(D) || length(D) < n_dim
-    error('The index set is not valid!')
+[I_chk,n_I,n_dim] = check_index_set_validity(I) ;
+if ~I_chk
+    error(['The index set is not valid! ',...
+        'It should contain each dimension of the hyperball product ',...
+        'exactly once.'])
 end
 
 % create a bunch of points in the space
 P_orig = 2*rand(n_dim,n_P) - 1 ;
-P_proj = P_orig ;
 
 %% construct points in generalized e'tope ball
-tic
-
 % make random list of which norm to enforce per point
 idxs_J_to_enf = rand_int(1,n_I,[],[],1,n_P) ;
 
-% iterate through the index list and enforce things on points...
-for idx_J = 1:n_I
-    % get current index from the index set
-    J = I{idx_J} ;
-    
-    % get the norm of all points for the current index set
-    V = vecnorm(P_proj(J,:),p_norm,1) ;
-    
-    % get all points on which to enforce the norm for this index, which
-    % includes all points for which the norm is violated by being too big
-    idxs_J = (idxs_J_to_enf == idx_J) | (V > 1) ;
-    
-    % enforce the norm
-    P_proj(J,idxs_J) = P_proj(J,idxs_J) ./ repmat(V(idxs_J),length(J),1) ;   
-end
+% project points to surface of product of balls
+tic
+P_proj = project_points_to_ball_product(P_orig,p_norm,I,idxs_J_to_enf) ;
 toc
 
 %% validate that all points obey the norms/indices

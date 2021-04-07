@@ -9,7 +9,7 @@
 %
 % Authors: Shreyas Kousik
 % Created: 5 Apr 2021
-% Updated: --
+% Updated: 6 Ape 2021
 clear;clc
 %% user parameters
 % rng seed
@@ -19,10 +19,10 @@ rng(0) ;
 p_norm = 2 ;
 
 % index set
-I = {[1,2],[3]} ;
+I = {1,[2,3]} ;
 
 % linear constraint defining a plane a points for which Ax = b
-A = [1 -0.5 2] ;
+A = [1 0 2] ;
 b = 0.5 ;
 
 % number of points to project
@@ -57,17 +57,28 @@ F_proj = A*A'*pinv(A'*A) ;
 P_proj = F_proj*(P_orig - t/2) ;
 P_plane = P_orig - P_proj + repmat(t,1,n_P)/2 ;
 
+%% iterate between projections for many points
+% generate initial points
+n_P = 1000 ;
+P = 2*rand(n_A,n_P) - 1 ;
+
+for idx = 1:n_iter
+    % project points to ball
+    P = project_points_to_ball_product(P,p_norm,I,idxs_J_to_enf) ;
+    
+    % project points to plane
+    P = P - (F_proj*(P - t/2)) + t/2;
+end
+
 %% plotting setup
 % create hyperplane
 F_H = [1 2 3 4 1] ;
 V_H = 2.*[K' ; -K'] + repmat(t',4,1) ;
 
 % create ball product for patch
-V_E = 2* rand(3,10000) - 1;
-idxs_J_V_E = rand_int(1,n_I,[],[],1,10000) ;
-V_E = project_points_to_ball_product(V_E,p_norm,I,idxs_J_V_E)' ;
-F_E = convhull(V_E) ;
+[F_E,V_E] = make_ball_product_for_patch(p_norm,I) ;
 
+%% plotting
 % create figure
 fh = figure(1) ; clf ; axis equal ; hold on ; grid on ; view(3)
 
@@ -77,37 +88,10 @@ h_E = patch('faces',F_E,'vertices',V_E,'facealpha',0.1','edgealpha',0,'facecolor
 % plot hyperplane
 h_H = patch('faces',F_H,'vertices',V_H,'facealpha',0.1','edgealpha',0,'facecolor','r') ;
 
-% plot points on plane
-plot_path(P_plane,'k.','markersize',12)
+% plot final points
+h_P = plot_path(P,'.','color','r','markersize',10) ;
 
-%% iterate between projections for many points
-% generate initial points
-n_P = 1000 ;
-P = 2*rand(n_A,n_P) - 1 ;
-h_P_i = plot_path(P,'b.','markersize',1) ;
-
-for idx = 1:n_iter
-    % project points to ball
-    P = project_points_to_ball_product(P,p_norm,I,idxs_J_to_enf) ;
-    
-    % plot
-    col = [idx/n_iter, 0, 1 - (idx/n_iter)] ;
-    plot_path(P,'.','color',col,'markersize',2*idx)
-    
-    % project points to plane
-    P = P - (F_proj*(P - t/2)) + t/2;
-   
-    % plot
-    col = [idx/n_iter, 0, 1 - (idx/n_iter)] ;
-    h_P = plot_path(P,'.','color',col,'markersize',2*idx) ;
-    
-    pause(0.1)
-end
-
-%% plotting cleanup
-legend([h_E,h_H,h_P_i,h_P],...
-    {'ellipsoid','plane',...
-    'initial points','final points'})
+legend([h_E,h_H,h_P],{'ball product','plane','final points'})
 
 xlabel('x_1')
 ylabel('x_2')

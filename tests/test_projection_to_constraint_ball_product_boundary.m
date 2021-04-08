@@ -128,18 +128,16 @@ for idx = 1:n_con
 end
 
 %% plotting
-figure(1) ; clf ; axis equal ; grid on ; hold on ; view(3) ;
+fh = figure(1) ; clf ; axis equal ; grid on ; hold on ; view(3) ;
 
 % plot ball product
-patch('faces',F_E,'vertices',V_E,'facealpha',0.1','edgealpha',0,'facecolor','b') ;
+h_E = patch('faces',F_E,'vertices',V_E,'facealpha',0.1','edgealpha',0,'facecolor','b') ;
 
-% plot t_con
-plot_path(t_con,'b^','markerfacecolor','b')
-% plot_arrow(t_con,t_con + P_dir)
+% % plot t_con
+% h_t = plot_path(t_con,'b^','markerfacecolor','b') ;
 
 % plot points on boundary
-% plot_path(p_test,'rx','markersize',10)
-plot_path(P_out,'b.','markersize',10)
+h_P = plot_path(P_out,'b.','markersize',8) ;
 
 % plot hyperplanes
 for idx = 1:n_con
@@ -149,6 +147,15 @@ for idx = 1:n_con
     
     % create hyperplane
     F_H = [1 2 3 4 1] ;
-    V_H = 3.*[K' ; -K'] + repmat(t',4,1) ;
-    patch('faces',F_H,'vertices',V_H,'facealpha',0.1','edgealpha',0,'facecolor','r') ;
+    V_H = 2.5.*[K' ; -K'] + repmat(t',4,1) ;
+    h_H = patch('faces',F_H,'vertices',V_H,'facealpha',0.1','edgealpha',0,'facecolor','r') ;
 end
+
+% plotting cleanup
+legend([h_E, h_H, h_P],{'ball product','linear subspace','boundary of intersection'})
+xlabel('x_1')
+ylabel('x_2')
+zlabel('x_3')
+set(gca,'fontsize',15) ;
+
+% save_figure_to_png(fh,'ellipsotope_ball_product_int_lin_space_bdry.png')

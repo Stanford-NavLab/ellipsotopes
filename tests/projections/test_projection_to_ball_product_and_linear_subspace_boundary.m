@@ -1,10 +1,10 @@
 %% description
 % This script tests solving for a scalar to push points to the boundary of
-% the intersection of a linear subspace with a ball product.%
+% the intersection of a linear subspace with a ball product.
 %
 % Authors: Shreyas Kousik
 % Created: 6 Apr 2021
-% Updated: 9 Apr 2021 (functionized it!)
+% Updated: 9 Apr 2021 (functionized stuff!)
 
 clear;clc
 %% user parameters
@@ -25,16 +25,16 @@ I = {[1,2],[3]} ;
 % A = [1 1 1 ;
 %     -1 -1 1] ;
 % b = 0.1*ones(2,1) ;
-A = [-1 1 -1] ;
-b = 0.2 ;
-
-% tolerance for point being on boundary
-tol_point_on_bdry = 1e-12 ;
+A = [1 -1 1] ;
+b = 0.1 ;
 
 % plotting projection dimensions
 proj_dims = 1:3 ; 
 
 %% automated from here
+% TO DO: functionize these sanity checks within the ellipsotope.m class as
+% a method
+
 % sanity check the index set
 [I_chk,n_I,n_dim] = check_index_set_validity(I) ;
 if ~I_chk
@@ -53,15 +53,9 @@ if n_dim_con ~= n_dim
         'space of the ellipsotope.'])
 end
 
-
 %% project points to intersection of constraint and ball product
-% get nullspace of constraint
-K_con = null(A) ;
-t_con = A\b ;
-n_null_dim = size(K_con,2) ;
-
-% create some random in the nullspace of the constraint
-P_in = K_con*(2*rand(n_null_dim,n_P) - 1) ;
+% create some random points
+P_in = 2*rand(n_dim,n_P) - 1 ;
 
 start_tic = tic ;
 P_out = project_points_to_ball_product_and_linear_subspace(P_in,p_norm,A,b,I) ;
@@ -94,21 +88,9 @@ h_E = patch('faces',F_E,'vertices',V_E,'facealpha',0.1','edgealpha',0,'facecolor
 h_P = plot_path(P_out(proj_dims,:),'b.','markersize',8) ;
 
 % plot hyperplanes
-if n_dim <= 3
-for idx = 1:n_con
-    % get nullspace info
-    K = K_each{idx} ;
-    t = t_each{idx} ;
-    
-    % get nullspace for the projected dimensions
-    
-    % create hyperplane
-    F_H = [1 2 3 4 1] ;
-    KK = [K' ; -K'] ;
-    V_H = 2.5.*KK + repmat(t',size(KK,1),1) ;
-    h_H = patch('faces',F_H,'vertices',V_H,'facealpha',0.1','edgealpha',0,'facecolor','r') ;
-end
-    legend([h_E,h_H,h_P],{'ball product','linear subspace','boundary of intersection'})
+if n_dim == 3
+    h_H = plot_planes_3D(A,b,2.5) ;
+    legend([h_E,h_H(1),h_P],{'ball product','linear subspace','boundary of intersection'})
 else
     legend([h_E, h_P],{'ball product','boundary of intersection'})
 end

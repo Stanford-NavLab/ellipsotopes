@@ -1,4 +1,4 @@
-function P_out = project_points_to_ball_product_and_linear_subspace(P_in,...
+function [P_out,n_P_out] = project_points_to_ball_product_and_linear_subspace(P_in,...
     p_norm,A,b,I,tol_point_on_bdry)
 % P_out = project_points_to_ball_product_and_linear_subspace(P_in,p_norm,A,b,I)
 % % P_out = project_points_to_ball_product_and_linear_subspace(...,tol)
@@ -35,6 +35,9 @@ n_P = size(P_in,2) ;
 if nargin < 6
     tol_point_on_bdry = 1e-12 ;
 end
+
+% project points to linear subspace
+P_in = project_points_to_linear_subspace(P_in,A,b) ;
 
 % initialize output
 P_out = [] ;
@@ -96,3 +99,6 @@ if ~isempty(A)
 else
     P_out = project_points_to_ball_product(P_in,p_norm,I,idxs_J_to_enf) ;
 end
+
+% this procedure doubles the number of points usually
+n_P_out = size(P_out,2) ;

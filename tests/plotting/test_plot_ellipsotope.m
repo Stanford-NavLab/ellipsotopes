@@ -10,7 +10,7 @@
 %
 % Authors: Shreyas Kousik
 % Created: 9 Apr 2021
-% Updated: nope
+% Updated: 12 Apr 2021
 clear ; clc ;
 %% user parameters
 % rng seed
@@ -54,7 +54,6 @@ P = 2*rand(n_dim,n_P) - 1 ;
 
 % project points to intersection of ball product and linear subspace
 [P,n_P] = project_points_to_ball_product_and_linear_subspace(P,p_norm,A,b,I) ;
-
 
 % map points to workspace
 P = repmat(c,1,n_P) + G*P ;

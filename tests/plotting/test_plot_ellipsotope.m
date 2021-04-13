@@ -19,9 +19,12 @@ rng(0)
 % ellipsotope definition (make is 2-D please)
 p_norm = 2 ;
 c = zeros(2,1) ;
-G = 2*rand(2,4) - 1;
-A = [-1 1 -1 1] ;
-b = 0.5 ;
+G = [eye(2) eye(2)] ;
+A = [] ;
+b = [] ;
+% G = 2*rand(2,4) - 1;
+% A = [-1 1 -1 1] ;
+% b = 0.5 ;
 I = {[1,2],[3,4]} ;
 
 %% automated from here
@@ -37,13 +40,15 @@ if ~I_chk
 end
 
 % get number of constraints
-[n_con,n_dim_con] = size(A) ;
-
-% sanity check the constraints
-if n_dim_con ~= n_dim
-    error(['The constraints defined by (A,b) must have as many columns ',...
-        'as there are dimensions in the index set (i.e., the hyperball ',...
-        'space of the ellipsotope.'])
+if ~isempty(A)
+    [n_con,n_dim_con] = size(A) ;
+    
+    % sanity check the constraints
+    if n_dim_con ~= n_dim
+        error(['The constraints defined by (A,b) must have as many columns ',...
+            'as there are dimensions in the index set (i.e., the hyperball ',...
+            'space of the ellipsotope.'])
+    end
 end
 
 %% plotting setup

@@ -6,9 +6,20 @@ function plot(E,varargin)
 % Plot the ellipsotope if it is 2-D. This creates a patch
 % object, and updates the E.plot_handle property.
 %
+% To plot an ellipsotope, we do the following:
+%   1. generate a bunch of points in the coefficient space
+%   2. push those points to the boundary of the feasible coefficient space
+%   3. send the points through the affine map defined by the ellipsotope's
+%      center and generators
+%   4. plot the convex hull of the mapped points
+%
+% See also: test_plot_ellipsotope.m
+%
 % Authors: Adam Dai and Shreyas Kousik
-% Last Update: 12 Apr 2021
+% Created: in days of yore
+% Updated: 13 Apr 2021
 
+%% prep/sanity check
 % check the dimension
 if E.dimension > 2
     warning(['Plotting not supported for > 2-D ellipsotopes!',...
@@ -29,14 +40,16 @@ end
 p = E.p_norm ;
 c = E.center ;
 G = E.generators ;
+I = E.index_set ;
 d = E.dimension ;
+d_B = size(G,2) ; % dimension of coefficient space
 
-% set proj dims if dimension is greater than 3
+% set proj dims if dimension is greater than 2
 if ~exist('proj_dims','var')
-    if d <= 3
+    if d <= 2
         proj_dims = 1:d ;
     else
-        proj_dims = 1:3 ;
+        proj_dims = 1:2 ;
         warning(['Only plotting first ',num2str(d),' dimensions!'])
     end
 end
@@ -51,11 +64,36 @@ if E.is_basic() && (p == 2)
     end
 end
 
+% set the index set if it is empty
+if isempty(I)
+    I = {1:d_B} ; % constrain ALL the coefficients!
+end
+
+%% plotting setup
+% STEP 1: generate points in coefficient space
+% if the ellipsotope is basic...
+    % switch how we generate points based on the coefficient space
+    % dimension (using make_superllipse_2D, _3D, or _ND)
+    
+% else if...
+    % generate a bunch of random points 
+    
+    % project points to ball and linear subspace boundary (the existing
+    % function will handle index sets and empty linear subspaces properly,
+    % it turns out)
+    
+% STEP 2: map points to ellipsotope workspace
+
+% STEP 3: take convex hull of points in workspace
+
+%% plotting code here
+% now we actually call patch, hehe
+
+%% OLD CODE FROM HERE ON
 % generate a bunch of points in the unit hypercube space and
 % plot the resulting object; we use "B" for "beta" which
 % we've used in our paper's notation for the ellipsotope
 % coefficients
-d_B = size(G,2) ; % dimension of coefficient unit hypercube
 switch d_B
     case 2
         n_plot = 100 ;

@@ -23,7 +23,7 @@ function [P_out,n_P_out] = project_points_to_ball_product_and_linear_subspace(P_
 %
 % Authors: Shreyas Kousik
 % Created: 9 Apr 2021
-% Updated: not yet
+% Updated: 12 Apr 2021
 
 % number of index subsets
 n_I = length(I) ;
@@ -36,13 +36,13 @@ if nargin < 6
     tol_point_on_bdry = 1e-12 ;
 end
 
-% project points to linear subspace
-P_in = project_points_to_linear_subspace(P_in,A,b) ;
-
 % initialize output
 P_out = [] ;
 
 if ~isempty(A)
+    % project points to linear subspace
+    P_in = project_points_to_linear_subspace(P_in,A,b) ;
+    
     % get a feasible point on the constraint set (we assume this exists for
     % now)
     t_con = A\b ;

@@ -18,7 +18,7 @@ classdef ellipsotope < handle
         constraint_A = [] ; % A*beta = b, where beta is the generator coeff
         constraint_b = [] ;
         
-        % generalized ellipsotope
+        % indexed ellipsotope
         index_set = {} ; % e.g., if m = 3, then I = {[1,2],[2,3]}
         
         % complexity

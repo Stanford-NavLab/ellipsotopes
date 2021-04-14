@@ -1,6 +1,6 @@
 %% description
 % This script tests driving points towards the boundary of a ball defined
-% by both the p-norm and the index set of a (generalized) ellipsotope.
+% by both the p-norm and the index set of a (indexed) ellipsotope.
 %
 % See also: test_projection_to_constraint_and_ball.m
 %
@@ -33,7 +33,7 @@ end
 % create a bunch of points in the space
 P_orig = 2*rand(n_dim,n_P) - 1 ;
 
-%% construct points in generalized e'tope ball
+%% construct points in indexed e'tope ball
 % make random list of which norm to enforce per point
 idxs_J_to_enf = rand_int(1,n_I,[],[],1,n_P) ;
 

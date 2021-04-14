@@ -84,13 +84,13 @@ if E.is_basic()
     % dimension (using make_superllipse_2D, _3D, or _ND)
     if d_B == 2
         n_P = 100 ;
-        P = make_superellipse_2D(p,1,zeros(2,1),n_P);
+        P = make_superellipse_2D(n_P,p);
     elseif d_B == 3
         n_P = 1000 ;
-        P = make_superellipse_3D(p,1,zeros(3,1),n_P);
+        P = make_superellipse_3D(n_P,p);
     else
         n_P = 10000 ;
-        P = make_unit_superellipse_ND(p,d_B,n_P);
+        P = make_unit_superellipse_ND(n_P,p,d_B);
     end
 % else if...
 else

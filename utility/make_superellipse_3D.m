@@ -1,6 +1,6 @@
-function varargout = make_superellipse_3D(p,r,c,n)
-% E = make_superellipse_3D(p,r,c,n)
-% [F,V] = make_superellipse_3D(p,r,c,n)
+function varargout = make_superellipse_3D(n,p,r,c)
+% E = make_superellipse_3D(n,p,r,c)
+% [F,V] = make_superellipse_3D(n,p,r,c)
 %
 % Make points on the boundary of the superellipse defined by the equation
 %

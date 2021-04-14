@@ -34,7 +34,7 @@ N_X = vecnorm(X,p) ;
 S = r.*X./N_X ;
 
 %% test functionized version
-[F,V] = make_superellipse_3D(p,r,zeros(3,1),n) ;
+[F,V] = make_superellipse_3D(n,p,r,zeros(3,1)) ;
 
 %% plotting
 figure(1) ; clf ; axis equal ; hold on ; grid on ; view(3)

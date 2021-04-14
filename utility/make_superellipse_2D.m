@@ -1,6 +1,6 @@
-function [out_1,out_2] = make_superellipse_2D(p,r,c,n)
-% E = make_superellipse_2D(p,r,c,n)
-% [F,V] = make_superellipse_2D(p,r,c,n)
+function [out_1,out_2] = make_superellipse_2D(n,p,r,c)
+% E = make_superellipse_2D(n,p,r,c)
+% [F,V] = make_superellipse_2D(n,p,r,c)
 %
 % Make points on the boundary of the superellipse defined by the equation
 %

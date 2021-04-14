@@ -29,7 +29,7 @@ P_C = vecnorm(C,p) ;
 E = r.*C./P_C ;
 
 % test function version
-[F,V] = make_superellipse_2D(p,r,zeros(2,1),n) ;
+[F,V] = make_superellipse_2D(n,p,r,zeros(2,1)) ;
 
 %% plotting
 figure(1) ; clf ; axis equal ; hold on ; grid on ;

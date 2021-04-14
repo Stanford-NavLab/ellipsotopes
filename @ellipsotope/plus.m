@@ -25,7 +25,7 @@ if isa(s1,'ellipsotope')
             I = {1:s1.order,s1.order+1:s1.order+s2.order};
             out = ellipsotope(s1.p_norm,c,G,[],[],I);
             return
-        % general case (constrained and generalized)
+        % general case (constrained and indexed)
         else
             c = s1.center + s2.center;
             G = [s1.generators s2.generators];

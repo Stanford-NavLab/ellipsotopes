@@ -1,11 +1,11 @@
-function C = make_unit_superellipse_ND(p,d,n)
-% C = make_unit_superellipse_ND(p,d,n)
+function C = make_unit_superellipse_ND(n,p,d)
+% C = make_unit_superellipse_ND(n,p,d)
 %
 % Given a d-dimensional unit superellipse defined by the p-norm, return n
 % points on the superellipse.
 %
 % All of the inputs are optional, with defaults:
-%   p = 2, d = 2, n = 100
+%   n = 100, p = 2, d = 2
 %
 % The output is a d-by-n array of random points on the superellipse,
 % sampled roughly uniformly.

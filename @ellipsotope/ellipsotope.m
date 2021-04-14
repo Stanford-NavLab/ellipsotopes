@@ -67,7 +67,7 @@ classdef ellipsotope < handle
             E.dimension = size(G,1) ;
             E.order = size(G,2) ;
             
-            % get the ellipsoid shape matrix
+            % get the ellipsoid shape matrix (TODO: unfinished?)
             if E.is_reduced()
                 
             end

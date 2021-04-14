@@ -24,6 +24,7 @@ function plot(E,varargin)
 if E.dimension > 2
     warning(['Plotting not supported for > 2-D ellipsotopes!',...
         'Plotting a 2-D projection instead'])
+    % TODO: select projection dims for user?
 end
 
 % check for projection dimensions

@@ -1,9 +1,18 @@
-% linear map (overloads *)
 function out = mtimes(A, E)
+% mtimes(A, E)
+% A * E
+%
+% Compute linear mapping of ellipsotope under a matrix.
+% Overloads the * operator for 1 ellipsotope and 1 matrix.
+%
+% Authors: Adam Dai 
+% Created: 1 Mar 2021 
+% Updated: 25 Mar 2021
+
 % basic
 if is_basic(E)
     out = ellipsotope(E.p_norm, A*E.center, A*E.generators);
-    % constrained
+% constrained
 elseif is_constrained(E)
     % generalized (and constrained)
     if is_general(E)

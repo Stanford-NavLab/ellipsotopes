@@ -16,7 +16,7 @@ rng(0) ;
 p_norm = 2 ;
 
 % index set
-I = {[1,2],[3,4]} ;
+I = {[1,2],[3]} ;
 
 % number of points
 n_P = 5000 ;

@@ -1,6 +1,15 @@
-% intersection (overloads &)
-% assumes both inputs have same p_norm and are basic
 function out = and(E1, E2)
+% and(E1, E2)
+% E1 & E2
+%
+% Compute the intersection of 2 ellipsotopes (as a new ellipsotope). 
+% Overloads the & operator for 2 ellipsotopes.
+% Assumes both ellipsotopes have the same p_norm and are basic.
+%
+% Authors: Adam Dai 
+% Created: 1 Mar 2021 
+% Updated: 
+
 c = E1.center;
 G = [E1.generators zeros(size(E1.generators))];
 A = [E1.generators -E2.generators];

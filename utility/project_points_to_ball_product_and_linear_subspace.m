@@ -97,7 +97,7 @@ if ~isempty(A)
         P_out = [P_out, p_test(:,v_test)] ;
     end
 else
-    P_out = project_points_to_ball_product(P_in,p_norm,I,idxs_J_to_enf) ;
+    P_out = project_points_to_ball_product(P_in,p_norm,I) ;
 end
 
 % this procedure doubles the number of points usually

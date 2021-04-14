@@ -12,16 +12,17 @@ function P_out = project_points_to_ball_product(P_in,p_norm,I,idxs_J_to_enf)
 %
 % Authors: Shreyas Kousik
 % Created: 5 Apr 2021
-% Updated: nup
+% Updated: 13 Apr 2021
+
+% sizes of things
+n_I = length(I) ;
+n_P = size(P_in,2) ;
 
 % set default args in
 if nargin < 4
     % make random list of which norm to enforce per point
     idxs_J_to_enf = rand_int(1,n_I,[],[],1,n_P) ;
 end
-
-% number of index subsets
-n_I = length(I) ;
 
 % initialize output
 P_out = P_in ;

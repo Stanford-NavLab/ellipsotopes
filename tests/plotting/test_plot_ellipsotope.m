@@ -19,12 +19,12 @@ rng(0)
 % ellipsotope definition (make is 2-D please)
 p_norm = 2 ;
 c = zeros(2,1) ;
-G = [eye(2) eye(2)] ;
-A = [] ;
-b = [] ;
-% G = 2*rand(2,4) - 1;
-% A = [-1 1 -1 1] ;
-% b = 0.5 ;
+% G = [eye(2) eye(2)] ;
+% A = [] ;
+% b = [] ;
+G = 2*rand(2,4) - 1;
+A = [-1 1 -1 1] ;
+b = 0.5 ;
 I = {[1,2],[3,4]} ;
 
 %% automated from here

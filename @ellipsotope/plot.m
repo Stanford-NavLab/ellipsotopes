@@ -24,7 +24,6 @@ function plot(E,varargin)
 if E.dimension > 2
     warning(['Plotting not supported for > 2-D ellipsotopes!',...
         'Plotting a 2-D projection instead'])
-    % TODO: select projection dims for user?
 end
 
 % check for projection dimensions
@@ -41,6 +40,8 @@ end
 p = E.p_norm ;
 c = E.center ;
 G = E.generators ;
+A = E.constraint_A ; 
+b = E.constraint_b ; 
 I = E.index_set ;
 d = E.dimension ;
 d_B = size(G,2) ; % dimension of coefficient space
@@ -55,6 +56,7 @@ if ~exist('proj_dims','var')
     end
 end
 G = G(proj_dims,:) ;
+% TODO: fix projection (adjust center and d to match projection dims)
 
 % check if E is basic, which allows us to reduce the
 % generator matrix nicely
@@ -70,93 +72,119 @@ if isempty(I)
     I = {1:d_B} ; % constrain ALL the coefficients!
 end
 
+%% plotting parameters
+
+n_P = 1000; % number of sample points in the coefficient space to use
+
 %% plotting setup
 % STEP 1: generate points in coefficient space
 % if the ellipsotope is basic...
+if E.is_basic()
     % switch how we generate points based on the coefficient space
     % dimension (using make_superllipse_2D, _3D, or _ND)
-    
+    if d_B == 2
+        n_P = 100 ;
+        P = make_superellipse_2D(p,1,zeros(2,1),n_P);
+    elseif d_B == 3
+        n_P = 1000 ;
+        P = make_superellipse_3D(p,1,zeros(3,1),n_P);
+    else
+        n_P = 10000 ;
+        P = make_unit_superellipse_ND(p,d_B,n_P);
+    end
 % else if...
+else
     % generate a bunch of random points 
-    
+    n_P = 1000;
+    P = 2*rand(d_B,n_P) - 1 ;
     % project points to ball and linear subspace boundary (the existing
     % function will handle index sets and empty linear subspaces properly,
     % it turns out)
+    [P,n_P] = project_points_to_ball_product_and_linear_subspace(P,p,A,b,I) ;
+end
     
 % STEP 2: map points to ellipsotope workspace
+P = repmat(c,1,n_P) + G*P ;
 
 % STEP 3: take convex hull of points in workspace
+K = convhull(P') ;
+
+P = P(:,K) ;
+P = points_to_CCW(P) ;
+n_P = size(P,2) ;
 
 %% plotting code here
 % now we actually call patch, hehe
+patch('faces',[1:n_P,1],'vertices',P','facecolor','b','facealpha',0.1,...
+    'linewidth',1.5,'edgecolor','b',varargin{:})
 
 %% OLD CODE FROM HERE ON
 % generate a bunch of points in the unit hypercube space and
 % plot the resulting object; we use "B" for "beta" which
 % we've used in our paper's notation for the ellipsotope
 % coefficients
-switch d_B
-    case 2
-        n_plot = 100 ;
-        B = make_superellipse_2D(p,1,zeros(2,1),n_plot) ;
-    case 3
-        n_plot = 1000 ;
-        B = make_superellipse_3D(p,1,zeros(3,1),n_plot) ;
-    otherwise
-        % get points on superellipse
-        n_plot = 10000 ; % we can be smarter than this I guess
-        B = make_unit_superellipse_ND(p,d_B,n_plot) ;
-end
-
-% check if we need to project the points onto a constraint
-if E.is_constrained()
-    % get the constraints
-    A = E.constraint_A ;
-    b = E.constraint_b ;
-    
-    % get a basis for the constraint space
-    N = null(A) ;
-    b_offset = pinv(A)*b ;
-    
-    % project points onto the plane
-    B = pinv(N*N')*(B - b_offset) + b_offset ;
-    
-    % add some more points in the nullspace (shrugs)
-    n_extra = 10000 ;
-    B_extra = 4*rand(size(N,2),n_extra) - 2 ;
-    B = [B, N*B_extra + b_offset] ;
-    
-    % keep the points that obey the norm
-    for idx = 1:length(E.index_set)
-        N_log = vecnorm(B(E.index_set{idx},:),p) <= 1 ;
-        B = B(:,N_log) ;
-    end
-end
-
-% map points to the ellipsotope's proj dims (recall that the
-% generators have already been projected)
-P = G*B + repmat(c,1,size(B,2)) ;
-
-% get the convex hull of the points
-ch = convhull(P') ;
-
-% set default plot inputs
-patch_options = [{'facecolor','b','edgecolor','b',...
-    'facealpha',0.1,'edgealpha',1}, varargin] ;
-
-% plot!
-switch length(proj_dims)
-    case 1
-        error('1-D plot is not implemented yet!')
-    case 2
-        P = P(:,ch) ;
-        P = points_to_CCW(P) ;
-        F = [1:size(P,2),1] ;
-        h = patch('faces',F,'vertices',P',patch_options{:}) ;
-    case 3
-        h = trisurf(ch,P(1,:)',P(2,:)',P(3,:)',patch_options{:}) ;
-end
-
-% finish up
-E.plot_handle = h ;
+% switch d_B
+%     case 2
+%         n_plot = 100 ;
+%         B = make_superellipse_2D(p,1,zeros(2,1),n_plot) ;
+%     case 3
+%         n_plot = 1000 ;
+%         B = make_superellipse_3D(p,1,zeros(3,1),n_plot) ;
+%     otherwise
+%         % get points on superellipse
+%         n_plot = 10000 ; % we can be smarter than this I guess
+%         B = make_unit_superellipse_ND(p,d_B,n_plot) ;
+% end
+% 
+% % check if we need to project the points onto a constraint
+% if E.is_constrained()
+%     % get the constraints
+%     A = E.constraint_A ;
+%     b = E.constraint_b ;
+%     
+%     % get a basis for the constraint space
+%     N = null(A) ;
+%     b_offset = pinv(A)*b ;
+%     
+%     % project points onto the plane
+%     B = pinv(N*N')*(B - b_offset) + b_offset ;
+%     
+%     % add some more points in the nullspace (shrugs)
+%     n_extra = 10000 ;
+%     B_extra = 4*rand(size(N,2),n_extra) - 2 ;
+%     B = [B, N*B_extra + b_offset] ;
+%     
+%     % keep the points that obey the norm
+%     for idx = 1:length(E.index_set)
+%         N_log = vecnorm(B(E.index_set{idx},:),p) <= 1 ;
+%         B = B(:,N_log) ;
+%     end
+% end
+% 
+% % map points to the ellipsotope's proj dims (recall that the
+% % generators have already been projected)
+% P = G*B + repmat(c,1,size(B,2)) ;
+% 
+% % get the convex hull of the points
+% ch = convhull(P') ;
+% 
+% % set default plot inputs
+% patch_options = [{'facecolor','b','edgecolor','b',...
+%     'facealpha',0.1,'edgealpha',1}, varargin] ;
+% 
+% % plot!
+% switch length(proj_dims)
+%     case 1
+%         error('1-D plot is not implemented yet!')
+%     case 2
+%         P = P(:,ch) ;
+%         P = points_to_CCW(P) ;
+%         F = [1:size(P,2),1] ;
+%         h = patch('faces',F,'vertices',P',patch_options{:}) ;
+%     case 3
+%         h = trisurf(ch,P(1,:)',P(2,:)',P(3,:)',patch_options{:}) ;
+% end
+% 
+% % finish up
+% E.plot_handle = h ;
 end

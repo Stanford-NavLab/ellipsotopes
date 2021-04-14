@@ -7,7 +7,7 @@ function P_out = project_points_to_ball_product(P_in,p_norm,I,idxs_J_to_enf)
 % idx_J_to_enf picks which multiindex in the index set to enforce for each
 % point; it is created at random if not provided.
 %
-% See also: test_projection_to_generalized_etope_ball,
+% See also: test_projection_to_ball_product,
 %           project_points_to_ball_product_and_linear_subspace
 %
 % Authors: Shreyas Kousik

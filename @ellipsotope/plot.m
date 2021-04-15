@@ -20,21 +20,6 @@ function plot(E,varargin)
 % Updated: 13 Apr 2021
 
 %% prep/sanity check
-% check the dimension
-if E.dimension > 3
-    warning(['Plotting not supported for > 3-D ellipsotopes!',...
-        'Plotting a 2-D projection instead'])
-end
-
-% check for projection dimensions
-if nargin > 1 && strcmpi(varargin{1},'projdims')
-    proj_dims = varargin{2} ;
-    
-    % clean up varargin
-    if length(varargin) > 2
-        varargin = varargin(3,:) ;
-    end
-end
 
 % get important properties
 p = E.p_norm ;
@@ -46,21 +31,36 @@ I = E.index_set ;
 d = E.dimension ;
 d_B = size(G,2) ; % dimension of coefficient space
 
-% set proj dims if dimension is greater than 2
-% if ~exist('proj_dims','var')
-%     if d <= 3
-%         proj_dims = 1:d ;
-%     else
-%         proj_dims = 1:2 ;
-%         warning(['Only plotting first ',num2str(d),' dimensions!'])
-%     end
-% end
-% G = G(proj_dims,:) ;
-% TODO: fix projection (adjust center and d to match projection dims)
+% check for projection dimensions
+if nargin > 1 && strcmpi(varargin{1},'proj_dims')
+    proj_dims = varargin{2} ;
+    
+    % remove from varargin
+    if nargin > 3
+        varargin = varargin{3:end} ;
+    else
+        varargin = {} ;
+    end
+else
+    % default to [1 2] projection
+    proj_dims = 1:d ;
+end
+
+% check the dimension
+if d > 3 && ~exist('proj_dims','var')
+    warning(['Plotting not supported for > 3-D ellipsotopes!',...
+        'Plotting a 2-D projection instead'])
+    % default to [1 2] projection
+    proj_dims = 1:2 ;
+end
+
+% apply projection
+c = c(proj_dims) ;
+G = G(proj_dims,:) ;
 
 % check if E is basic, which allows us to reduce the
 % generator matrix nicely
-% if E.is_basic() && (p == 2)
+% if E.is_basic() && (p == 2) && size(G,1) <= size(G,2)
 %     % check if E is reduced
 %     if ~E.is_reduced()
 %         G = reduce_ellipsotope_generator_matrix(G) ;
@@ -113,7 +113,7 @@ K = convhull(P') ;
 patch_options = [{'facecolor','b','linewidth',1.5,'edgecolor','b',...
     'facealpha',0.1,'edgealpha',0.5}, varargin{:}] ;
 
-switch d
+switch length(proj_dims)
     case 1
         error('1-D plot is not implemented yet!')
     % 2D

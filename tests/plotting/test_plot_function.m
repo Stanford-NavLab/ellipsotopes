@@ -85,6 +85,21 @@ A = [-1 1 -1 0.5];
 b = 0.5;
 I = {[1,2],[3 4]};
 
-figure(); axis equal; grid on; shading flat
+figure(); axis equal; grid on; 
 E = ellipsotope(p,c,G,A,b,I);
-plot(E, 'facealpha', 1); shading interp; title('General 3D 2-ellipsotope');
+plot(E,'facealpha',1); shading interp; title('General 3D 2-ellipsotope');
+
+%% x-y projection of 3D 2-ellipsotope
+p = 2;
+c = zeros(3,1);
+G = [1 0 0 0.5;
+     0 1 0 0;
+     0 0 1 0.5];
+A = [-1 1 -1 0.5];
+b = 0.5;
+I = {[1,2],[3 4]};
+
+figure(); axis equal; grid on; 
+E = ellipsotope(p,c,G,A,b,I);
+%E = ellipsotope(p,c,G);
+plot(E,'proj_dims',[1 2]); title('x-y projection of 2-ellipsotope');

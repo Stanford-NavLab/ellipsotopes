@@ -85,6 +85,8 @@ if flag_save_figures_to_png
     save_figure_to_png(fh,'plot_ex_random_ellipsotope.png')
 end
 
+%% TO DO ellipsotope-halfplane intersection
+
 %% basic 2D 3-ellipsotope
 p = 3;
 c = zeros(2,1);
@@ -94,6 +96,9 @@ fh = figure(); axis equal; grid on
 E = ellipsotope(p,c,G);
 plot(E); title('Basic 2D 3-ellipsotope');
 set(gca,'fontsize',15)
+if flag_save_figures_to_png
+    save_figure_to_png(fh,'plot_ex_basic_2D_3_ellipsotope.png')
+end
 
 %% basic 3D 2-ellipsotope
 p = 2;

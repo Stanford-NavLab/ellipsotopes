@@ -4,7 +4,7 @@
 %
 % Authors: Shreyas Kousik
 % Created: 13 Apr 2021
-% Updated: nuuu
+% Updated: 15 Apr 2021
 clear ; clc ;
 %% user parameters
 % rng seed
@@ -19,8 +19,11 @@ b = [] ;
 I = {1:2} ;
 
 % halfplane {x | h*x <= f}
-h = [1 0] ;
+h = rand(1,2) ;
 f = 0.3 ;
+
+% whether or not to save flag
+flag_save_figure_to_png = true ;
 
 %% automated from here
 % get sizes of things
@@ -35,7 +38,14 @@ b_S = [b ; f - h*c - d] ;
 I_S = [I, {n_gen + 1}] ;
 
 %% plotting
-figure(1) ; clf ; axis equal ; grid on ; hold on ;
+fh = figure(1) ; clf ; axis equal ; grid on ; hold on ;
 
 plot_ellipsotope_utility(p_norm,c,G,A,b,I)
 plot_ellipsotope_utility(p_norm,c,G_S,A_S,b_S,I_S)
+
+title('4-ellipsotope halfplane intersection')
+set(gca,'fontsize',15)
+
+if flag_save_figure_to_png
+    save_figure_to_png(fh,'ellipsotope_halfplane_intersection.png')
+end

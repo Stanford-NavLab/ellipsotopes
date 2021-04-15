@@ -21,8 +21,8 @@ function plot(E,varargin)
 
 %% prep/sanity check
 % check the dimension
-if E.dimension > 2
-    warning(['Plotting not supported for > 2-D ellipsotopes!',...
+if E.dimension > 3
+    warning(['Plotting not supported for > 3-D ellipsotopes!',...
         'Plotting a 2-D projection instead'])
 end
 
@@ -47,25 +47,25 @@ d = E.dimension ;
 d_B = size(G,2) ; % dimension of coefficient space
 
 % set proj dims if dimension is greater than 2
-if ~exist('proj_dims','var')
-    if d <= 2
-        proj_dims = 1:d ;
-    else
-        proj_dims = 1:2 ;
-        warning(['Only plotting first ',num2str(d),' dimensions!'])
-    end
-end
-G = G(proj_dims,:) ;
+% if ~exist('proj_dims','var')
+%     if d <= 3
+%         proj_dims = 1:d ;
+%     else
+%         proj_dims = 1:2 ;
+%         warning(['Only plotting first ',num2str(d),' dimensions!'])
+%     end
+% end
+% G = G(proj_dims,:) ;
 % TODO: fix projection (adjust center and d to match projection dims)
 
 % check if E is basic, which allows us to reduce the
 % generator matrix nicely
-if E.is_basic() && (p == 2)
-    % check if E is reduced
-    if ~E.is_reduced()
-        G = reduce_ellipsotope_generator_matrix(G) ;
-    end
-end
+% if E.is_basic() && (p == 2)
+%     % check if E is reduced
+%     if ~E.is_reduced()
+%         G = reduce_ellipsotope_generator_matrix(G) ;
+%     end
+% end
 
 % set the index set if it is empty
 if isempty(I)
@@ -109,14 +109,24 @@ P = repmat(c,1,n_P) + G*P ;
 % STEP 3: take convex hull of points in workspace
 K = convhull(P') ;
 
-P = P(:,K) ;
-P = points_to_CCW(P) ;
-n_P = size(P,2) ;
-
 %% plotting code here
-% now we actually call patch, hehe
-patch('faces',[1:n_P,1],'vertices',P','facecolor','b','facealpha',0.1,...
-    'linewidth',1.5,'edgecolor','b',varargin{:})
+patch_options = [{'facecolor','b','linewidth',1.5,'edgecolor','b',...
+    'facealpha',0.1,'edgealpha',0.5}, varargin{:}] ;
+
+switch d
+    case 1
+        error('1-D plot is not implemented yet!')
+    % 2D
+    case 2
+        P = P(:,K) ;
+        P = points_to_CCW(P) ;
+        n_P = size(P,2) ;
+        h = patch('faces',[1:n_P,1],'vertices',P',patch_options{:}) ;
+    % 3D 
+    case 3
+        h = trisurf(K,P(1,:)',P(2,:)',P(3,:)',patch_options{:}) ;
+
+E.plot_handle = h ;
 
 %% OLD CODE FROM HERE ON
 % generate a bunch of points in the unit hypercube space and

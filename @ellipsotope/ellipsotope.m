@@ -42,7 +42,7 @@ classdef ellipsotope < handle
             % To create a constrained ellipsotope, use
             %   E = ellipsotope(p,c,G,A,b)
             %
-            % To create a general ellipsotope, use
+            % To create an indexed ellipsotope, use
             %   E = ellipsotope(p,c,G,[],[],I)
             % where I is a set of indices
             %

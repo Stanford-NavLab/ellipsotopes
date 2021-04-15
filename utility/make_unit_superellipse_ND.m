@@ -1,4 +1,4 @@
-function C = make_unit_superellipse_ND(n,p,d)
+function C = make_unit_superellipse_ND(varargin)
 % C = make_unit_superellipse_ND(n,p,d)
 %
 % Given a d-dimensional unit superellipse defined by the p-norm, return n
@@ -15,16 +15,19 @@ function C = make_unit_superellipse_ND(n,p,d)
 % Updated: 17 Mar 2021
 
     %% set default inputs
-    if nargin < 1
-        p = 2 ;
+    % defaults 
+    n = 100; p = 2; d = 2;
+
+    if nargin > 0
+        n = varargin{1} ;
     end
 
-    if nargin < 2
-        d = 2 ;
+    if nargin > 1
+        p = varargin{2} ;
     end
-
-    if nargin < 3
-        n = 1000 ;
+    
+    if nargin > 2
+        d = varargin{3} ;
     end
     
     n_2 = 2^d ;

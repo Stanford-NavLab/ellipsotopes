@@ -1,4 +1,4 @@
-function [out_1,out_2] = make_superellipse_2D(n,p,r,c)
+function [out_1,out_2] = make_superellipse_2D(varargin)
 % E = make_superellipse_2D(n,p,r,c)
 % [F,V] = make_superellipse_2D(n,p,r,c)
 %
@@ -25,20 +25,23 @@ function [out_1,out_2] = make_superellipse_2D(n,p,r,c)
 % Created: 05 Mar 2021
 % Updated: 17 Mar 2021
     
-    if nargin < 1
-        p = 2 ;
+    % defaults 
+    n = 100; p = 2; r = 1; c = zeros(2,1);
+    
+    if nargin > 0
+        n = varargin{1} ;
     end
 
-    if nargin < 2
-        r = 1 ;
+    if nargin > 1
+        p = varargin{2} ;
     end
     
-    if nargin < 3
-        c = zeros(2,1) ;
+    if nargin > 2
+        r = varargin{3} ;
     end
 
-    if nargin < 4
-        n = 100 ;
+    if nargin > 3
+        c = varargin{4} ;
     end
     
     % create points using 2-norm

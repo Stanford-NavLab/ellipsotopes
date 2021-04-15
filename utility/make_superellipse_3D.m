@@ -1,4 +1,4 @@
-function varargout = make_superellipse_3D(n,p,r,c)
+function varargout = make_superellipse_3D(varargin)
 % E = make_superellipse_3D(n,p,r,c)
 % [F,V] = make_superellipse_3D(n,p,r,c)
 %
@@ -24,21 +24,24 @@ function varargout = make_superellipse_3D(n,p,r,c)
 % Authors: Shreyas Kousik
 % Created: 05 Mar 2021
 % Updated: 17 Mar 2021
+    
+    % defaults 
+    n = 100; p = 2; r = 1; c = zeros(3,1);
 
-    if nargin < 1
-        p = 2 ;
+    if nargin > 0
+        n = varargin{1} ;
     end
 
-    if nargin < 2
-        r = 1 ;
+    if nargin > 1
+        p = varargin{2} ;
     end
     
-    if nargin < 3
-        c = zeros(3,1) ;
+    if nargin > 2
+        r = varargin{3} ;
     end
 
-    if nargin < 4
-        n = 100 ;
+    if nargin > 3
+        c = varargin{4} ;
     end
     
     % create points using 2-norm

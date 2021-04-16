@@ -11,7 +11,7 @@ clear ; clc ;
 rng(0)
 
 % set to true to save figures
-flag_save_figures_to_png = true ;
+flag_save_figures_to_png = false ;
 
 %% basic 2D 2-ellipsotope
 p = 2;

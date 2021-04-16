@@ -2,15 +2,12 @@
 % This script tests plotting a (generalized, constrained) ellipsotope
 % (without using the superclass!)
 %
-% TO DO:
-%   - put plotting code into ellipsotope.m
-%   - validate plotting code using the point containment lemma
-%
-% See also: test_projection_to_constraint_ball_product_boundary.m
+% See also: test_projection_to_constraint_ball_product_boundary.m,
+%           test_plot_method.m
 %
 % Authors: Shreyas Kousik
 % Created: 9 Apr 2021
-% Updated: 12 Apr 2021
+% Updated: 16 Apr 2021
 clear ; clc ;
 %% user parameters
 % rng seed
@@ -19,12 +16,12 @@ rng(0)
 % ellipsotope definition (make is 2-D please)
 p_norm = 2 ;
 c = zeros(2,1) ;
-% G = [eye(2) eye(2)] ;
-% A = [] ;
-% b = [] ;
-G = 2*rand(2,4) - 1;
-A = [-1 1 -1 1] ;
-b = 0.5 ;
+G = [eye(2) eye(2)] ;
+A = [] ;
+b = [] ;
+% G = 2*rand(2,4) - 1;
+% A = [-1 1 -1 1] ;
+% b = 0.5 ;
 I = {[1,2],[3,4]} ;
 
 %% automated from here
@@ -54,11 +51,12 @@ end
 %% plotting setup
 tic
 % create a bunch of points in the ball space
-n_P = 1000 ;
+n_P = 2000 ;
 P = 2*rand(n_dim,n_P) - 1 ;
 
 % project points to intersection of ball product and linear subspace
 [P,n_P] = project_points_to_ball_product_and_linear_subspace(P,p_norm,A,b,I) ;
+n_P ;
 
 % map points to workspace
 P = repmat(c,1,n_P) + G*P ;

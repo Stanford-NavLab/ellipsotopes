@@ -29,12 +29,15 @@ q2 = size(A2,1); m2 = size(A2,2);
 % create convex hull ellipsotope
 c_CH = 0.5*(c1+c2);
 G_CH = [G1, G2, 0.5*(c1-c2), zeros(n,2*(m1+m2))];
+
 A_31 = [eye(m1); -eye(m1); zeros(m2,m1); zeros(m2,m1)];
 A_32 = [zeros(m1,m2); zeros(m1,m2); eye(m2); -eye(m2)];
 A_30 = [-0.5*ones(2*m1,1); 0.5*ones(2*m2,1)];
-A_CH = [A1, zeros(q1,m2), -b1/2, zeros(q1,2*(m1+m2));
-        zeros(q2,m1), A2, b2/2, zeros(q1,2*(m1+m2));
-        A_31, A_32, A_30, eye(2*(m1+m2))];
+
+A_CH = [A1,           zeros(q1,m2), -b1/2, zeros(q1,2*(m1+m2));
+        zeros(q2,m1), A2,            b2/2, zeros(q1,2*(m1+m2));
+        A_31,         A_32,          A_30, eye(2*(m1+m2))];
+    
 b_CH = [b1/2; b2/2; -ones(2*(m1+m2),1)];
 I_CH = {1:m1, m1+1:m1+m2, m1+m2+1:3*(m1+m2)+1};
 

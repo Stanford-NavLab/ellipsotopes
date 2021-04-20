@@ -5,9 +5,9 @@
 E1 = ellipsotope(2,[0;0],eye(2));
 E2 = ellipsotope(2,[1;0],eye(2));
 
-%E_sum = E1 + E2;
+E_sum = E1 + E2;
 %E_sum = ellipsotope(2,[1;0],[diag([2,1]) diag([1,2])]);
-E_sum = ellipsotope(2,[1;0],[eye(2) eye(2)]);
+%E_sum = ellipsotope(2,[1;0],[eye(2) eye(2)]);
 
 figure(1) ; clf ; axis equal ; hold on ; grid on ;
 

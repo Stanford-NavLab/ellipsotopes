@@ -72,10 +72,6 @@ if isempty(I)
     I = {1:d_B} ; % constrain ALL the coefficients!
 end
 
-%% plotting parameters
-
-n_P = 1000; % number of sample points in the coefficient space to use
-
 %% plotting setup
 % STEP 1: generate points in coefficient space
 % if the ellipsotope is basic...
@@ -83,7 +79,7 @@ if E.is_basic()
     % switch how we generate points based on the coefficient space
     % dimension (using make_superllipse_2D, _3D, or _ND)
     if d_B == 2
-        n_P = 100 ;
+        n_P = 1000 ;
         P = make_superellipse_2D(n_P,p);
     elseif d_B == 3
         n_P = 1000 ;
@@ -95,14 +91,19 @@ if E.is_basic()
 % else if...
 else
     % generate a bunch of random points 
-    n_P = 1000;
+    n_P = 10000;
     P = 2*rand(d_B,n_P) - 1 ;
     % project points to ball and linear subspace boundary (the existing
     % function will handle index sets and empty linear subspaces properly,
     % it turns out)
     [P,n_P] = project_points_to_ball_product_and_linear_subspace(P,p,A,b,I) ;
 end
-    
+
+% check emptiness
+if isempty(P)
+    error('Ellipsotope to plot is empty!')
+end
+
 % STEP 2: map points to ellipsotope workspace
 P = repmat(c,1,n_P) + G*P ;
 

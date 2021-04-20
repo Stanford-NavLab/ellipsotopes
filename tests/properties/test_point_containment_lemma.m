@@ -22,7 +22,7 @@ b = [] ;
 I = {1:2,3,4} ;
 
 % whether or not to time it
-flag_time_check = false ;
+flag_time_check = true ;
 
 %% automated from here
 % get sizes of things

@@ -53,7 +53,6 @@ disp('minmax optimal cost:')
 disp(f_val_minmax)
 
 %% max of mins
-   
 % initial guess
 x_0 = pinv(A_eq)*b_eq ;
 

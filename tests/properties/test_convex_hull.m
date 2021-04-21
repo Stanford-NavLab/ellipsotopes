@@ -55,9 +55,13 @@ A_CH = [A_1,            zeros(q_1,m_2), -b_1/2, zeros(q_1,2*(m_1+m_2));
 
 b_CH = [b_1/2; b_2/2; -0.5*ones(2*(m_1+m_2),1)] ;
 
-J_extra = (m_1 + m_2 + 1):(3*(m_1 + m_2) + 1) ;
+% J_extra = (m_1 + m_2 + 1):(3*(m_1 + m_2) + 1) ;
+% I_extra = num2cell(J_extra) ;
+% I_CH = [{1:m_1, m_1+1:m_1+m_2}, I_extra] ;
+m_3 = m_1 + m_2 ;
+J_extra = (m_3 + 2):(3*m_3 + 1) ;
 I_extra = num2cell(J_extra) ;
-I_CH = [{1:m_1, m_1+1:m_1+m_2}, I_extra] ;
+I_CH = [{1:m_1}, {m_1+1:m_1+m_2}, {m_3+1}, {(1:m_1) + m_3 + 1}, {(m_1+1:m_1+m_2) + m_3 + 1}] ;
 
 %% replicate with constrained zonotopes
 CZ_1 = conZonotope(c_1,G_1,A_1,b_1) ;

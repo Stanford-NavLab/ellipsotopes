@@ -90,7 +90,7 @@ function plot(E,varargin)
     % else if...
     else
         % generate a bunch of random points 
-        n_P = 10000;
+        n_P = 100000;
         P = 2*rand(d_B,n_P) - 1 ;
         % project points to ball and linear subspace boundary (the existing
         % function will handle index sets and empty linear subspaces properly,

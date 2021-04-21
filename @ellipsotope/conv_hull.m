@@ -1,4 +1,4 @@
-function E_out = convhull(E_1,E_2)
+function E_out = conv_hull(E_1,E_2)
 % E = convhull(E_1,E_2)
 %
 % Compute the convex hull of two ellipsotopes
@@ -16,6 +16,7 @@ if p_1 ~= p_2
     error(['We do not yet support operations on ellipsotopes with ',...
         'different p-norms!'])
 end
+p = p_1;
 
 % retrieve sizes of things
 n = size(c_1,1);
@@ -43,6 +44,8 @@ b_CH = [b_1/2; b_2/2; -0.5*ones(2*(m_1+m_2),1)] ;
 m_3 = m_1 + m_2 ;
 J_extra = (m_3 + 2):(3*m_3 + 1) ;
 I_extra = num2cell(J_extra) ;
-I_CH = [I_1, I_2 + m_1, {m_3+1}, {(1:m_1) + m_3 + 1}, {(m_1+1:m_1+m_2) + m_3 + 1}] ;
+%I_CH = [I_1, I_2 + m_1, {m_3+1}, {(1:m_1) + m_3 + 1}, {(m_1+1:m_1+m_2) + m_3 + 1}] ;
+I_CH = [{1:m_1},{m_1+1:m_3},{m_3+1},I_extra];
 
 % create output
+E_out = ellipsotope(p,c_CH,G_CH,A_CH,b_CH,I_CH);

@@ -10,7 +10,7 @@ clear ; clc
 rng(0)
 
 % ellipsotopes
-% p_norm = 2;
+p_norm = 2;
 % c_1 = zeros(2,1);
 % G_1 = 2*rand(2,4) - 1;
 % A_1 = [1 0 -1 0; 0 1 0 -1];
@@ -53,8 +53,11 @@ A_CH = [A_1,            zeros(q_1,m_2), -b_1/2, zeros(q_1,2*(m_1+m_2));
         zeros(q_2,m_1), A_2,             b_2/2, zeros(q_1,2*(m_1+m_2));
         A_31,           A_32,            A_30,  eye(2*(m_1+m_2))];
 
-b_CH = [b_1/2; b_2/2; -ones(2*(m_1+m_2),1)];
-I_CH = {1:m_1, m_1+1:m_1+m_2, m_1+m_2+1:3*(m_1+m_2)+1} ;
+b_CH = [b_1/2; b_2/2; -0.5*ones(2*(m_1+m_2),1)] ;
+
+J_extra = (m_1 + m_2 + 1):(3*(m_1 + m_2) + 1) ;
+I_extra = num2cell(J_extra) ;
+I_CH = [{1:m_1, m_1+1:m_1+m_2}, I_extra] ;
 
 %% replicate with constrained zonotopes
 CZ_1 = conZonotope(c_1,G_1,A_1,b_1) ;
@@ -62,18 +65,18 @@ CZ_2 = conZonotope(c_2,G_2,A_2,b_2) ;
 CZ_CH = conZonotope(c_CH,G_CH,A_CH,b_CH) ;
 
 %% plotting
-% figure(1); clf; axis equal; hold on; grid on;
-%
-% % plot etopes
-% E1 = ellipsotope(p_norm,c_1,G_1,A_1,b_1);
-% E2 = ellipsotope(p_norm,c_2,G_2,A_2,b_2);
-% E_CH = ellipsotope(p_norm,c_CH,G_CH,A_CH,b_CH,I_CH);
-% plot(E1); plot(E2); plot(E_CH);
+figure(1); clf; axis equal; hold on; grid on;
 
-figure(1) ; clf ; axis equal ; hold on ; grid on ;
-plot_zonotope({c_1,G_1,A_1,b_1})
-plot_zonotope({c_2,G_2,A_2,b_2})
-plot_zonotope({c_CH,G_CH,A_CH,b_CH},'facecolor','r','edgecolor','r')
+% plot etopes
+E1 = ellipsotope(p_norm,c_1,G_1,A_1,b_1);
+E2 = ellipsotope(p_norm,c_2,G_2,A_2,b_2);
+E_CH = ellipsotope(p_norm,c_CH,G_CH,A_CH,b_CH,I_CH);
+plot(E1); plot(E2); plot(E_CH);
+
+% figure(1) ; clf ; axis equal ; hold on ; grid on ;
+% plot_zonotope({c_1,G_1,A_1,b_1})
+% plot_zonotope({c_2,G_2,A_2,b_2})
+% plot_zonotope({c_CH,G_CH,A_CH,b_CH},'facecolor','r','edgecolor','r')
 
 %% helper functions
 function h = plot_zonotope(zono_spec,varargin)

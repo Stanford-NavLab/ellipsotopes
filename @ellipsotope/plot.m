@@ -105,25 +105,46 @@ function plot(E,varargin)
         % STEP 2: map points to ellipsotope workspace
         P = repmat(c,1,n_P) + G*P ;
         
+        % make sure P only contains unique points
+        P = unique(P','rows')' ;
+        
         % STEP 3: take convex hull of points in workspace
-        K = convhull(P') ;
+        if size(P,2) > 1
+            K = convhull(P') ;
+        else
+            K = 1 ;
+        end
+        
+        n_K = length(K) ;
         
         %% plotting code here
-        patch_options = [{'facecolor','b','linewidth',1.5,'edgecolor','b',...
-            'facealpha',0.1,'edgealpha',0.5}, varargin{:}] ;
+        if n_K > 1
+            plot_options = [{'facecolor','b','linewidth',1.5,'edgecolor','b',...
+                'facealpha',0.1,'edgealpha',0.5}, varargin{:}] ;
+        else
+            plot_options = [{'b.','markersize',10}, varargin{:}] ;
+        end
         
         switch length(proj_dims)
             case 1
                 error('1-D plot is not implemented yet!')
-                % 2D
             case 2
                 P = P(:,K) ;
                 P = points_to_CCW(P) ;
                 n_P = size(P,2) ;
-                h = patch('faces',[1:n_P,1],'vertices',P',patch_options{:}) ;
-                % 3D
+                if n_K > 1
+                    h = patch('faces',[1:n_P,1],'vertices',P',plot_options{:}) ;
+                else
+                    h = plot(P(1),P(2),plot_options{:}) ;
+                end
+                
+                E.plot_handle = h ;
             case 3
-                h = trisurf(K,P(1,:)',P(2,:)',P(3,:)',patch_options{:}) ;
+                if n_K > 1
+                    h = trisurf(K,P(1,:)',P(2,:)',P(3,:)',plot_options{:}) ;
+                else
+                    h = plot(P(1),P(2),P(3),'b.','markersize',10) ;
+                end
                 
                 E.plot_handle = h ;
         end

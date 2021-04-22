@@ -10,19 +10,40 @@ function out = and(E1, E2)
 % Created: 1 Mar 2021 
 % Updated: 
 
-c = E1.center;
-G = [E1.generators zeros(size(E1.generators))];
-A = [E1.generators -E2.generators];
-b = E2.center - E1.center;
-I = {1:E1.order,E1.order+1:E1.order+E2.order};
-%             if is_constrained(E1)
-%
-%             else
-%                 A = []; b= [];
-%             end
-%             if is_general(E)
-%             else
-%                 I = [];
-%             end
-out = ellipsotope(E1.p_norm, c, G, A, b, I);
+% extract properties
+[p1,c1,G1,A1,b1,I1] = E1.get_properties;
+[p2,c2,G2,A2,b2,I2] = E2.get_properties;
+m1 = E1.order; m2 = E2.order;
+n1 = size(c1,1); n2 = size(c2,1);
+
+% sanity check
+if n1 ~= n2
+    error('Ellipsotopes to interesect are of different dimension')
+end
+n = n1;
+if p1 ~= p2
+    error(['We do not yet support operations on ellipsotopes with ',...
+        'different p-norms!'])
+end
+p = p1;
+
+c = c1;
+G = [G1 zeros(size(G2))];
+
+% both basic
+if E1.is_basic() && E2.is_basic()
+    A = [G1 -G2];
+    b = c2 - c1;
+    I = {1:m1,m1+1:m1+m2};
+% both constrained
+else
+    A = [A1                   zeros(size(A1,1),m2);
+         zeros(size(A2,1),m1) A2;
+         G1                  -G2];
+    b = [b1; b2; c2 - c1];
+    I = combine_indices(I1, I2);
+end
+
+out = ellipsotope(p,c,G,A,b,I);
+
 end

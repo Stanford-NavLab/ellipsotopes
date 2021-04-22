@@ -49,3 +49,5 @@ I_CH = [{1:m_1},{m_1+1:m_3},{m_3+1},I_extra];
 
 % create output
 E_out = ellipsotope(p,c_CH,G_CH,A_CH,b_CH,I_CH);
+
+end

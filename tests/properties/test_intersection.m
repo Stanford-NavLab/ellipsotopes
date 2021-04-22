@@ -8,7 +8,7 @@
 %
 %% user parameters
 % specify the two ellipsotopes
-E1 = ellipsotope(2,[0;0],diag([1,2]),[],[],{1:2});
+% E1 = ellipsotope(2,[0;0],diag([1,2]));
 % E2 = ellipsotope(2,[1;0],eye(2));
 
 p = 2 ;
@@ -17,6 +17,10 @@ G = 2*rand(2,4) - 1;
 A = [-1 1 -1 1] ;
 b = 0.5 ;
 I = {[1,2],[3,4]} ;
+E1 = ellipsotope(p,c,G,A,b,I);
+
+c = ones(2,1);
+G = 2*rand(2,4) - 1;
 E2 = ellipsotope(p,c,G,A,b,I);
 
 %% automated from here

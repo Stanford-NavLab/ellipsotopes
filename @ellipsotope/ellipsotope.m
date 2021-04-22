@@ -67,6 +67,11 @@ classdef ellipsotope < handle
             E.dimension = size(G,1) ;
             E.order = size(G,2) ;
             
+            % if index set is empty, initialize with default index set
+            if isempty(E.index_set)
+                E.index_set = {1:E.order};
+            end
+            
             % get the ellipsoid shape matrix (TODO: unfinished?)
             if E.is_reduced()
                 

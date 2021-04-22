@@ -35,7 +35,7 @@ if E1.is_basic() && E2.is_basic()
     A = [G1 -G2];
     b = c2 - c1;
     I = {1:m1,m1+1:m1+m2};
-% both constrained
+% general case
 else
     A = [A1                   zeros(size(A1,1),m2);
          zeros(size(A2,1),m1) A2;

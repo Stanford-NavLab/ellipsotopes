@@ -3,7 +3,7 @@
 %
 % Authors: Adam Dai (and Shreyas sneakin in here too)
 % Created: 19 Apr 2021
-% Updated: 20 Apr 2021
+% Updated: 22 Apr 2021
 clear ; clc
 %% user parameters
 % rng seed
@@ -35,7 +35,7 @@ b_2 = [] ;
 E1 = ellipsotope(p_norm,c_1,G_1,A_1,b_1);
 E2 = ellipsotope(p_norm,c_2,G_2,A_2,b_2);
 
-E_CH = conv_hull(E1,E2);
+E_CH = convhull(E1,E2);
 
 %% plotting
 figure(1); clf; axis equal; hold on; grid on;

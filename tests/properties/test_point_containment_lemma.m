@@ -3,7 +3,7 @@
 %
 % Authors: Shreyas Kousik
 % Created: 15 Apr 2021
-% Updated: 16 Apr 2021
+% Updated: 26 Apr 2021
 clear ; clc
 %% user parameters
 % rng seed
@@ -25,10 +25,6 @@ I = {1:2,3,4} ;
 flag_time_check = true ;
 
 %% automated from here
-% get sizes of things
-n_gen = size(G,2) ;
-n_con = size(A,1) ;
-
 % compute point containtment constraint matrices
 A_eq = [G ; A] ;
 b_eq = [p_test - c ; b] ;
@@ -78,6 +74,9 @@ function [c,gc] = point_cointainment_cost(x,p_norm,I)
         x_vals(idx) = sum(x(I{idx}).^p_norm) ;
     end
 
+%     f = @(J) sum(x(J).^p_norm) ;
+%     x_vals = cellfun(f,I) ;
+    
     % compute cost
     [c,c_idx] = max(x_vals) ;
 

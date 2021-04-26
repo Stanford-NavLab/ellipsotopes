@@ -3,7 +3,7 @@
 %
 % Authors: Adam Dai (and Shreyas sneakin in here too)
 % Created: 19 Apr 2021
-% Updated: 22 Apr 2021
+% Updated: 26 Apr 2021
 clear ; clc
 %% user parameters
 % rng seed
@@ -41,51 +41,27 @@ E_CH = convhull(E1,E2);
 figure(1); clf; axis equal; hold on; grid on;
 
 % plot etopes
-plot(E1); plot(E2); plot(E_CH);
+plot(E1);
+plot(E2);
+plot(E_CH);
+% plot_path(X(:,in_log),'r.')
 
-% %% replicate with constrained zonotopes
-% CZ_1 = conZonotope(c_1,G_1,A_1,b_1) ;
-% CZ_2 = conZonotope(c_2,G_2,A_2,b_2) ;
-% CZ_CH = conZonotope(c_CH,G_CH,A_CH,b_CH) ;
+%% testing if points are in/out of E_CH
+% make grid of points
+% n_X_1 = 50 ;
+% n_X_2 = 25 ;
+% X = make_grid_2D(3.*[-1,1,-1,1],n_X_1,n_X_2) ;
+% n_X = size(X,2) ;
+% in_log = false(1,n_X) ;
 % 
-% % figure(1) ; clf ; axis equal ; hold on ; grid on ;
-% % plot_zonotope({c_1,G_1,A_1,b_1})
-% % plot_zonotope({c_2,G_2,A_2,b_2})
-% % plot_zonotope({c_CH,G_CH,A_CH,b_CH},'facecolor','r','edgecolor','r')
-% 
-% %% helper functions
-% function h = plot_zonotope(zono_spec,varargin)
-%     % make zonotope with CORA
-%     [c,G,A,b] = get_zono_params_from_spec(zono_spec) ;
-%     Z = conZonotope(c,G,A,b) ;    
+% % for each point, test if it is inside the etope
+% tic
+% parfor idx_x = 1:n_X
+%     x = X(:,idx_x) ;
+%     chk = contains(E_CH,x) ;
 %     
-%     % get vertices
-%     V = vertices(Z) ;
-%     
-%     if isempty(V)
-%         warning('Input zonotope is empty!')
-%     end
-%     
-%     % get faces
-%     F = 1:size(V,2) ;
-%     
-%     % plot with default input argz
-%     h = patch('faces',F,'vertices',V','facealpha',0.1,'facecolor','b','edgecolor','b',...
-%         varargin{:}) ;
-%     
-%     if nargout < 1
-%         clear h ;
-%     end
+%     if chk
+%         in_log(idx_x) = true ;
+%     end    
 % end
-% 
-% function [c,G,A,b] = get_zono_params_from_spec(zono_spec)
-%     c = zono_spec{1} ;
-%     G = zono_spec{2} ;
-%     if length(zono_spec) > 2
-%         A = zono_spec{3} ;
-%         b = zono_spec{4} ;
-%     else
-%         A = [] ;
-%         b = [] ;
-%     end
-% end
+% toc

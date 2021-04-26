@@ -3,9 +3,9 @@ function E_out = convhull(E_1,E_2)
 %
 % Compute the convex hull of two ellipsotopes
 %
-% Authors: Shreyas Kousik
+% Authors: Adam Dai and Shreyas Kousik
 % Created: 21 Apr 2021
-% Updated: nah
+% Updated: 26 Apr 2021 (fiddling with output index set)
 
 % extract properties
 [p_1,c_1,G_1,A_1,b_1,I_1] = E_1.get_properties ;
@@ -44,9 +44,10 @@ b_CH = [b_1/2; b_2/2; -0.5*ones(2*(m_1+m_2),1)] ;
 m_3 = m_1 + m_2 ;
 J_extra = (m_3 + 2):(3*m_3 + 1) ;
 I_extra = num2cell(J_extra) ;
-I_2 = shift_index_set(I_2,m_1) ;
-%I_CH = [I_1, I_2 + m_1, {m_3+1}, {(1:m_1) + m_3 + 1}, {(m_1+1:m_1+m_2) + m_3 + 1}] ;
-I_CH = [I_1,I_2,{m_3+1},I_extra];
+% I_2 = shift_index_set(I_2,m_1) ;
+% I_CH = [I_1,I_2,{m_3+1},{J_extra}] ; % doesn't work
+% I_CH = [I_1, I_2, {m_3+1}, {(1:m_1) + m_3 + 1}, {(m_1+1:m_1+m_2) + m_3 + 1}] ; % doesn't work
+I_CH = [I_1,I_2,{m_3+1},I_extra] ;
 
 % create output
 E_out = ellipsotope(p,c_CH,G_CH,A_CH,b_CH,I_CH);

@@ -17,7 +17,7 @@ function h_E = plot(E,varargin)
 %
 % Authors: Adam Dai and Shreyas Kousik
 % Created: in days of yore
-% Updated: 27 Apr 2021 (changed default choice of n_P for plot)
+% Updated: 27 Apr 2021 (updated emptiness warning message)
 
     %% prep/sanity check
     % get important properties
@@ -100,7 +100,7 @@ function h_E = plot(E,varargin)
     
     % check emptiness
     if isempty(P)
-        warning('Ellipsotope to plot is empty!')
+        warning('Ellipsotope to plot might be empty!')
     else
         % STEP 2: map points to ellipsotope workspace
         P = repmat(c,1,n_P) + G*P ;

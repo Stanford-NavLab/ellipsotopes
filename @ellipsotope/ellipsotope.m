@@ -5,7 +5,7 @@ classdef ellipsotope < handle
     %
     % Authors: Shreyas Kousik and Adam Dai
     % Created: 10 Feb 2021
-    % Updated: 15 Mar 2021
+    % Updated: 27 Apr 2021
     
     properties
         % basic ellipsotope properties

@@ -1,4 +1,4 @@
-function plot(E,varargin)
+function h_E = plot(E,varargin)
 % plot(E)
 % plot(E,'projdims',[dim1 dim2], other_input_args...)
 % plot(E,'facecolor',color,'edgecolor',color,'facealpha',...)
@@ -17,7 +17,7 @@ function plot(E,varargin)
 %
 % Authors: Adam Dai and Shreyas Kousik
 % Created: in days of yore
-% Updated: 20 Apr 2021 (minor cleanup)
+% Updated: 27 Apr 2021 (changed default choice of n_P for plot)
 
     %% prep/sanity check
     % get important properties
@@ -90,7 +90,7 @@ function plot(E,varargin)
     % else if...
     else
         % generate a bunch of random points 
-        n_P = 100000;
+        n_P = min(10^size(G,2),10^5) ;
         P = 2*rand(d_B,n_P) - 1 ;
         % project points to ball and linear subspace boundary (the existing
         % function will handle index sets and empty linear subspaces properly,
@@ -148,5 +148,9 @@ function plot(E,varargin)
                 
                 E.plot_handle = h ;
         end
+    end
+    
+    if nargout > 0
+        h_E = h ;
     end
 end

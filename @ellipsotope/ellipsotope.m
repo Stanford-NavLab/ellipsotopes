@@ -60,6 +60,9 @@ classdef ellipsotope < handle
             end
             
             if nargin > 5
+                if ~check_index_set_validity(I,G)
+                    error('The index set is invalid!')
+                end
                 E.index_set = I ;
             end
             

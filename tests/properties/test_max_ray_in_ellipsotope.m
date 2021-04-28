@@ -8,27 +8,30 @@
 %
 % Authors: Shreyas Kousik
 % Created 27 Apr 2021
-% Updated: nope
+% Updated: 28 Apr 2021 ;
 clear ; clc
 %% user parameters
 % rng seed
 rng(0) ;
 
-% ellipsotope
+% ellipsotope properties
 p_norm = 2 ;
-c = rand(2,1) ;
-G = 2*rand(2,6) - 1;
-A = rand(1,6) ;
-b = rand(1) ;
-I = {1,2,3:6} ;
-
-% line direction
-g = 2*rand(2,1) - 1 ;
+n_gen = 6 ;
 
 % number of lines to test
-n_g_test = 100 ;
+n_g_test = 200 ;
 
 %% automated from here
+% make random properties
+c = rand(2,1) ;
+G = 2*rand(2,n_gen) - 1;
+A = rand(1,n_gen) ;
+b = rand(1) ;
+I = make_random_index_set(n_gen) ;
+
+% initial line direction
+g = 2*rand(2,1) - 1 ;
+
 % etope
 E = ellipsotope(p_norm,c,G,A,b,I) ;
 
@@ -47,11 +50,10 @@ A_eq = [zeros(n_con,1), A ;
         -g, G] ;
 b_eq = [b ; zeros(n_dim,1)] ;
 
-% set up options
+% set up optimization options
 options = optimoptions('fmincon','Display','off',...
-    'CheckGradients',true,...
     'SpecifyObjectiveGradient',true,...
-    'SpecifyConstraintGradient',false) ;
+    'SpecifyConstraintGradient',true) ;
 
 % call fmincon
 [x_opt,f_val] = fmincon(cost,x_0,[],[],A_eq,b_eq,[],[],cons,options) ;
@@ -79,29 +81,30 @@ for g_idx = 1:n_g_test
             -g, G] ;
     b_eq = [b ; zeros(n_dim,1)] ;
     
-    % set up options
-    options = optimoptions('fmincon','Display','off') ;
-    
     % call fmincon
     [x_opt,f_val] = fmincon(cost,x_0,[],[],A_eq,b_eq,[],[],cons,options) ;
     lm_all(g_idx+1) = x_opt(1) ;
 end
 t_bdry = toc(t_bdry) ;
 
-disp(['Time elapsed computing boundary: ',num2str(t_bdry,'%0.2f'),' s'])
-
-%% plotting setup
 % construct the boundary
 B = repmat(c,1,n_g_test+1) + g_all.*lm_all ;
+
+disp(['Time elapsed computing boundary: ',num2str(t_bdry,'%0.2f'),' s'])
 
 %% plotting
 figure(1) ; clf ; axis equal ; hold on ; grid on ;
 
-% plot etope
-t_plot_regular = tic ;
-h_E = plot(E) ;
-t_plot_regular = toc(t_plot_regular) ;
-disp(['Time elapsed with regular plot: ',num2str(t_plot_regular,'%0.2f'),' s'])
+% plot etope beneath everything else
+disp('Plotting ellipsotope using points in coefficient space')
+if n_gen <= 6
+    t_plot_regular = tic ;
+    h_E = plot(E) ;
+    t_plot_regular = toc(t_plot_regular) ;
+    disp(['Time elapsed with regular plot: ',num2str(t_plot_regular,'%0.2f'),' s'])
+else
+    h_E = [] ;
+end
 
 % plot ray
 plot_path([c, c+lm*g],'r-')
@@ -109,13 +112,17 @@ h_c = plot(c(1),c(2),'ro','markerfacecolor','r') ;
 h_arrow = quiver(c(1),c(2),g(1),g(2),'linewidth',1.5,'color','r','maxheadsize',0.5) ;
 
 % plot boundary
+disp('Plotting ellipsotope with ray tracing boundary')
 h_bdry = plot_path(B,'r-','linewidth',1.5) ;
 
 % labeling and stuff
 xlabel('x_1')
 ylabel('x_2')
-legend([h_c, h_E, h_arrow, h_bdry],...
-    {'center','ellipsotope','ray','boundary'})
+if ~isempty(h_E)
+    legend([h_c, h_E, h_arrow, h_bdry],{'center','ellipsotope','ray','boundary'})
+else
+    legend([h_c, h_arrow, h_bdry],{'center','ray','boundary'})
+end
 set_plot_fontsize(15) ;
 
 %% helper function

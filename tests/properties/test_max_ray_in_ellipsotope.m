@@ -125,7 +125,7 @@ else
 end
 set_plot_fontsize(15) ;
 
-%% helper function
+%% helper functions
 function [c,gc] = ray_cost(x)
     c = -x(1) ;
     gc = [-1, zeros(1,length(x)-1)] ;

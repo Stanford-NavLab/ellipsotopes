@@ -51,6 +51,7 @@ if flag_time_check
     avg_time = timeit(@() fmincon(cost,x_0,[],[],A_eq,b_eq,[],[],[],options)) ;
     disp(['It takes ',num2str(avg_time,'%0.4f'),' s to compute the point containment.'])
 end
+
 %% plotting
 figure(1) ; clf ; axis equal ; hold on ; grid on ;
 

@@ -1,10 +1,9 @@
 %% description
-% This script builds a custom-built solver for checking if an ellipsotope
-% is empty.
+% This script builds a solver for checking if an ellipsotope is empty.
 %
 % Authors: Shreyas Kousik
 % Created: 27 Apr 2021
-% Updated: nah
+% Updated: 28 Apr 2021
 clear ; clc ;
 
 %% user parameters

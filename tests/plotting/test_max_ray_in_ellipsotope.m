@@ -93,7 +93,7 @@ B = repmat(c,1,n_g_test+1) + g_all.*lm_all ;
 disp(['Time elapsed computing boundary: ',num2str(t_bdry,'%0.2f'),' s'])
 
 %% plotting
-figure(1) ; clf ; axis equal ; hold on ; grid on ;
+fh = figure(1) ; clf ; axis equal ; hold on ; grid on ;
 
 % plot etope beneath everything else
 disp('Plotting ellipsotope using points in coefficient space')
@@ -124,6 +124,8 @@ else
     legend([h_c, h_arrow, h_bdry],{'center','ray','boundary'})
 end
 set_plot_fontsize(15) ;
+
+save_figure_to_png(fh,'example_etope_ray_tracing_bdry.png')
 
 %% helper functions
 function [c,gc] = ray_cost(x)

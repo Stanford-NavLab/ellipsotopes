@@ -7,14 +7,20 @@ function h_E = plot_ray_tracing_2D(E,n_g_test,varargin)
 %
 % Authors: Shreyas Kousik
 % Created: 28 Apr 2021
-% Updated: nup
+% Updated: 4 May 2021 (fixed issue with unconstrained etopes)
 
     %% setup
+    % set default args in
+    if nargin < 2
+        n_g_test = 100 ;
+        varargin = {} ;
+    end
+    
     % get etoproperties
     [p_norm,c,G,A,b,I] = E.get_properties() ;
     
     % get sizes of things
-    n_dim = size(G) ;
+    [n_dim,n_gen] = size(G) ;
     n_con = size(A,1) ;
 
     % sanity check
@@ -34,7 +40,11 @@ function h_E = plot_ray_tracing_2D(E,n_g_test,varargin)
     lm_all = nan(1,n_g_test) ;
     
     % initial guess
-    x_opt = [1 ; pinv(A)*b ] ;
+    if ~isempty(A)
+        x_opt = [1 ; pinv(A)*b ] ;
+    else
+        x_opt = [1 ; zeros(n_dim,1)] ;
+    end
     
     % set up optimization options
     options = optimoptions('fmincon','Display','off',...
@@ -51,6 +61,7 @@ function h_E = plot_ray_tracing_2D(E,n_g_test,varargin)
         x_0 = x_opt ; % initial guess from previous solution
         cost = @(x) ray_cost(x) ;
         cons = @(x) ray_nonlcon(x,p_norm,I) ;
+
         A_eq = [zeros(n_con,1), A ;
                 -g, G] ;
         b_eq = [b ; zeros(2,1)] ;

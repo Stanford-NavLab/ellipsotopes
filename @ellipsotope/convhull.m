@@ -36,7 +36,7 @@ A_32 = [zeros(2*m_1,m_2) ; eye(m_2); -eye(m_2)];
 A_30 = [-0.5*ones(2*m_1,1); 0.5*ones(2*m_2,1)];
 
 A_CH = [A_1,            zeros(q_1,m_2), -b_1/2, zeros(q_1,2*(m_1+m_2));
-        zeros(q_2,m_1), A_2,             b_2/2, zeros(q_1,2*(m_1+m_2));
+        zeros(q_2,m_1), A_2,             b_2/2, zeros(q_2,2*(m_1+m_2));
         A_31,           A_32,            A_30,  eye(2*(m_1+m_2))];
 
 b_CH = [b_1/2; b_2/2; -0.5*ones(2*(m_1+m_2),1)] ;
@@ -44,10 +44,18 @@ b_CH = [b_1/2; b_2/2; -0.5*ones(2*(m_1+m_2),1)] ;
 m_3 = m_1 + m_2 ;
 J_extra = (m_3 + 2):(3*m_3 + 1) ;
 I_extra = num2cell(J_extra) ;
-% I_2 = shift_index_set(I_2,m_1) ;
+
+% I_11 = I_1 ;
+% I_12 = shift_index_set(I_1,max(cell2mat(I_11))) ;
+% I_21 = shift_index_set(I_2,max(cell2mat(I_12))) ;
+% I_22 = shift_index_set(I_2,max(cell2mat(I_21))) ;
+% 
+% I_extra = shift_index_set([I_11,I_12,I_21,I_22],m_3+1) ;
+
+I_2_shifted = shift_index_set(I_2,m_1) ;
 % I_CH = [I_1,I_2,{m_3+1},{J_extra}] ; % doesn't work
 % I_CH = [I_1, I_2, {m_3+1}, {(1:m_1) + m_3 + 1}, {(m_1+1:m_1+m_2) + m_3 + 1}] ; % doesn't work
-I_CH = [I_1,I_2,{m_3+1},I_extra] ;
+I_CH = [I_1,I_2_shifted,{m_3+1},I_extra] ;
 
 % create output
 E_out = ellipsotope(p,c_CH,G_CH,A_CH,b_CH,I_CH);

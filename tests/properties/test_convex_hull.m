@@ -3,31 +3,22 @@
 %
 % Authors: Adam Dai (and Shreyas sneakin in here too)
 % Created: 19 Apr 2021
-% Updated: 26 Apr 2021
+% Updated: 4 May 2021 (updated plotting to use ray tracing)
 clear ; clc
 %% user parameters
 % rng seed
 rng(0)
 
 % ellipsotopes
-p_norm = 2;
-% c_1 = zeros(2,1);
-% G_1 = 2*rand(2,4) - 1;
-% A_1 = [1 0 -1 0; 0 1 0 -1];
-% b_1 = [1; 0];
-% 
-% c_2 = zeros(2,1);
-% G_2 = 2*rand(2,4) - 1;
-% A_2 = [1 0 -1 0; 0 1 0 -1];
-% b_2 = [1; 0];
+p_norm = 2 ;
 
 c_1 = zeros(2,1) ;
 G_1 = eye(2) ;
 A_1 = [] ;
 b_1 = [] ;
 
-c_2 = [1;1] ;
-G_2 = eye(2) ;
+c_2 = 2*rand(2,1) - 1 ;
+G_2 = 2*rand(2) - 1 ;
 A_2 = [] ;
 b_2 = [] ;
 
@@ -41,9 +32,12 @@ E_CH = convhull(E1,E2);
 figure(1); clf; axis equal; hold on; grid on;
 
 % plot etopes
-plot(E1);
-plot(E2);
-plot(E_CH);
+% plot(E1);
+% plot(E2);
+% plot(E_CH);
+plot_ray_tracing_2D(E1,100,'facecolor','r','edgecolor','r') ;
+plot_ray_tracing_2D(E2,100,'facecolor','g','edgecolor','g') ;
+plot_ray_tracing_2D(E_CH,200) ;
 % plot_path(X(:,in_log),'r.')
 
 %% testing if points are in/out of E_CH

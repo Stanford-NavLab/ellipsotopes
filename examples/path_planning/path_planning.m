@@ -48,9 +48,9 @@ for i = 1:n_obs
     obs{i} = ellipsotope(2,O_ctr(:,i),O_gen,[],[],{1,2}) ;
 end
 
-% generate start position on left side of room with initial
-% heading of 0, and make sure it's not too close to the walls
-start = make_random_feasible_locations(1,r_agent,obs,world_bounds);
+% generate start and goal positions
+locs = make_random_feasible_locations(2,r_agent,obs,world_bounds);
+start = locs(:,1); goal = locs(:,2);
 
 %% coloring parameters
 
@@ -130,6 +130,8 @@ while iter_count < num_RRT_iters
             disp(['iteration ',num2str(iter_count)])
         end
     end
+    
+    % TODO: update plots
 end
 
 scatter(RRT.nodes(1,:),RRT.nodes(2,:))
@@ -180,11 +182,11 @@ function P_out = make_random_feasible_locations(n_agents,r_agents,O_buff,world_b
             end
         end
         
-        % check position distances to each other (greater than 4 agent
+        % check position distances to each other (greater than 5 agent
         % radiuses apart)
         D_to_self = dist_points_to_points(P_out,P_out) ;
         D_to_self(D_to_self == 0) = nan ; % ignore same points
-        pos_feas = ~any(D_to_self(:) < 4*r_agents) ;
+        pos_feas = ~any(D_to_self(:) < 5*r_agents) ;
         
         % if positions are not too close to obstacle and not too close to
         % each other, break

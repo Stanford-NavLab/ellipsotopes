@@ -5,7 +5,7 @@ function E_out = convhull(E_1,E_2)
 %
 % Authors: Adam Dai and Shreyas Kousik
 % Created: 21 Apr 2021
-% Updated: 26 Apr 2021 (fiddling with output index set)
+% Updated: 5 May 2021 (messing with I_extra)
 
 % extract properties
 [p_1,c_1,G_1,A_1,b_1,I_1] = E_1.get_properties ;
@@ -53,8 +53,7 @@ I_extra = num2cell(J_extra) ;
 % I_extra = shift_index_set([I_11,I_12,I_21,I_22],m_3+1) ;
 
 I_2_shifted = shift_index_set(I_2,m_1) ;
-% I_CH = [I_1,I_2,{m_3+1},{J_extra}] ; % doesn't work
-% I_CH = [I_1, I_2, {m_3+1}, {(1:m_1) + m_3 + 1}, {(m_1+1:m_1+m_2) + m_3 + 1}] ; % doesn't work
+
 I_CH = [I_1,I_2_shifted,{m_3+1},I_extra] ;
 
 % create output

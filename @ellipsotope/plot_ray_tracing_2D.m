@@ -43,7 +43,7 @@ function h_E = plot_ray_tracing_2D(E,n_g_test,varargin)
     if ~isempty(A)
         x_opt = [1 ; pinv(A)*b ] ;
     else
-        x_opt = [1 ; zeros(n_dim,1)] ;
+        x_opt = [1 ; zeros(n_gen,1)] ;
     end
     
     % set up optimization options

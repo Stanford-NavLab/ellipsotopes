@@ -79,6 +79,31 @@ plot_path(start(1:n_dim),'go','markersize',15,'linewidth',1.5)
 % goal areas
 plot_path(goal,'gp','markersize',15,'markerfacecolor',color_goal)
 
+%% some figures
+
+% robot body
+E_robot = ellipsotope(2,zeros(2,1),diag([1 2]),[],[],{1,2});
+
+% robot uncertainty
+E_uncrt = ellipsotope(2,zeros(2,1),diag([1 2]));
+
+% mink sum
+E_mink = E_robot + E_uncrt;
+
+figure();
+subplot(1,3,1); axis equal; grid on;
+plot_ray_tracing_2D(E_robot)
+title('Robot body');
+xlabel('$p\langle 1 \rangle$','Interpreter','latex'); ylabel('$p\langle 2 \rangle]$','Interpreter','latex');
+subplot(1,3,2); axis equal; grid on;
+plot_ray_tracing_2D(E_uncrt)
+xlabel('$x_1$','Interpreter','latex'); ylabel('$x_2$','Interpreter','latex');
+title('Robot position uncertainty');
+subplot(1,3,3); axis equal; grid on;
+plot_ray_tracing_2D(E_mink)
+xlabel('$x_1$','Interpreter','latex'); ylabel('$x_2$','Interpreter','latex');
+title('Sum of body and uncertainty');
+
 %% RRT planning
 
 num_RRT_iters = 100;

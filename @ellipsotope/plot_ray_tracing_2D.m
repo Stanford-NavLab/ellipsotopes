@@ -1,5 +1,7 @@
 function h_E = plot_ray_tracing_2D(E,n_g_test,varargin)
-% h = plot_ray_tracing_2D(n,patch_args_in)
+% h = plot_ray_tracing_2D(E,n,patch_args_in)
+% h = plot_ray_tracing_2D(E,n,'projdims',[dim1 dim2], other_input_args...)
+% h = plot_ray_tracing_2D(E,n,'facecolor',color,'edgecolor',color,'facealpha',...)
 %
 % Compute the boundary of the ellipsotope E via ray tracing for plotting,
 % using n rays (default is 100). This function creates a patch plot handle,

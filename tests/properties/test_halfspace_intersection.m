@@ -23,7 +23,7 @@ h = rand(1,2) ;
 f = 0.3 ;
 
 % whether or not to save flag
-flag_save_figure_to_png = true ;
+flag_save_figure = true ;
 
 %% automated from here
 % get sizes of things
@@ -46,6 +46,6 @@ plot_ellipsotope_utility(p_norm,c,G_S,A_S,b_S,I_S)
 title('4-ellipsotope halfplane intersection')
 set(gca,'fontsize',15)
 
-if flag_save_figure_to_png
-    save_figure_to_png(fh,'ellipsotope_halfplane_intersection.png')
+if flag_save_figure
+    save_figure_to_pdf(fh,'ellipsotope_halfplane_intersection.pdf')
 end

@@ -3,21 +3,25 @@ function h_E = plot(E,varargin)
 % plot(E,'projdims',[dim1 dim2], other_input_args...)
 % plot(E,'facecolor',color,'edgecolor',color,'facealpha',...)
 %
-% Plot the ellipsotope if it is 2-D. This creates a patch
-% object, and updates the E.plot_handle property.
+% Plot 2D and 3D ellipsotopes. This creates a patch object, and updates the 
+% E.plot_handle property.
 %
-% To plot an ellipsotope, we do the following:
-%   1. generate a bunch of points in the coefficient space
-%   2. push those points to the boundary of the feasible coefficient space
-%   3. send the points through the affine map defined by the ellipsotope's
-%      center and generators
-%   4. plot the convex hull of the mapped points
+% Currently, there are two approaches for plotting:
+%   1. plot_coeff_smapling.m
+%       - Sampling in the coefficient space, and push these samples to the 
+%         feasible boundary and affine through center and generators
+%   2. plot_ray_tracing_2D.m
+%       - Rotate a ray through angles to trace out the boundary of the
+%         ellipsotope (only implemented for 2D)
+% 
+% The plot method selects between these two approaches based on the number
+% of generators.
 %
 % See also: test_plot_ellipsotope.m
 %
 % Authors: Adam Dai and Shreyas Kousik
 % Created: in days of yore
-% Updated: 27 Apr 2021 (updated emptiness warning message)
+% Updated: 13 May 2021 (combined 2 plotting methods)
 
     %% prep/sanity check
     % get important properties
@@ -29,128 +33,27 @@ function h_E = plot(E,varargin)
     I = E.index_set ;
     d = E.dimension ;
     d_B = size(G,2) ; % dimension of coefficient space
-
-    % check for projection dimensions
-    if nargin > 1 && strcmpi(varargin{1},'proj_dims')
-        proj_dims = varargin{2} ;
-
-        % remove from varargin
-        if nargin > 3
-            varargin = varargin{3:end} ;
-        else
-            varargin = {} ;
-        end
-    else
-        % default to [1 2] projection
-        proj_dims = 1:d ;
-    end
-
-    % check the dimension
-    if d > 3 && ~exist('proj_dims','var')
-        warning(['Plotting not supported for > 3-D ellipsotopes!',...
-            'Plotting a 2-D projection instead'])
-        % default to [1 2] projection
-        proj_dims = 1:2 ;
-    end
-
-    % apply projection
-    c = c(proj_dims) ;
-    G = G(proj_dims,:) ;
-
-    % check if E is basic, which allows us to reduce the
-    % generator matrix nicely
-    % if E.is_basic() && (p == 2) && size(G,1) <= size(G,2)
-    %     % check if E is reduced
-    %     if ~E.is_reduced()
-    %         G = reduce_ellipsotope_generator_matrix(G) ;
-    %     end
-    % end
-
-    % set the index set if it is empty
-    if isempty(I)
-        I = {1:d_B} ; % constrain ALL the coefficients!
-    end
-
-    %% plotting setup
-    % STEP 1: generate points in coefficient space
-    % if the ellipsotope is basic...
-    if E.is_basic()
-        % switch how we generate points based on the coefficient space
-        % dimension (using make_superllipse_2D, _3D, or _ND)
-        if d_B == 2
-            n_P = 1000 ;
-            P = make_superellipse_2D(n_P,p);
-        elseif d_B == 3
-            n_P = 1000 ;
-            P = make_superellipse_3D(n_P,p);
-        else
-            n_P = 10000 ;
-            P = make_unit_superellipse_ND(n_P,p,d_B);
-        end
-    % else if...
-    else
-        % generate a bunch of random points 
-        n_P = min(7^size(G,2),10^5) ;
-        P = 2*rand(d_B,n_P) - 1 ;
-        % project points to ball and linear subspace boundary (the existing
-        % function will handle index sets and empty linear subspaces properly,
-        % it turns out)
-        [P,n_P] = project_points_to_ball_product_and_linear_subspace(P,p,A,b,I) ;
+    
+    % default to coefficient method, unless in 2D
+    plot_method = 'coeff';
+    if d == 2
+        plot_method = 'ray';
     end
     
-    % check emptiness
-    if isempty(P)
-        warning('Ellipsotope to plot might be empty!')
-    else
-        % STEP 2: map points to ellipsotope workspace
-        P = repmat(c,1,n_P) + G*P ;
-        
-        % make sure P only contains unique points
-        P = unique(P','rows')' ;
-        
-        % STEP 3: take convex hull of points in workspace
-        if size(P,2) > 1
-            K = convhull(P') ;
-        else
-            K = 1 ;
-        end
-        
-        n_K = length(K) ;
-        
-        %% plotting code here
-        if n_K > 1
-            plot_options = [{'facecolor','b','linewidth',1.5,'edgecolor','b',...
-                'facealpha',0.1,'edgealpha',0.5}, varargin{:}] ;
-        else
-            plot_options = [{'b.','markersize',10}, varargin{:}] ;
-        end
-        
-        switch length(proj_dims)
-            case 1
-                error('1-D plot is not implemented yet!')
-            case 2
-                P = P(:,K) ;
-                P = points_to_CCW(P) ;
-                n_P = size(P,2) ;
-                if n_K > 1
-                    h = patch('faces',[1:n_P,1],'vertices',P',plot_options{:}) ;
-                else
-                    h = plot(P(1),P(2),plot_options{:}) ;
-                end
-                
-                E.plot_handle = h ;
-            case 3
-                if n_K > 1
-                    h = trisurf(K,P(1,:)',P(2,:)',P(3,:)',plot_options{:}) ;
-                else
-                    h = plot(P(1),P(2),P(3),'b.','markersize',10) ;
-                end
-                
-                E.plot_handle = h ;
-        end
+    %% TODO: move sanity checks here? 
+    %%
+    
+    switch plot_method
+        case 'coeff'
+            h = plot_coeff_sampling(E,varargin);
+        case 'ray'
+            h = plot_ray_tracing_2D(E,varargin);
     end
+    
+    E.plot_handle = h;
     
     if nargout > 0
         h_E = h ;
     end
+
 end

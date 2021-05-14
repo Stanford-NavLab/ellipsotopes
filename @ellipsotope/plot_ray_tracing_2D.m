@@ -1,19 +1,32 @@
-function h_E = plot_ray_tracing_2D(E,n_g_test,varargin)
-% h = plot_ray_tracing_2D(n,patch_args_in)
+function h_E = plot_ray_tracing_2D(E,varargin)
+% h = E.plot_ray_tracing_2D(n,patch_args_in)
+% h = E.plot_ray_tracing_2D(patch_args_in)
 %
 % Compute the boundary of the ellipsotope E via ray tracing for plotting,
 % using n rays (default is 100). This function creates a patch plot handle,
 % so you can pass in all the arguments you would pass to patch. Woo!
 %
-% Authors: Shreyas Kousik
+% Authors: Shreyas Kousik and Adam Dai
 % Created: 28 Apr 2021
-% Updated: 4 May 2021 (fixed issue with unconstrained etopes)
+% Updated: 14 May 2021 (fixed varargin)
 
     %% setup
     % set default args in
-    if nargin < 2
+    if nargin <= 1
         n_g_test = 100 ;
         varargin = {} ;
+    else
+        % check if the first input is the number of points to plot
+        if isnumeric(varargin{1})
+            n_g_test = varargin{1} ;
+        else
+            n_g_test = 100 ;
+        end
+        
+        % keep the remaining input args if there are any
+        if nargin >= 2
+            varargin = varargin(2:end) ;
+        end
     end
     
     % get etoproperties

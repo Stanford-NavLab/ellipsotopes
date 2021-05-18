@@ -10,7 +10,7 @@ function h_E = plot_ray_tracing_2D(E,varargin)
 %
 % Authors: Shreyas Kousik and Adam Dai
 % Created: 28 Apr 2021
-% Updated: 14 May 2021 (fixed varargin)
+% Updated: 18 May 2021 (fixed output arg and nargin)
 
     %% setup
     % set default args in
@@ -21,13 +21,13 @@ function h_E = plot_ray_tracing_2D(E,varargin)
         % check if the first input is the number of points to plot
         if isnumeric(varargin{1})
             n_g_test = varargin{1} ;
+            
+            % keep the remaining input args if there are any
+            if nargin >= 2
+                varargin = varargin(2:end) ;
+            end
         else
             n_g_test = 100 ;
-        end
-        
-        % keep the remaining input args if there are any
-        if nargin >= 2
-            varargin = varargin(2:end) ;
         end
     end
     
@@ -100,7 +100,7 @@ function h_E = plot_ray_tracing_2D(E,varargin)
 
     h = patch('faces',F,'vertices',V,plot_options{:}) ;
 
-    if nargout > 1
+    if nargout > 0
         h_E = h ;
     end
 end

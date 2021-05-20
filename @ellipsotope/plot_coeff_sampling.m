@@ -86,6 +86,7 @@ function h_E = plot_coeff_sampling(E,varargin)
     else
         % generate a bunch of random points 
         P = 2*rand(d_B,n_P) - 1 ;
+        
         % project points to ball and linear subspace boundary (the existing
         % function will handle index sets and empty linear subspaces properly,
         % it turns out)

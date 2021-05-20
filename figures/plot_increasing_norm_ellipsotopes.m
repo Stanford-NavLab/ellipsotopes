@@ -3,11 +3,11 @@
 %
 % Authors: Shreyas Kousik
 % Created: 15 Mar 2021
-% Updated: 22 Mar 2021
+% Updated: 20 May 2021 (got ride of zonotope)
 %
 %% user parameters
 % list of norms
-p_list = 2:2:10 ;
+p_list = [2:4:20, inf] ;
 
 % rng seed
 rng(1) ;
@@ -30,13 +30,9 @@ for p = p_list
     idx = idx + 1 ;
 end
 
-% make comparable zonotope (requires CORA)
-Z = zonotope(c,G) ;
-
 %% plotting
 h = figure(1) ; clf ; axis equal ; hold on ; grid on ;
 
-plot(Z) ;
 for idx = length(p_list):-1:1
     plot(E{idx},'edgealpha',1.0,'linewidth',0.5) ;
     pause(0.05)

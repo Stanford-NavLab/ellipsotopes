@@ -25,10 +25,11 @@ function h_E = plot(E,varargin)
 
     %% prep/sanity check
     
-    % default to coefficient method, unless in 2D
-    d = E.dimension ;
+    % default to coefficient method, unless in 2D and p==2
+    d = E.dimension;
+    p = E.p_norm;
     plot_method = 'coeff';
-    if d == 2
+    if d == 2 && p == 2
         plot_method = 'ray';
     end
     

@@ -1,7 +1,7 @@
-function h_E = plot_coeff_sampling(E,n_P,varargin)
+function h_E = plot_coeff_sampling(E,varargin)
 % plot_coeff_sampling(E)
-% plot_coeff_sampling(E,n_P,'projdims',[dim1 dim2], other_input_args...)
-% plot_coeff_sampling(E,n_P,'facecolor',color,'edgecolor',color,'facealpha',...)
+% plot_coeff_sampling(E,'projdims',[dim1 dim2], other_input_args...)
+% plot_coeff_sampling(E,'facecolor',color,'edgecolor',color,'facealpha',...)
 %
 % Plot an ellipsotope using coefficient sampling. This creates a patch
 % object, and updates the E.plot_handle property.
@@ -19,12 +19,7 @@ function h_E = plot_coeff_sampling(E,n_P,varargin)
 
     %% prep/sanity check
     % get important properties
-    p = E.p_norm ;
-    c = E.center ;
-    G = E.generators ;
-    A = E.constraint_A ; 
-    b = E.constraint_b ; 
-    I = E.index_set ;
+    [p,c,G,A,b,I] = E.get_properties() ;
     d = E.dimension ;
     d_B = size(G,2) ; % dimension of coefficient space
 
@@ -70,9 +65,8 @@ function h_E = plot_coeff_sampling(E,n_P,varargin)
     end
     
     % if n_P is not set, set it to default value
-    if nargin < 2
+    if exist('n_P','var') == 0
         n_P = min(7^size(G,2),10^5);
-        varargin = {} ;
     end
 
     %% plotting setup

@@ -34,8 +34,13 @@ A = [1 -1 1];
 b = 0.5;
 
 fh = figure(); axis equal; grid on
-E = ellipsotope(p,c,G,A,b);
-plot(E); title('Constrained 2D 2-ellipsotope');
+E = ellipsotope(p,c,G);
+E_con = ellipsotope(p,c,G,A,b);
+plot(E,'facecolor','b','edgecolor','b'); 
+plot(E_con,'facecolor','r','edgecolor','r'); 
+title('Constrained 2D 2-ellipsotope');
+xlabel('$x\langle 1 \rangle$','Interpreter','latex'); ylabel('$x\langle 2 \rangle$','Interpreter','latex');
+legend('$E$','constrained $E$','Interpreter','latex');
 set(gca,'fontsize',15)
 if flag_save_figures_to_png
     save_figure_to_png(fh,'plot_ex_constrained_2D_2_ellipsotope.png')
@@ -48,8 +53,13 @@ G = [1 -1 0.2; 1 2 1];
 I = {[1 2],3};
 
 fh = figure(); axis equal; grid on
-E = ellipsotope(p,c,G,[],[],I);
-plot(E); title('Indexed 2D 2-ellipsotope');
+E = ellipsotope(p,c,G);
+E_ind = ellipsotope(p,c,G,[],[],I);
+plot(E,'facecolor','b','edgecolor','b'); 
+plot(E_ind,'facecolor','r','edgecolor','r'); 
+title('Indexed 2D 2-ellipsotope');
+xlabel('$x\langle 1 \rangle$','Interpreter','latex'); ylabel('$x\langle 2 \rangle$','Interpreter','latex');
+legend('$E$','indexed $E$','Interpreter','latex');
 set(gca,'fontsize',15)
 if flag_save_figures_to_png
     save_figure_to_png(fh,'plot_ex_indexed_2D_2_ellipsotope.png')
@@ -80,6 +90,8 @@ I = {[1,2],[3,4]};
 fh = figure(); axis equal; grid on
 E = ellipsotope(p,c,G,A,b,I);
 plot(E); title('Random 2D general ellipsotope');
+xlabel('$x\langle 1 \rangle$','Interpreter','latex'); ylabel('$x\langle 2 \rangle$','Interpreter','latex');
+lim = axis; axis(lim + [-1 1 -1 1]);
 set(gca,'fontsize',15)
 if flag_save_figures_to_png
     save_figure_to_png(fh,'plot_ex_random_ellipsotope.png')
@@ -125,7 +137,10 @@ I = {[1,2],[3 4]};
 
 fh = figure(); axis equal; grid on; 
 E = ellipsotope(p,c,G,A,b,I);
-plot(E,'facealpha',1); shading interp; title('General 3D 2-ellipsotope');
+plot(E,'facealpha',1.0,'edgealpha',1.0); shading flat; title('General 3D 2-ellipsotope');
+xlabel('$x\langle 1 \rangle$','Interpreter','latex'); 
+ylabel('$x\langle 2 \rangle$','Interpreter','latex');
+zlabel('$x\langle 3 \rangle$','Interpreter','latex');
 set(gca,'fontsize',15)
 if flag_save_figures_to_png
     save_figure_to_png(fh,'plot_ex_3D_2_ellipsotope.png')

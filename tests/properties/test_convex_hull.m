@@ -35,9 +35,9 @@ figure(1); clf; axis equal; hold on; grid on;
 % plot(E1);
 % plot(E2);
 % plot(E_CH);
-plot_ray_tracing_2D(E1,100,'facecolor','r','edgecolor','r') ;
-plot_ray_tracing_2D(E2,100,'facecolor','g','edgecolor','g') ;
-plot_ray_tracing_2D(E_CH,200) ;
+plot(E1,'facecolor','r','edgecolor','r') ;
+plot(E2,'facecolor','g','edgecolor','g') ;
+plot(E_CH) ;
 % plot_path(X(:,in_log),'r.')
 
 %% testing if points are in/out of E_CH

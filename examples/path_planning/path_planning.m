@@ -79,7 +79,7 @@ plot_path(start(1:n_dim),'go','markersize',15,'linewidth',1.5)
 % goal areas
 plot_path(goal,'gp','markersize',15,'markerfacecolor',color_goal)
 
-%% some figures
+%% figure plot
 
 % robot body 
 G_robot = rotation_matrix_2D(pi*0.2) * diag([1 2]);
@@ -94,14 +94,16 @@ E_mink = E_robot + E_uncrt;
 
 f = figure(2); 
 subplot(1,2,1); axis equal; grid on;
-plot_ray_tracing_2D(E_uncrt,200,'facecolor','cyan','edgecolor','cyan','facealpha',0.7)
+plot(E_uncrt,'facecolor','r','edgecolor','r','facealpha',0.4)
 xlabel('Uncertainty in $p\langle 1 \rangle$','Interpreter','latex'); ylabel('Uncertainty in $p\langle 2 \rangle$','Interpreter','latex');
+lim = axis; axis(lim + [-1 1 -1 1]);
 
 subplot(1,2,2); axis equal; grid on;
-plot_ray_tracing_2D(E_robot,200,'facecolor','b','edgecolor','b','facealpha',1.0)
-plot_ray_tracing_2D(E_mink,200,'facecolor','r','edgecolor','r','facealpha',0.4)
+plot(E_robot,'facecolor','b','edgecolor','b','facealpha',1.0)
+plot(E_mink,'facecolor','m','edgecolor','m','facealpha',0.4)
 xlabel('$p\langle 1 \rangle$','Interpreter','latex'); ylabel('$p\langle 2 \rangle$','Interpreter','latex');
 legend('Robot body','Sum of body and uncertainty');
+lim = axis; axis(lim + [-1 1 -1 1]);
 
 %save_figure_to_pdf(f,'../../.../figures/ellipsotopes/path_planning_uncertainty_sum.pdf')
 save_figure_to_pdf(f,'path_planning_uncertainty_sum.pdf')

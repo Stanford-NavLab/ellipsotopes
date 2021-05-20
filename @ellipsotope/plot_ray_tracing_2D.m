@@ -5,7 +5,7 @@ function h_E = plot_ray_tracing_2D(E,varargin)
 % h = plot_ray_tracing_2D(E,n,'facecolor',color,'edgecolor',color,'facealpha',...)
 %
 % Compute the boundary of the ellipsotope E via ray tracing for plotting,
-% using n rays (default is 100). This function creates a patch plot handle,
+% using n rays (default is 200). This function creates a patch plot handle,
 % so you can pass in all the arguments you would pass to patch. Woo!
 %
 % Authors: Shreyas Kousik and Adam Dai
@@ -15,7 +15,7 @@ function h_E = plot_ray_tracing_2D(E,varargin)
     %% setup
     % set default args in
     if nargin <= 1
-        n_g_test = 100 ;
+        n_g_test = 200 ;
         varargin = {} ;
     else
         % check if the first input is the number of points to plot
@@ -27,7 +27,7 @@ function h_E = plot_ray_tracing_2D(E,varargin)
                 varargin = varargin(2:end) ;
             end
         else
-            n_g_test = 100 ;
+            n_g_test = 200 ;
         end
     end
     
@@ -95,7 +95,7 @@ function h_E = plot_ray_tracing_2D(E,varargin)
     V = B' ;
 
     % default options
-    plot_options = [{'facecolor','b','linewidth',1.5,'edgecolor','b',...
+    plot_options = [{'facecolor','b','linewidth',1.0,'edgecolor','b',...
                     'facealpha',0.1,'edgealpha',0.5}, varargin{:}] ;
 
     h = patch('faces',F,'vertices',V,plot_options{:}) ;

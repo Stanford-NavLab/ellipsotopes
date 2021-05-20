@@ -24,17 +24,9 @@ function h_E = plot(E,varargin)
 % Updated: 13 May 2021 (combined 2 plotting methods)
 
     %% prep/sanity check
-    % get important properties
-    p = E.p_norm ;
-    c = E.center ;
-    G = E.generators ;
-    A = E.constraint_A ; 
-    b = E.constraint_b ; 
-    I = E.index_set ;
-    d = E.dimension ;
-    d_B = size(G,2) ; % dimension of coefficient space
     
     % default to coefficient method, unless in 2D
+    d = E.dimension ;
     plot_method = 'coeff';
     if d == 2
         plot_method = 'ray';
@@ -45,9 +37,9 @@ function h_E = plot(E,varargin)
     
     switch plot_method
         case 'coeff'
-            h = plot_coeff_sampling(E,varargin);
+            h = plot_coeff_sampling(E,varargin{:});
         case 'ray'
-            h = plot_ray_tracing_2D(E,varargin);
+            h = plot_ray_tracing_2D(E,varargin{:});
     end
     
     E.plot_handle = h;

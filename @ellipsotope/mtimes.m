@@ -15,11 +15,11 @@ if is_basic(E)
 % constrained
 elseif is_constrained(E)
     % indexed (and constrained)
-    if is_general(E)
-        out = ellipsotope(E.p_norm, A*E.center, A*E.generators, E.constraint_A, E.constraint_B, E.index_set);
+    if is_indexed(E)
+        out = ellipsotope(E.p_norm, A*E.center, A*E.generators, E.constraint_A, E.constraint_b, E.index_set);
         % not indexed (and constrained)
     else
-        out = ellipsotope(E.p_norm, A*E.center, A*E.generators, E.constraint_A, E.constraint_B);
+        out = ellipsotope(E.p_norm, A*E.center, A*E.generators, E.constraint_A, E.constraint_b);
     end
     % not constrained
 else

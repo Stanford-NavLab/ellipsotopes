@@ -119,7 +119,7 @@ function h_E = plot_coeff_sampling(E,n_P,varargin)
         
         %% plotting code here
         if n_K > 1
-            plot_options = [{'facecolor','b','linewidth',1.5,'edgecolor','b',...
+            plot_options = [{'facecolor','b','linewidth',1.0,'edgecolor','b',...
                 'facealpha',0.1,'edgealpha',0.5}, varargin{:}] ;
         else
             plot_options = [{'b.','markersize',10}, varargin{:}] ;

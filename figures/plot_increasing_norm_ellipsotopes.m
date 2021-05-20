@@ -38,12 +38,13 @@ h = figure(1) ; clf ; axis equal ; hold on ; grid on ;
 
 plot(Z) ;
 for idx = length(p_list):-1:1
-    plot(E{idx}) ;
+    plot(E{idx},'edgealpha',1.0,'linewidth',0.5) ;
     pause(0.05)
 end
 
-xlabel('x_1')
-ylabel('x_2')
+xlabel('$x\langle 1 \rangle$','Interpreter','latex'); ylabel('$x\langle 2 \rangle$','Interpreter','latex');
+lim = axis; axis(lim + 0.25*[-1 1 -1 1]);
 
-set(gca,'fontsize',15)
+%set(gca,'fontsize',15)
 save_figure_to_png(h,'ellipsotope_increasing_norm.png') ;
+save_figure_to_pdf(h,'ellipsotope_increasing_norm.pdf') ;

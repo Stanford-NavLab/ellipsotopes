@@ -43,13 +43,6 @@ function h_E = plot(E,varargin)
     % get properties
     [p,c,G,A,b,I,n_dim,n_gen,~] = E.get_properties() ;
     
-    % set the index set if it is empty
-    if isempty(I)
-        warning(['The ellipsotope has an empty index set! Defaulting to',...
-            ' assuming all coefficients obey the same p-norm constraint.'])
-        I = {1:n_gen} ; % constrain ALL the coefficients!
-    end
-    
     % check for projection dimensions
     [proj_dims,args] = check_varargin_for_keyword('proj_dims',varargin{:}) ;
     if isempty(proj_dims)
@@ -65,7 +58,7 @@ function h_E = plot(E,varargin)
     if isempty(plot_method)
         % default to coefficient method, unless in 2D
         plot_method = 'sample';
-        if (n_dim == 2) && (n_gen > 5) && (p == 2)
+        if (n_dim == 2) && (p == 2)
             plot_method = 'ray';
         end
     end
@@ -80,10 +73,10 @@ function h_E = plot(E,varargin)
     end
     
     % override plot method if E is a zonotope
-    if E.is_zonotope()
-        plot_method = 'zono' ;
-        patch_data_args_in = {c,G,A,b} ;
-    end    
+%     if E.is_zonotope()
+%         plot_method = 'zono' ;
+%         patch_data_args_in = {c,G,A,b} ;
+%     end    
     
     %% create plot data
     switch plot_method

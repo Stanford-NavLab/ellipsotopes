@@ -7,7 +7,7 @@
 %
 % Authors: Shreyas Kousik
 % Created: 19 May 2021
-% Updated: 20 May 2021
+% Updated: 21 May 2021
 clear ; clc ;
 %% user parameters
 % rng seed
@@ -76,6 +76,11 @@ for idx = 1:n_ell
     patch('faces',[1:200,1],'vertices',P','facecolor',c,'facealpha',1,...
         'edgealpha',0)
 end
+
+plot_arrow(zeros(2,1),R_1(:,1))
+plot_arrow(zeros(2,1),R_1(:,2))
+plot_arrow(zeros(2,1),G_1(:,1))
+plot_arrow(zeros(2,1),G_1(:,2))
 
 set_plot_linewidths(2) 
 

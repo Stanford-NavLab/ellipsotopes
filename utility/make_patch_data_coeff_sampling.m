@@ -8,6 +8,7 @@ function [F,V] = make_patch_data_coeff_sampling(p,c,G,A,b,I,n_P)
 %
 % Authors: Shreyas Kousik and Adam Dai
 % Created: 20 May 2021
+% Updated: 21 May 2021 (fixed bug in number of constraints if statement)
 
     % get sizes of things
     [n_dim,n_gen] = size(G) ;
@@ -24,7 +25,7 @@ function [F,V] = make_patch_data_coeff_sampling(p,c,G,A,b,I,n_P)
     end
     
     % generate a bunch of points
-    if n_con > 0
+    if n_con == 0
         switch n_gen
             case 2
                 P = make_superellipse_2D(n_P,p);
@@ -48,6 +49,13 @@ function [F,V] = make_patch_data_coeff_sampling(p,c,G,A,b,I,n_P)
         
     % make sure P only contains unique points
     P = unique(P','rows')' ;
+    
+    % check if 3-D points are coplanar
+    if size(P,1) == 3 && rank(P) < 3
+        warning(['3-D points are coplanar! Projecting to first ',...
+            'two dimensions!'])
+        P = P(1:2,:) ;            
+    end
 
     % STEP 3: take convex hull of points in workspace
     if size(P,2) > 1

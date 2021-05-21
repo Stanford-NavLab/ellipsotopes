@@ -37,17 +37,21 @@ function h_E = plot(E,varargin)
 %
 % Authors: Adam Dai and Shreyas Kousik
 % Created: in days of yore
-% Updated: 20 May 2021 (restructured all plotting)
+% Updated: 21 May 2021 (3-D topes default to 3-D plots now)
 
     %% setup
     % get properties
-    [p,c,G,A,b,I,n_dim,n_gen,~] = E.get_properties() ;
+    [p,c,G,A,b,I,n_dim,~,~] = E.get_properties() ;
     
     % check for projection dimensions
     [proj_dims,args] = check_varargin_for_keyword('proj_dims',varargin{:}) ;
     if isempty(proj_dims)
         % default to [1 2] projection
         proj_dims = 1:2 ;
+        
+        if n_dim == 3
+            proj_dims = 1:3 ;
+        end
     end
     % project
     c = c(proj_dims) ;

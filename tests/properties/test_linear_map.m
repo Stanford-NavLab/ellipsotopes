@@ -7,11 +7,12 @@
 %
 %% user parameters
 % specify the ellipsotopes and map
-E = ellipsotope(2,[0;0],[1 0.5 -0.5; 0 0.866 0.866],[],[],{1,2,3});
+E = ellipsotope(2,[0;0],[1 0.5; 0 0.866],[],[],{1,2});
+E = E + ellipsotope(2,[0;0],eye(2));
 A = [1 0.8; 0.4 2];
 
 % or generate random ellipsotopes
-gen_random_flag = true;
+gen_random_flag = false;
 
 % whether or not to save flag
 flag_save_figure = true;

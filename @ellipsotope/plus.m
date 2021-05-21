@@ -39,7 +39,7 @@ if isa(s1,'ellipsotope')
 % vector + ellipsotope
 elseif isnumeric(s1)
     c = s2.center + s1;
-    out = ellipsotope(s2.p_norm,c,s2.generators,s2.index_set,s2.constraint_A,s2.constraint_b);
+    out = ellipsotope(s2.p_norm,c,s2.generators,s2.constraint_A,s2.constraint_b,s2.index_set);
     return
 end
 

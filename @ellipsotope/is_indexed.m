@@ -1,3 +1,3 @@
 function out = is_indexed(E)
-out = ~isempty(E.index_set) ;
+out = length(E.index_set) > 1 ;
 end

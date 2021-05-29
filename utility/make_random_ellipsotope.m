@@ -1,11 +1,12 @@
-function E = make_random_ellipsotope(p_norm,n_dim,n_gen,n_con)
+function [E,c,G,A,b,I] = make_random_ellipsotope(p_norm,n_dim,n_gen,n_con)
 % E = make_random_ellipsotope(p_norm,n_dim,n_gen,n_con)
+% [E,c,G,A,b,I] = make_random_ellipsotope(p_norm,n_dim,n_gen,n_con)
 %
-% Make a random ellipsotope
+% Make a random ellipsotope. It does what it says on the box!
 %
 % Authors: Shreyas Kousik
 % Created: 28 Apr 2021
-% Updated: nope
+% Updated: 28 May 2021
 
 %% set default inputs
 if nargin < 1

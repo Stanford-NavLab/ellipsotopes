@@ -7,7 +7,7 @@
 clear ; clc ;
 %% user parameters
 % rng seed
-% rng(100) ; 
+rng(0) ; 
 
 % number of ellipsoids to consider
 n_ell = 3 ;
@@ -28,12 +28,13 @@ for idx = 1:n_ell
 end
 
 %% compute similarities based on longest semi-axis
-V_1 = get_longest_semiaxis(V_list{1},l_list{1}) ;
+v_1 = get_longest_semiaxis(V_list{1},l_list{1}) ;
 sim_list = ones(1,n_ell) ;
 
 for idx = 1:n_ell    
-    V_idx = get_longest_semiaxis(V_list{idx},l_list{idx}) ;
-    sim_list(idx) = abs(sin(V_idx'*V_1)) ;
+    v_idx = get_longest_semiaxis(V_list{idx},l_list{idx}) ;
+%     sim_list(idx) = abs(sin(V_idx'*V_1)) ;
+    sim_list(idx) = abs(v_idx'*v_1) ;
 end
 
 %% plotting setup

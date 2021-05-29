@@ -3,7 +3,7 @@
 %
 % Authors: Shreyas Kousik
 % Created: 27 Apr 2021
-% Updated: 28 Apr 2021
+% Updated: 28 May 2021
 clear ; clc ;
 
 %% user parameters
@@ -81,5 +81,7 @@ while flag_iter && (toc(start_tic) < t_max)
         x = x - dx ;
     end
 end
+
+toc(start_tic)
 
 %% compare against implemented class method

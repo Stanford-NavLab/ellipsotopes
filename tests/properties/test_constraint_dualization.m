@@ -53,7 +53,7 @@ E_list{idx} = E_rdc ;
 end
 
 %% plotting
-figure(1) ; clf ; axis equal ; hold on ; grid on ;
+fh = figure(1) ; clf ; axis equal ; hold on ; grid on ;
 
 % plot all etopes
 for idx = 1:n_con
@@ -61,4 +61,11 @@ for idx = 1:n_con
 end
 
 % plot origetope
-plot(E) ;
+plot(E,'facecolor',[0.7 0.7 1],'facealpha',1) ;
+
+xlabel('x\langle1\rangle')
+ylabel('x\langle2\rangle')
+set_plot_linewidths(1.5)
+set_plot_fontsize(15)
+
+% save_figure_to_png(fh,'order_reduction_example.png')

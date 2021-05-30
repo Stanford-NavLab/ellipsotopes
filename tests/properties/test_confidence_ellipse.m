@@ -14,6 +14,7 @@ mu = [0;0];
 A = rand(2,2);
 Sigma = A'*A;
 
+% for 2D
 P = 0.9; % probability threshold
 eps = -2*log(1-P);
 G = sqrtm(eps*Sigma);

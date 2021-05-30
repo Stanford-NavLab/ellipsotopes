@@ -21,8 +21,7 @@ flag_empty = true ;
 
 %% automated from here
 % make random etope
-E = make_random_ellipsotope(p_norm,n_dim,n_gen,n_con) ;
-[p_norm,c,G,A,~,I] = get_properties(E) ;
+[E,c,G,A,~,I] = make_random_ellipsotope(p_norm,n_dim,n_gen,n_con) ;
 
 % set b to be feasible or not
 if flag_empty

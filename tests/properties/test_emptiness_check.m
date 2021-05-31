@@ -40,7 +40,7 @@ options = optimoptions('fmincon','Display','off',...
     'SpecifyConstraintGradient',true) ;
 
 %% emptiness check v1
-cost = @(x) cost_for_emptiness_check(x,p_norm,I) ;
+cost = @(x) cost_for_emptiness_check_v1(x,p_norm,I) ;
 [x_opt_1,f_val_1] = fmincon(cost,x_0,[],[],A,b,[],[],[],options) ;
 
 % timeit(@() fmincon(cost,x_0,[],[],A,b,[],[],[],options))
@@ -53,7 +53,7 @@ nonlcon = @(x)  nonlcon_for_emptiness_check(x,p_norm,I) ;
 % timeit(@() fmincon(cost_2,x_0,[],[],A,b,[],[],nonlcon,options))
 
 %% helper functions
-function [c,gc] = cost_for_emptiness_check(x,p_norm,I)
+function [c,gc] = cost_for_emptiness_check_v1(x,p_norm,I)
     % get number of index subsets
     n_I = length(I) ;
     

@@ -2,11 +2,11 @@
 % This script evaluates the emptiness check for ellipsotopes as a function
 % of the number of generators.
 %
-% NOTE this takes about 240 s to run on an i7 8-core processor.
+% NOTE this takes about 200 s to run on an i7 8-core processor.
 %
 % Authors: Shreyas Kousik
 % Created: 28 May 2021
-% Updated: no
+% Updated: 30 May 2021
 clear ; clc
 %% user parameters
 % rng seed
@@ -18,8 +18,8 @@ n_dim = 2 ;
 n_con = 1 ;
 
 % range of properties to test
-n_gen_list = 1:20 ; % 1:4:20 ;
-n_etopes_per_n_gen = 10 ; %10 ;
+n_gen_list = 1:20 ; % default is 1:20
+n_etopes_per_n_gen = 10 ; % default is 10
 
 %% automated from here
 n_n_gen = length(n_gen_list) ;

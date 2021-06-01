@@ -1,5 +1,5 @@
-function [out,value] = isempty(E,flag_compute_value)
-% [out,value] = isempty(E)
+function [out,value] = isempty(E,flag_compute_value,method)
+% [out,value] = E.isempty()
 %
 % This function checks if the ellipsotope E is empty by solving a convex
 % program. The output is TRUE if the ellipsotope is EMPTY. The "value"
@@ -10,10 +10,14 @@ function [out,value] = isempty(E,flag_compute_value)
 %
 % Authors: Shreyas Kousik
 % Created: 27 Apr 2021
-% Updated: 30 May 2021 (sped up some things)
+% Updated: 1 Jun 2021 (added method from corollary in paper)
 
     if nargin < 2
         flag_compute_value = false ;
+    end
+
+    if nargin < 3
+        method = 'feasibility' ;
     end
 
     % get etoproperties
@@ -22,52 +26,64 @@ function [out,value] = isempty(E,flag_compute_value)
     if isempty(A)
         % no constraints = not empty
         out = false ;
-        value = 0 ;
-    else       
+        value = [] ;
+    else
         % create initial guess
         x_0 = pinv(A)*b ;
-        
+
         % check if x_0 is actually feasible to the constraints
         if vecnorm(A*x_0 - b) > 1e-10
             out = true ;
             value = inf ;
             warning('The ellipsotope has degenerate constraints!')
         else
-            % test if initial feasible guess cost is < 1
+            % test if initial guess cost is < 1 (i.e., bail out early)
             value = E.cost_for_emptiness_check(x_0,p_norm,I,false) ;
-            
-            if value <= 1 && ~flag_compute_value
-                % the initial guess is feasible so the etope is nonempty
-                out = false ;
-            else
-                % run an LP with the constrained zonotope version of the
-                % etope to check emptiness conservatively
-                [f_cost,A_ineq,b_ineq,A_eq,b_eq] = E.make_con_zono_empty_check_LP(A,b) ;
-                z_opt = linprog(f_cost,A_ineq,b_ineq,A_eq,b_eq)  ;
-                value = z_opt(end) ;
-                
-                if value <= 1
-                    % the constrained zonotope overapproximation is empty
-                    % so the tope is empty
-                    out = true ;
-                else
-                    % set up program cost
-                    cost = @(x) E.cost_for_emptiness_check(x,p_norm,I,~flag_compute_value) ;
+            out = value > 1 ;
 
-                    % set up options
-                    options = optimoptions('fmincon','Display','off',...
-                        'CheckGradients',false,... % useful to set to true sometimes...
-                        'SpecifyObjectiveGradient',true) ;
+            if flag_compute_value || (~out)
+                switch method
+                    case 'standard'
+%                         % run an LP with the constrained zonotope version of the
+%                         % etope to check emptiness conservatively
+%                         [out,value] = E.isempty_bounding_zonotope() ;
+% 
+%                         if ~out
+                        % set up program cost
+                        cost = @(x) E.cost_for_emptiness_check(x,p_norm,I,~flag_compute_value) ;
 
-                    % run optimization, woo!
-                    try
-                        [~,value] = fmincon(cost,x_0,[],[],A,b,[],[],[],options) ;
-                        % output boolean
-                        out = value > 1 ;
-                    catch
-                        out = false ;
-                    end
+                        % set up options
+                        options = optimoptions('fmincon','Display','off',...
+                            'CheckGradients',false,... % useful to set to true sometimes...
+                            'SpecifyObjectiveGradient',true) ;
+
+                        % run optimization, woo!
+                        try
+                            [~,value] = fmincon(cost,x_0,[],[],A,b,[],[],[],options) ;
+                            % output boolean
+                            out = value > 1 ;
+                        catch
+                            out = false ;
+                        end
+%                         end
+
+                    case 'feasibility'
+                        % create cost and nonlcon
+                        cost = @(x) E.cost_for_emptiness_check_feas(x,A,b) ;
+                        cons = @(x) E.nonlcon_for_emptiness_check_feas(x,p_norm,I) ;
+
+                        % fmincon options
+                        options = optimoptions('fmincon','Display','off',...
+                            'SpecifyObjectiveGradient',true,...
+                            'SpecifyConstraintGradient',true) ;
+
+                        % run optimization
+                        [~,value] = fmincon(cost,x_0,[],[],[],[],[],[],cons,options) ;
+
+                        out = abs(value) > 1e-10 ;
                 end
+            else
+                value = [] ;
             end
         end
     end

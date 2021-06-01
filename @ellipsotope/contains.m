@@ -1,5 +1,5 @@
-function [out,value] = contains(E,p_test)
-% [out,value] = E.contains(p)
+function [result,value] = contains(E,p_test)
+% [result,value] = E.contains(p)
 %
 % Check if the point p is inside the ellipsotope E, meaning the output
 % value is <= 1.
@@ -8,27 +8,23 @@ function [out,value] = contains(E,p_test)
 %
 % Authors: Shreyas Kousik
 % Created: 26 Apr 2021
-% Updated: 27 Apr 2021
+% Updated: 01 Jun 2021 (used intersection and E.isempty())
 
-    % get etoproperties
-    [p_norm,c,G,A,b,I] = E.get_properties() ;
+    % get p_norm
+    p_norm = E.get_properties() ;
     
-    % compute point containtment constraint matrices
-    A_eq = [G ; A] ;
-    b_eq = [p_test - c ; b] ;
-
-    % set up program cost
-    cost = @(x) E.cost_for_emptiness_check(x,p_norm,I) ;
-    x_0 = pinv(A_eq)*b_eq ;
+    % create an ellipsotope with just the center point
+    E_p = ellipsotope(p_norm,p_test,[]) ;
     
-    % set up options
-    options = optimoptions('fmincon','Display','off',...
-        'CheckGradients',false,... % useful to set to true sometimes...
-        'SpecifyObjectiveGradient',true) ;
+    % compute intersection
+    E_int = E & E_p ;
     
-    % run optimization, woo!
-    [~,value] = fmincon(cost,x_0,[],[],A_eq,b_eq,[],[],[],options) ;
-
-    % output boolean
-    out = value <= 1 ;
+    % compute output
+    if nargout > 1
+        [out,value] = E_int.isempty(true) ;
+    else
+        out = E_int.isempty(false) ;
+    end
+    
+    result = ~out ;
 end

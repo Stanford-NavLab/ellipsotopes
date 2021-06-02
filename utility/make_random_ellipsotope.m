@@ -32,7 +32,7 @@ end
 %% make random properties
 c = 2*rand(n_dim,1) ;
 G = 2*rand(n_dim,n_gen) - 1 ;
-A = rand(n_con,n_gen) ;
+A = 2*rand(n_con,n_gen) - 1 ;
 b = 0.5*rand(n_con,1) - 0.5 ;
 I = make_random_index_set(n_gen,n_I) ;
 

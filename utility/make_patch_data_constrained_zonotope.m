@@ -24,7 +24,7 @@ function [F,V] = make_patch_data_constrained_zonotope(c,G,A,b)
         catch
             F_idx = [] ;
         end
-        V = V_idx ;
+        V = V_idx' ;
         F = F_idx' ;
     catch
         % set default output

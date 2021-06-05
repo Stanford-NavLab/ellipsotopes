@@ -12,12 +12,13 @@ clear
 params.dt = 0.2;
 params.V = 5;
 params.dx = params.V*params.dt;
-params.turn_radius = params.V/(20*pi/180);
+%params.turn_radius = params.V/(20*pi/180);
+params.turn_radius = 12;
 params.z_cov_range = 0.1;
 params.z_bias_range = 1;
 params.z_cov_theta = 0.001;
 params.pZ_order = 10;
-params.N_rollouts = 1000;
+params.N_rollouts = 100;
 params.m = 3;
 
 % motion and measurement uncertainty
@@ -35,11 +36,11 @@ robot.width = 1;
 robot.length = 2;
 
 
-reach.beacon_positions = [[-20;10], [-20;-80], [30;10], [30;-80]];
+reach.beacon_positions = [[-10;-10], [60;-10], [60;60], [-10;60]];
 
 %% generate nominal trajectory
 
-trajectory.waypoints = [ [0; 0; -pi/2], [10; -30; 0], [0; -40; 0] ];
+trajectory.waypoints = [ [0; 0; pi/2], [40; 10; pi/4], [50; 50; pi/8] ];
 % trajectory.waypoints = [ [0; 0; -pi/2], [10; -30; 0] ];
 trajectory.dubins_offset = 0;
 [trajectory.x_nom, trajectory.u_nom, trajectory.K_nom, ~, trajectory.dubins_offset] = dubins_curve(trajectory.waypoints(:,1)', trajectory.waypoints(:,2)', params.turn_radius, params.dx, params.dt, trajectory.dubins_offset, 1, robot);
@@ -122,16 +123,18 @@ RRBT = cell(1,trajectory.N_timesteps);
 RRBT{1} = Sigma;
 
 reach.Xrs = cell(1,trajectory.N_timesteps);
-P = 0.997; % probability threshold
+P = 0.99; % probability threshold
 eps = -2*log(1-P);
-c = trajectory.x_nom(1:3,1);
+c = trajectory.x_nom(1:2,1);
 G = sqrtm(eps*RRBT{1}(1:2,1:2));
-%Q = eps*RRBT{1}(1:3,1:3);
+Q = eps*RRBT{1}(1:2,1:2);
 reach.Xrs{1} = ellipsotope(2,c,G);
 %reach.Xrs{1} = ellipsoid(Q,c);
 
-G_robot = rotation_matrix_2D(pi*0.2) * diag([1 2]);
+G_robot = rotation_matrix_2D(trajectory.x_nom(3,1)) * 0.5 * diag([robot.length robot.width]);
 robot.body = ellipsotope(2,zeros(2,1),G_robot,[],[],{1,2});
+
+reach.Xrs{1} = reach.Xrs{1} + robot.body;
 
 for k = 2:trajectory.N_timesteps
     
@@ -149,51 +152,42 @@ for k = 2:trajectory.N_timesteps
     RRBT{k} = Sigma + Lambda;
     
     % confidence ellipsotope
-    c = trajectory.x_nom(1:3,k);
+    c = trajectory.x_nom(1:2,k);
     G = sqrtm(eps*RRBT{k}(1:2,1:2));
-    %Q = eps*RRBT{k}(1:3,1:3);
+    Q = eps*RRBT{k}(1:2,1:2);
     reach.Xrs{k} = ellipsotope(2,c,G);
     %reach.Xrs{k} = ellipsoid(Q,c);
     
     % robot body
-    G_robot = rotation_matrix_2D(trajectory.x_nom(3,k)) * 0.5 * diag([robot.width robot.length]);
+    G_robot = rotation_matrix_2D(trajectory.x_nom(3,k)) * 0.5 * diag([robot.length robot.width]);
     robot.body = ellipsotope(2,zeros(2,1),G_robot,[],[],{1,2});
     
-    %reach.Xrs{k} = reach.Xrs{k} + robot.body;
+    reach.Xrs{k} = reach.Xrs{k} + robot.body;
 end
+
+%% obstacle
+E_obs = ellipsotope(2,[0;0],5*[1 0.5 -0.5; 0 0.866 0.866],[],[],{1,2,3});
+E_obs = E_obs + ellipsotope(2,[0;0],2*diag([1;2]));
+E_obs = rotation_matrix_2D(0.6) * E_obs;
+E_obs = E_obs + [25;30];
 
 %% plot reachable sets and rollouts
 
 figure(1); hold on; grid on;
+for k = 1:4:trajectory.N_timesteps
+    reach_h = plot(reach.Xrs{k},'EdgeAlpha',1.0,'FaceColor','b','EdgeColor','b','LineWidth',1.5);
+end
 for i = 1:params.N_rollouts
-    lh = plot(rollouts.X(1,:,i),rollouts.X(2,:,i));
-    lh.Color=[0,0,0,0.5];
+    roll_h = plot(rollouts.X(1,:,i),rollouts.X(2,:,i));
+    roll_h.Color=[0,0,0,0.5];
 end
-for k = 1:trajectory.N_timesteps
-    plot(reach.Xrs{k});
-end
-scatter(reach.beacon_positions(1,:),reach.beacon_positions(2,:),100,'black','^','filled');
+obs_h = plot(E_obs,'FaceColor','r','EdgeColor','r','FaceAlpha',0.5,'EdgeAlpha',1.0);
+beac_h = scatter(reach.beacon_positions(1,:),reach.beacon_positions(2,:),100,'black','^','filled');
 axis equal
 ax = gca; ax.YAxis.FontSize = 8; ax.XAxis.FontSize = 8;
 xlabel('x [m]','Interpreter','latex','FontSize',12);
 ylabel('y [m]','Interpreter','latex','FontSize',12);
 xlim([min(reach.beacon_positions(1,:))-10 max(reach.beacon_positions(1,:))+10]);
 ylim([min(reach.beacon_positions(2,:))-10 max(reach.beacon_positions(2,:))+10]);
-
-% figure(2); hold on; grid on;
-% reach.Xrs = cell(1,trajectory.N_timesteps);
-% P = 0.99; % probability threshold
-% eps = -2*log(1-P);
-% for k = 1:trajectory.N_timesteps
-%     c = trajectory.x_nom(1:2,k);
-%     G = sqrtm(eps*RRBT{k}(1:2,1:2));
-%     reach.Xrs{k} = ellipsotope(2,c,G);
-%     plot(reach.Xrs{k});
-% end
-% scatter(reach.beacon_positions(1,:),reach.beacon_positions(2,:),100,'black','^','filled');
-% axis equal
-% ax = gca; ax.YAxis.FontSize = 8; ax.XAxis.FontSize = 8;
-% xlabel('x [m]','Interpreter','latex','FontSize',12);
-% ylabel('y [m]','Interpreter','latex','FontSize',12);
-% xlim([min(reach.beacon_positions(1,:))-10 max(reach.beacon_positions(1,:))+10]);
-% ylim([min(reach.beacon_positions(2,:))-10 max(reach.beacon_positions(2,:))+10]);
+legend([reach_h roll_h obs_h beac_h],'Reachable sets','Trajectory rollouts','Obstacle','Ranging beacons');
+set(gca,'fontsize',15)

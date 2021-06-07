@@ -129,7 +129,10 @@ c = trajectory.x_nom(1:2,1);
 G = sqrtm(eps*RRBT{1}(1:2,1:2));
 Q = eps*RRBT{1}(1:2,1:2);
 reach.Xrs{1} = ellipsotope(2,c,G);
-%reach.Xrs{1} = ellipsoid(Q,c);
+
+% circumscribing circle
+body_radius = norm([robot.width robot.length]) / 2;
+robot.circ = ellipsotope(2,zeros(2,1),body_radius*eye(2));
 
 G_robot = rotation_matrix_2D(trajectory.x_nom(3,1)) * 0.5 * diag([robot.length robot.width]);
 robot.body = ellipsotope(2,zeros(2,1),G_robot,[],[],{1,2});
@@ -159,10 +162,14 @@ for k = 2:trajectory.N_timesteps
     %reach.Xrs{k} = ellipsoid(Q,c);
     
     % robot body
-    G_robot = rotation_matrix_2D(trajectory.x_nom(3,k)) * 0.5 * diag([robot.length robot.width]);
-    robot.body = ellipsotope(2,zeros(2,1),G_robot,[],[],{1,2});
+%     G_robot = rotation_matrix_2D(trajectory.x_nom(3,k)) * 0.5 * diag([robot.length robot.width]);
+%     robot.body = ellipsotope(2,zeros(2,1),G_robot,[],[],{1,2});
     
-    reach.Xrs{k} = reach.Xrs{k} + robot.body;
+    % compute rotated body
+    d_theta = erfinv(P) * RRBT{k}(3,3) * sqrt(2);
+    robot.rot_body = rotated_body(robot, trajectory.x_nom(3,k), d_theta);
+    
+    reach.Xrs{k} = reach.Xrs{k} + robot.rot_body;
 end
 
 %% obstacle

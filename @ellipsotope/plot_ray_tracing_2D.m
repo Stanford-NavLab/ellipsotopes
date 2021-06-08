@@ -1,4 +1,6 @@
 function h_E = plot_ray_tracing_2D(E,varargin)
+% THIS FUNCTION IS DEPRECATED! See make_patch_data_ray_tracing_2D instead!
+%
 % h = E.plot_ray_tracing_2D()
 % h = E.plot_ray_tracing_2D(n)
 % h = plot_ray_tracing_2D(E,n,'projdims',[dim1 dim2], other_input_args...)

@@ -7,7 +7,9 @@ function [F,V] = make_patch_data_ray_tracing_2D(p,c,G,A,b,I,n_P)
 %
 % Authors: Shreyas Kousik and Adam Dai
 % Created: 20 May 2021
+% Updated: 7 Jun 2021 (switched from center to any feasible point)
 
+    %% setup
     % set default n_P
     if nargin < 7
         n_P = 200 ;
@@ -22,6 +24,17 @@ function [F,V] = make_patch_data_ray_tracing_2D(p,c,G,A,b,I,n_P)
         error('This function only works for 2-D ellipsotopes!')
     end
 
+    %% ray tracing setup
+    % create an initial point
+    x_coef = zeros(n_gen,1) ;
+    if n_con ~= 0
+        % project point to ball and linear subspace boundary to get a
+        % feasible point
+        x_coef_out = project_points_to_ball_product_and_linear_subspace(x_coef,p,A,b,I) ;
+        x_coef = x_coef_out(:,1) ;
+    end
+    x = c + G*x_coef ;
+    
     % initial ray direction
     g = 2*rand(2,1) - 1 ;
 
@@ -45,7 +58,7 @@ function [F,V] = make_patch_data_ray_tracing_2D(p,c,G,A,b,I,n_P)
         'SpecifyObjectiveGradient',true,...
         'SpecifyConstraintGradient',true) ;
 
-    % perform ray tracing
+    %% perform ray tracing
     for g_idx = 1:n_P
         % rotate g
         g = R*g ;
@@ -58,7 +71,7 @@ function [F,V] = make_patch_data_ray_tracing_2D(p,c,G,A,b,I,n_P)
 
         A_eq = [zeros(n_con,1), A ;
                 -g, G] ;
-        b_eq = [b ; zeros(2,1)] ;
+        b_eq = [b ; x - c] ;
 
         % call fmincon
         x_opt = fmincon(cost,x_0,[],[],A_eq,b_eq,[],[],cons,options) ;
@@ -66,7 +79,7 @@ function [F,V] = make_patch_data_ray_tracing_2D(p,c,G,A,b,I,n_P)
     end
 
     % construct the boundary
-    B = repmat(c,1,n_P) + g_all.*repmat(lm_all,2,1) ;
+    B = repmat(x,1,n_P) + g_all.*repmat(lm_all,2,1) ;
 
     % create output
     F = [1:n_P,1] ;

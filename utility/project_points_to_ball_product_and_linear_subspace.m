@@ -12,18 +12,9 @@ function [P_out,n_P_out] = project_points_to_ball_product_and_linear_subspace(P_
 % tolerance (by default 1e-12); in general, the projected points are around
 % a machine epsilon away from the boundary.
 %
-% TO DO (9 Apr 2021):
-%   - expand the code to higher than 3-D ball products
-%   - parallelize with respect to all the input points
-%   - check for when the linear subspace is of dimension 1 (i.e., check the
-%     dimension of ker(A))
-%   - check if A\b is feasible
-%
-% See also: project_points_to_ball_product
-%
 % Authors: Shreyas Kousik
 % Created: 9 Apr 2021
-% Updated: 12 Apr 2021
+% Updated: 7 Jun 2021
 
 % number of index subsets
 n_I = length(I) ;
@@ -45,7 +36,7 @@ if ~isempty(A)
     
     % get a feasible point on the constraint set (we assume this exists for
     % now)
-    t_con = A\b ;
+    t_con = pinv(A)*b ;
     
     for idx_P = 1:n_P
         % get current point

@@ -30,7 +30,18 @@ if isa(s1,'ellipsotope')
             c = s1.center + s2.center;
             G = [s1.generators s2.generators];
             I = combine_indices(s1.index_set, s2.index_set);
-            A = blkdiag(s1.constraint_A, s2.constraint_A);
+            % handle constrained/unconstrained cases
+            if s1.is_constrained()
+                A1_con = s1.constraint_A;
+            else
+                A1_con = zeros(0,s1.order);
+            end
+            if s2.is_constrained()
+                A2_con = s2.constraint_A;
+            else
+                A2_con = zeros(0,s2.order);
+            end
+            A = blkdiag(A1_con, A2_con);
             b = [s1.constraint_b; s2.constraint_b];
             out = ellipsotope(s1.p_norm,c,G,A,b,I);
             return

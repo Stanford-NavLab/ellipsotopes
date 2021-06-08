@@ -77,10 +77,10 @@ function h_E = plot(E,varargin)
     end
     
     % override plot method if E is a zonotope
-%     if E.is_zonotope()
-%         plot_method = 'zono' ;
-%         patch_data_args_in = {c,G,A,b} ;
-%     end    
+    if E.is_zonotope()
+        plot_method = 'zono' ;
+        patch_data_args_in = {c,G,A,b} ;
+    end    
     
     %% create plot data
     switch plot_method

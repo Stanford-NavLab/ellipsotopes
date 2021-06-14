@@ -9,7 +9,8 @@ function h_E = plot(E,varargin)
 %
 % In addition to the usual patch keywork input arguments, one can pass in
 % 'proj_dims' to pick which projected dimensions of the ellipsotope to
-% plot.
+% plot, and 'color' to override the facecolor and edgecolor arguments with
+% a single option.
 %
 % One can also pass in 'plot_method', followed by a string:
 %
@@ -37,14 +38,14 @@ function h_E = plot(E,varargin)
 %
 % Authors: Adam Dai and Shreyas Kousik
 % Created: in days of yore
-% Updated: 21 May 2021 (3-D topes default to 3-D plots now)
+% Updated: 13 Jun 2021 (added 'color' as a property for laziness)
 
     %% setup
     % get properties
     [p,c,G,A,b,I,n_dim,~,~] = E.get_properties() ;
     
     % check for projection dimensions
-    [proj_dims,args] = check_varargin_for_keyword('proj_dims',varargin{:}) ;
+    [proj_dims,plot_args] = check_varargin_for_keyword('proj_dims',varargin{:}) ;
     if isempty(proj_dims)
         % default to [1 2] projection
         proj_dims = 1:2 ;
@@ -58,7 +59,7 @@ function h_E = plot(E,varargin)
     G = G(proj_dims,:) ;
     
     % check for user-specified method
-    [plot_method,args] = check_varargin_for_keyword('plot_method',args{:}) ;
+    [plot_method,plot_args] = check_varargin_for_keyword('plot_method',plot_args{:}) ;
     if isempty(plot_method)
         % default to coefficient method, unless in 2D
         plot_method = 'sample';
@@ -67,8 +68,16 @@ function h_E = plot(E,varargin)
         end
     end
     
+    % check for color input argument
+    [color,plot_args] = check_varargin_for_keyword('color',plot_args{:}) ;
+    if ~isempty(color)
+        plot_args = [plot_args,...
+            {'facecolor',color,...
+            'edgecolor',color}] ;
+    end
+    
     % check for number of points
-    [n_P,args] = check_varargin_for_keyword('num_points',args{:}) ;
+    [n_P,plot_args] = check_varargin_for_keyword('num_points',plot_args{:}) ;
     
     % create patch data args in
     patch_data_args_in = {p,c,G,A,b,I} ;
@@ -80,7 +89,7 @@ function h_E = plot(E,varargin)
     if E.is_zonotope()
         plot_method = 'zono' ;
         patch_data_args_in = {c,G,A,b} ;
-    end    
+    end
     
     %% create plot data
     switch plot_method
@@ -96,7 +105,7 @@ function h_E = plot(E,varargin)
     
     %% plotting
     plot_options = [{'facecolor','b','linewidth',1.5,'edgecolor','b',...
-                'facealpha',0.1,'edgealpha',0.5}, args{:}] ;
+                'facealpha',0.1,'edgealpha',0.5}, plot_args{:}] ;
     h = patch('faces',F,'vertices',V,plot_options{:}) ;
     
     E.plot_handle = h;

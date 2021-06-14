@@ -1,16 +1,17 @@
-function [out,value] = isempty(E,flag_compute_value,method)
-% [out,value] = E.isempty()
+function [out,value,x_feas] = isempty(E,flag_compute_value,method)
+% [out,value,x_feas] = E.isempty()
 %
 % This function checks if the ellipsotope E is empty by solving a convex
 % program. The output is TRUE if the ellipsotope is EMPTY. The "value"
 % output is the cost of the convex program, which we set to 0 in the case
-% of an unconstrained ellipsotope.
+% of an unconstrained ellipsotope. The x_feas output is a feasible point in
+% the ellipsotope.
 %
 % See also: ellipsotope.contains
 %
 % Authors: Shreyas Kousik
 % Created: 27 Apr 2021
-% Updated: 1 Jun 2021 (added method from corollary in paper)
+% Updated: 7 Jun 2021 (added feasible point output)
 
     if nargin < 2
         flag_compute_value = false ;
@@ -19,14 +20,19 @@ function [out,value] = isempty(E,flag_compute_value,method)
     if nargin < 3
         method = 'feasibility' ;
     end
+    
+    if nargout == 3
+        flag_compute_value = true ;
+    end
 
     % get etoproperties
-    [p_norm,~,~,A,b,I] = E.get_properties() ;
+    [p_norm,c,G,A,b,I] = E.get_properties() ;
 
     if isempty(A)
         % no constraints = not empty
         out = false ;
         value = [] ;
+        x_feas = c ;
     else
         % create initial guess
         x_0 = pinv(A)*b ;
@@ -34,7 +40,8 @@ function [out,value] = isempty(E,flag_compute_value,method)
         % check if x_0 is actually feasible to the constraints
         if vecnorm(A*x_0 - b) > 1e-10
             out = true ;
-            value = inf ;
+            value = [] ;
+            x_feas = [] ;
             warning('The ellipsotope has degenerate constraints!')
         else
             % test if initial guess cost is < 1 (i.e., bail out early)
@@ -59,7 +66,7 @@ function [out,value] = isempty(E,flag_compute_value,method)
 
                         % run optimization, woo!
                         try
-                            [~,value] = fmincon(cost,x_0,[],[],A,b,[],[],[],options) ;
+                            [x_opt,value] = fmincon(cost,x_0,[],[],A,b,[],[],[],options) ;
                             % output boolean
                             out = value > 1 ;
                         catch
@@ -78,12 +85,14 @@ function [out,value] = isempty(E,flag_compute_value,method)
                             'SpecifyConstraintGradient',true) ;
 
                         % run optimization
-                        [~,value] = fmincon(cost,x_0,[],[],[],[],[],[],cons,options) ;
+                        [x_opt,value] = fmincon(cost,x_0,[],[],[],[],[],[],cons,options) ;
 
                         out = abs(value) > 1e-10 ;
                 end
+                x_feas = c + G*x_opt ;
             else
                 value = [] ;
+                x_feas = [] ;
             end
         end
     end

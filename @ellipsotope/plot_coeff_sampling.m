@@ -1,4 +1,6 @@
 function h_E = plot_coeff_sampling(E,varargin)
+% THIS FUNCTION IS DEPRECATED! See make_patch_data_coeff_sampling instead!
+%
 % plot_coeff_sampling(E)
 % plot_coeff_sampling(E,'projdims',[dim1 dim2], other_input_args...)
 % plot_coeff_sampling(E,'facecolor',color,'edgecolor',color,'facealpha',...)

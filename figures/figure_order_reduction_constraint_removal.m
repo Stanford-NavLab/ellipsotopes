@@ -1,6 +1,6 @@
 %% description
-% This script tests overapproximating an ellipsotope per [1, Prop. 5],
-% which allows us to delete a constraint (wow!)
+% This script demosntrates overapproximating an ellipsotope using
+% [1, Prop. 5], which allows us to delete a constraint (wow!)
 %
 % [1] Scott, J.K., Raimondo, D.M., Marseglia, G.R. and Braatz, R.D., 2016.
 %     Constrained zonotopes: A new tool for set-based estimation and fault
@@ -8,6 +8,7 @@
 %
 % Authors: Shreyas Kousik
 % Created: 29 May 2021
+% Updated: 16 June 2021
 clear ; clc
 %% user parameters
 % rng
@@ -16,8 +17,8 @@ rng(0)
 % etope specs
 p_norm = 2 ;
 n_dim = 2 ;
-n_gen = 10 ;
-n_con = 3 ;
+n_gen = 8 ;
+n_con = 2 ;
 
 %% autoamted from here
 % make random etope
@@ -26,7 +27,7 @@ n_con = 3 ;
 % create Gamma and Lambda matrices
 Gm = zeros(n_dim,n_con) ;
 % Lm = 10*rand(n_con,n_con) - 5 ;
-Lm = diag([1,zeros(1,n_con-1)]) ;
+% Lm = diag([1,zeros(1,n_con-1)]) ;
 
 %% iterate over the constraints and eliminate one at a time
 E_list = cell(1,n_con) ;
@@ -57,15 +58,15 @@ fh = figure(1) ; clf ; axis equal ; hold on ; grid on ;
 
 % plot all etopes
 for idx = 1:n_con
-    plot(E_list{idx},'facecolor','r','edgecolor','r','linestyle','--','facealpha',0.1)
+    plot(E_list{idx},'color','r','linestyle','--','facealpha',0.1)
 end
 
 % plot origetope
 plot(E,'facecolor',[0.7 0.7 1],'facealpha',1) ;
 
-xlabel('x\langle1\rangle')
-ylabel('x\langle2\rangle')
+% xlabel('x\langle1\rangle')
+% ylabel('x\langle2\rangle')
 set_plot_linewidths(1.5)
 set_plot_fontsize(15)
 
-% save_figure_to_png(fh,'order_reduction_example.png')
+save_figure_to_png(fh,'order_reduc_constraint_removal.png')

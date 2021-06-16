@@ -4,7 +4,7 @@
 %
 % Authors: Adam Dai and Shreyas Kousik
 % Created: shrug
-% Updated: 15 Mar 2021
+% Updated: 15 June 2021 (made intersection different)
 %
 %% user parameters
 % specify the two ellipsotopes

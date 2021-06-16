@@ -26,17 +26,30 @@ robot.Q_lqr = diag([0.1 0.1 10]);
 robot.R_lqr = diag([10 0.1]);
 robot.Q = 10*diag([0.01, 0.01, 0.001]);
 
-range_sigma = 0.4;
-heading_sigma = 0.001;
-robot.R = diag([range_sigma*ones(1,4), heading_sigma]);
 robot.P0 = diag([0.1 0.1 0.01]);
 
 % robot dimensions
 robot.width = 1;
 robot.length = 2;
 
-
+% measurements
 reach.beacon_positions = [[-10;-10], [60;-10], [60;60], [-10;60]];
+meas_plane = 30;
+range_sigma_1 = 0.4;
+range_sigma_2 = 10.0;
+heading_sigma = 0.001;
+robot.R1 = diag([range_sigma_1*ones(1,4), heading_sigma]);
+robot.R2 = diag([range_sigma_2*ones(1,4), heading_sigma]);
+
+%% obstacle
+n_obs = 3;
+obs = {};
+obs{1} = ellipsotope(2,[32;30],8*eye(2),[],[],{1,2});
+obs{1} = obs{1} + ellipsotope(2,[0;0],eye(2));
+obs{2} = ellipsotope(2,[14;-3],5*eye(2),[],[],{1,2});
+obs{2} = obs{2} + ellipsotope(2,[0;0],eye(2));
+obs{3} = ellipsotope(2,[60;35],5*eye(2),[],[],{1,2});
+obs{3} = obs{3} + ellipsotope(2,[0;0],eye(2));
 
 %% generate nominal trajectory
 
@@ -78,7 +91,14 @@ for i = 1:params.N_rollouts
         
         %obtain system matrices
         [robot.A, robot.B, robot.C, robot.K] = obtain_system_matrices( k, trajectory, reach, params );
-        v = mvnrnd(zeros(5,1),robot.R);
+        
+        % compute measurements
+        if rollouts.x(1) < meas_plane 
+            R = robot.R1;
+        else
+            R = robot.R2;
+        end
+        v = mvnrnd(zeros(5,1),R);
         for n = 1:4
             rollouts.z(n,1) = sqrt((rollouts.x(1)-reach.beacon_positions(1,n))^2 + (rollouts.x(2)-reach.beacon_positions(2,n))^2 ) + v(n);
         end
@@ -94,10 +114,9 @@ for i = 1:params.N_rollouts
         end
         rollouts.z_pred(5,1) = rollouts.x_pred(3);
         
-        rollouts.L = rollouts.P_pred*robot.C'/(robot.C*rollouts.P_pred*robot.C' + robot.R);
+        rollouts.L = rollouts.P_pred*robot.C'/(robot.C*rollouts.P_pred*robot.C' + R);
         rollouts.x_est = rollouts.x_pred + rollouts.L*(rollouts.z - rollouts.z_pred);
         rollouts.P = rollouts.P_pred - rollouts.L*robot.C*rollouts.P_pred;
-        
     end
     
 end
@@ -126,15 +145,21 @@ robot.body = ellipsotope(2,zeros(2,1),G_robot,[],[],{1,2});
 
 reach.Xrs{1} = reach.Xrs{1} + robot.body;
 
-tic 
+tic
 for k = 2:trajectory.N_timesteps
     
     %obtain system matrices
     [robot.A, robot.B, robot.C, robot.K] = obtain_system_matrices( k, trajectory, reach, params );
     
+    if trajectory.x_nom(1,k) < meas_plane 
+        R = robot.R1;
+    else
+        R = robot.R2;
+    end
+    
     % covariance prediction
     Sigma = robot.A*Sigma*robot.A' + robot.Q;
-    L = Sigma*robot.C'/(robot.C*Sigma*robot.C' + robot.R);
+    L = Sigma*robot.C'/(robot.C*Sigma*robot.C' + R);
     
     Lambda = (robot.A - robot.B*robot.K)*Lambda*(robot.A - robot.B*robot.K)' + L*robot.C*Sigma;
     Sigma = Sigma - L*robot.C*Sigma;
@@ -161,19 +186,16 @@ for k = 2:trajectory.N_timesteps
 end
 disp(['time to compute reachable set: ',num2str(toc)]);
 
-%% obstacle
-E_obs = ellipsotope(2,[0;0],5*[1 0.5 -0.5; 0 0.866 0.866],[],[],{1,2,3});
-E_obs = E_obs + ellipsotope(2,[0;0],2*diag([1;2]));
-E_obs = rotation_matrix_2D(0.6) * E_obs;
-E_obs = E_obs + [35;30];
-
 %% collision check
 tic
 in_collision = false;
+collision = {};
 for k = 1:trajectory.N_timesteps
-    if ~isempty(reach.Xrs{k} & E_obs)
-        in_collision = true;
-        break
+    for j = 1:n_obs
+        if ~isempty(reach.Xrs{k} & obs{j})
+            in_collision = true;
+            break
+        end
     end
 end 
 if in_collision
@@ -186,15 +208,24 @@ disp(['time to collision check: ',num2str(toc)]);
 %% plot reachable sets and rollouts
 
 figure(1); hold on; grid on;
+% reachable sets
 for k = 1:4:trajectory.N_timesteps
     reach_h = plot(reach.Xrs{k},'EdgeAlpha',1.0,'FaceColor','b','EdgeColor','b','LineWidth',1.5);
 end
+% rollouts
 for i = 1:params.N_rollouts
     roll_h = plot(rollouts.X(1,:,i),rollouts.X(2,:,i));
     roll_h.Color=[0,0,0,0.5];
 end
-obs_h = plot(E_obs,'FaceColor','r','EdgeColor','r','FaceAlpha',0.5,'EdgeAlpha',1.0);
+% obstacle
+for i = 1:n_obs
+    obs_h = plot(obs{i},'FaceColor','r','EdgeColor','r','FaceAlpha',0.5,'EdgeAlpha',1.0);
+end
+% beacons
 beac_h = scatter(reach.beacon_positions(1,:),reach.beacon_positions(2,:),100,'black','^','filled');
+% measurement region
+line([meas_plane,meas_plane],[-30,80],'LineStyle','--');
+patch([30,80,80,30],[80,80,-30,-30],'r','FaceAlpha',0.1,'EdgeAlpha',0.0);
 axis equal
 ax = gca; ax.YAxis.FontSize = 8; ax.XAxis.FontSize = 8;
 xlabel('x [m]','Interpreter','latex','FontSize',12);

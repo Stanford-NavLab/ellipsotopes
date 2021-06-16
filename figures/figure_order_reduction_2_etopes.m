@@ -129,8 +129,8 @@ fh_b = figure(2) ; clf ; axis equal ; hold on ; grid on ;
 for idx = 1:3
     plot(E_possible{idx},'color','r')
 end
-plot(E_tilde,'facecolor',[0.7 1 0.7],'edgecolor',[0 0.3 0],'facealpha',1)
-plot(E,'facealpha',0.05,'linestyle','--','edgecolor',[0 0.3 0]) ;
+plot(E_tilde,'facecolor',[0.7 0.7 1],'edgecolor',[0 0 0.3],'facealpha',1)
+plot(E,'facealpha',0.0,'linestyle','--','edgecolor',[0 0 0.3]) ;
 
 axis tight
 set_plot_fontsize(15) ;

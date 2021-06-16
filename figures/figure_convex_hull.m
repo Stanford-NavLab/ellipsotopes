@@ -3,7 +3,7 @@
 %
 % Authors: Adam Dai (and Shreyas sneakin in here too)
 % Created: 19 Apr 2021
-% Updated: 4 May 2021 (updated plotting to use ray tracing)
+% Updated: 15 June 2021 (changed plot slightly)
 clear ; clc
 %% user parameters
 % rng seed
@@ -52,6 +52,6 @@ lim = axis; axis(lim + 0.25*[-1 1 -1 1]);
 legend('$E_1$','$E_2$','$E_CH$','Interpreter','latex');
 
 if flag_save_figure
-    save_figure_to_pdf(h,'convex_hull.pdf')
+    % save_figure_to_pdf(h,'convex_hull.pdf')
     save_figure_to_png(h,'convex_hull.png')
 end

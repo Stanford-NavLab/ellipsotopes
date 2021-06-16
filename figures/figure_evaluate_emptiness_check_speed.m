@@ -2,11 +2,11 @@
 % This script evaluates the emptiness check for ellipsotopes as a function
 % of the number of generators.
 %
-% NOTE this takes about 200 s to run on an i7 8-core processor.
+% NOTE this takes about 25 s to run on an i7 8-core processor.
 %
 % Authors: Shreyas Kousik
 % Created: 28 May 2021
-% Updated: 30 May 2021
+% Updated: 15 June 2021 (reran with bug fixed in E.isempty())
 clear ; clc
 %% user parameters
 % rng seed
@@ -67,6 +67,7 @@ fh = figure(1) ; clf ;
 
 subplot(2,1,1) ; hold on ; grid on ;
 h_full = boxplot(t_avg_full,'Colors','b','labels',n_gen_list,'labelorientation','horizontal') ;
+
 xlabel('# of generators')
 ylabel('time [s]')
 set_plot_linewidths(1.5) ;
@@ -80,3 +81,5 @@ xlabel('# of generators')
 ylabel('time [s]')
 set_plot_linewidths(1.5) ;
 set_plot_fontsize(15) ;
+
+% save_figure_to_png(fh,'emptiness_check_time.png')

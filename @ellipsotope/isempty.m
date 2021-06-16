@@ -11,7 +11,7 @@ function [out,value,x_feas] = isempty(E,flag_compute_value,method)
 %
 % Authors: Shreyas Kousik
 % Created: 27 Apr 2021
-% Updated: 7 Jun 2021 (added feasible point output)
+% Updated: 15 Jun 2021 (fixed bugs with bailing out early and broke logic)
 
     if nargin < 2
         flag_compute_value = false ;
@@ -44,11 +44,11 @@ function [out,value,x_feas] = isempty(E,flag_compute_value,method)
             x_feas = [] ;
             warning('The ellipsotope has degenerate constraints!')
         else
-            % test if initial guess cost is < 1 (i.e., bail out early)
+            % test if initial guess cost is < 1 so we can bail out early
             value = E.cost_for_emptiness_check(x_0,p_norm,I,false) ;
-            out = value > 1 ;
+            bail_out = value <= 1 ;
 
-            if flag_compute_value || (~out)
+            if flag_compute_value || (~bail_out)
                 switch method
                     case 'standard'
 %                         % run an LP with the constrained zonotope version of the
@@ -69,8 +69,10 @@ function [out,value,x_feas] = isempty(E,flag_compute_value,method)
                             [x_opt,value] = fmincon(cost,x_0,[],[],A,b,[],[],[],options) ;
                             % output boolean
                             out = value > 1 ;
+                            x_feas = c + G*x_opt ;
                         catch
                             out = false ;
+                            x_feas = [] ;
                         end
 %                         end
 
@@ -85,14 +87,14 @@ function [out,value,x_feas] = isempty(E,flag_compute_value,method)
                             'SpecifyConstraintGradient',true) ;
 
                         % run optimization
-                        [x_opt,value] = fmincon(cost,x_0,[],[],[],[],[],[],cons,options) ;
+                        [~,value] = fmincon(cost,x_0,[],[],[],[],[],[],cons,options) ;
 
                         out = abs(value) > 1e-10 ;
+                        x_feas = [] ;
                 end
-                x_feas = c + G*x_opt ;
             else
-                value = [] ;
-                x_feas = [] ;
+                out = false ;
+                x_feas = x_0 ;
             end
         end
     end

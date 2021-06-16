@@ -7,7 +7,7 @@ function [F,V] = make_patch_data_ray_tracing_2D(p,c,G,A,b,I,n_P)
 %
 % Authors: Shreyas Kousik and Adam Dai
 % Created: 20 May 2021
-% Updated: 7 Jun 2021 (switched from center to any feasible point)
+% Updated: 15 Jun 2021 (fixed a bug)
 
     %% setup
     % set default n_P
@@ -28,10 +28,13 @@ function [F,V] = make_patch_data_ray_tracing_2D(p,c,G,A,b,I,n_P)
     % create an initial point
     x_coef = zeros(n_gen,1) ;
     if n_con ~= 0
-        % project point to ball and linear subspace boundary to get a
-        % feasible point
-        x_coef_out = project_points_to_ball_product_and_linear_subspace(x_coef,p,A,b,I) ;
-        x_coef = x_coef_out(:,1) ;
+        % test if initial point is feasible
+        if ~all(A*x_coef == b)
+            % project point to ball and linear subspace boundary to get a
+            % feasible point
+            x_coef_out = project_points_to_ball_product_and_linear_subspace(x_coef,p,A,b,I) ;
+            x_coef = x_coef_out(:,1) ;
+        end
     end
     x = c + G*x_coef ;
     

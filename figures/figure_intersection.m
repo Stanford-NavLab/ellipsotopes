@@ -4,7 +4,7 @@
 %
 % Authors: Adam Dai and Shreyas Kousik
 % Created: shrug
-% Updated: 15 Mar 2021
+% Updated: 15 June 2021 (made intersection different)
 %
 %% user parameters
 % specify the two ellipsotopes
@@ -29,9 +29,9 @@ E_int = E1 & E2;
 %% plotting
 h = figure(1) ; clf ; axis equal ; hold on ; grid on ;
 
-plot(E1,'facecolor','r','edgecolor','r','facealpha',0.1);
-plot(E2,'facecolor','b','edgecolor','b','facealpha',0.1);
-plot(E_int,'facecolor','m','edgecolor','m','facealpha',1.0);
+plot(E1,'color','r','facealpha',0.1);
+plot(E2,'color','b','facealpha',0.1);
+plot(E_int,'color','g','facealpha',0.1);
 xlabel('$x\langle 1 \rangle$','Interpreter','latex'); ylabel('$x\langle 2 \rangle$','Interpreter','latex');
 
 lim = axis; axis(lim + [-1 1 -1 1]);

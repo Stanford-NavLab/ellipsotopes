@@ -29,8 +29,11 @@ E_int = E1 & E2;
 %% plotting
 h = figure(1) ; clf ; axis equal ; hold on ; grid on ;
 
-plot(E1,'facecolor','r','edgecolor','r','facealpha',0.1);
-plot(E2,'facecolor','b','edgecolor','b','facealpha',0.1);
+c1 = [0, 0.4470, 0.7410];
+c2 = [0.8500, 0.3250, 0.0980];
+c3 = [0.4940, 0.1840, 0.5560];
+plot(E1,'color',c1,'facealpha',0.1);
+plot(E2,'color',c2,'facealpha',0.1);
 plot(E_int,'facecolor','m','edgecolor','m','facealpha',1.0);
 xlabel('$x\langle 1 \rangle$','Interpreter','latex'); ylabel('$x\langle 2 \rangle$','Interpreter','latex');
 

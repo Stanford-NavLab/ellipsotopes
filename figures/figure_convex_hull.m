@@ -49,7 +49,7 @@ plot(E2,'facecolor','b','edgecolor','b') ;
 plot(E_CH,'facecolor','m','edgecolor','m') ;
 xlabel('$x\langle 1 \rangle$','Interpreter','latex'); ylabel('$x\langle 2 \rangle$','Interpreter','latex');
 lim = axis; axis(lim + 0.25*[-1 1 -1 1]);
-legend('$E_1$','$E_2$','$E_CH$','Interpreter','latex');
+legend('$E_1$','$E_2$','$E_{CH}$','Interpreter','latex');
 
 if flag_save_figure
     save_figure_to_pdf(h,'convex_hull.pdf')

@@ -1,7 +1,7 @@
 function out = is_zonotope(E)
 % out = is_zonotope(E)
 %
-% Check if the ellipsotope E is a zonotope.
+% Check if the ellipsotope E is a (constrained) zonotope.
 %
 % Authors: Shreyas Kousik
 % Created: 20 May 2021

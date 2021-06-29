@@ -12,11 +12,12 @@ function out = area(E)
         V = vertices(cz);
         out = area(alphaShape(V(1,:)',V(2,:)'));
     else
-        % call plot to store vertices in plot_handle
-        plot(E,'plot_method','ray');
+        % using ray tracing to obtain "vertices" (boundary points)
+        n_P = 200;
+        [p,c,G,A,b,I,~,~,~] = get_properties(E);
+        [~,V] = make_patch_data_ray_tracing_2D(p,c,G,A,b,I,n_P);
 
-        % retrieve vertices, and use to compute area
-        V = E.plot_handle.Vertices;
-        out = area(alphaShape(V));
+        % create polyshape from vertices and use to compute area
+        out = area(polyshape(V));
     end
 end

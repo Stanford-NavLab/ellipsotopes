@@ -128,25 +128,23 @@ Lambda = zeros(3);
 RRBT = cell(1,trajectory.N_timesteps);
 RRBT{1} = Sigma;
 
-reach.Xrs = cell(1,trajectory.N_timesteps);
+reach.zono = cell(1,trajectory.N_timesteps);
+reach.ellip = cell(1,trajectory.N_timesteps);
+reach.etope = cell(1,trajectory.N_timesteps);
+
 P = 0.9973; % probability threshold
 eps = -2*log(1-P);
-c = trajectory.x_nom(1:2,1);
-G = sqrtm(eps*RRBT{1}(1:2,1:2));
-Q = eps*RRBT{1}(1:2,1:2);
-reach.Xrs{1} = ellipsotope(2,c,G);
 
-% circumscribing circle
-body_radius = norm([robot.width robot.length]) / 2;
-robot.circ = ellipsotope(2,zeros(2,1),body_radius*eye(2));
+c = trajectory.x_nom(1:2,1);
+reach.zono{1} = cov2zonotope(RRBT{1}(1:2,1:2),3,2) + c;
+
+Q = eps*RRBT{1}(1:2,1:2);
+reach.ellip{1} = ellipsoid(Q,c);
 
 G_robot = rotation_matrix_2D(trajectory.x_nom(3,1)) * 0.5 * diag([robot.length robot.width]);
-robot.body = ellipsotope(2,zeros(2,1),G_robot,[],[],{1,2});
+robot.body = zonotope(zeros(2,1),G_robot);
 
-d_theta = erfinv(P) * RRBT{1}(3,3) * sqrt(2);
-robot.rot_body = rotated_body(robot, trajectory.x_nom(3,1), d_theta);
-
-reach.Xrs{1} = reach.Xrs{1} + robot.rot_body;
+%reach.zono{1} = reach.zono{1} + robot.body;
 
 tic
 for k = 2:trajectory.N_timesteps
@@ -170,56 +168,54 @@ for k = 2:trajectory.N_timesteps
     % RRBT distribution
     RRBT{k} = Sigma + Lambda;
     
-    % confidence ellipsotope
+    % zonotope
     c = trajectory.x_nom(1:2,k);
-    G = sqrtm(eps*RRBT{k}(1:2,1:2));
+    reach.zono{k} = cov2zonotope(RRBT{k}(1:2,1:2),3,2) + c;
+    
+    % ellipsoid
     Q = eps*RRBT{k}(1:2,1:2);
-    reach.Xrs{k} = ellipsotope(2,c,G);
-    %reach.Xrs{k} = ellipsoid(Q,c);
+    reach.ellip{k} = ellipsoid(Q,c);
     
-    % robot body
-%     G_robot = rotation_matrix_2D(trajectory.x_nom(3,k)) * 0.5 * diag([robot.length robot.width]);
-%     robot.body = ellipsotope(2,zeros(2,1),G_robot,[],[],{1,2});
-    
-    % compute rotated body
+    % compute rotated body overapproximation
     d_theta = erfinv(P) * RRBT{k}(3,3) * sqrt(2);
-    robot.rot_body = rotated_body(robot, trajectory.x_nom(3,k), d_theta);
+    robot.rot_body = rotated_body_zono(robot, trajectory.x_nom(3,k), d_theta);
     
     %reach.Xrs{k} = reach.Xrs{k} + robot.rot_body;
 end
 disp(['time to compute reachable set: ',num2str(toc)]);
 
 %% collision check
-tic
-in_collision = false;
-collision = {};
-for k = 1:trajectory.N_timesteps
-    for j = 1:n_obs
-        if ~isempty(reach.Xrs{k} & obs{j})
-            in_collision = true;
-            break
-        end
-    end
-end 
-if in_collision
-    disp('Reachable set collides with obstacle');
-else
-    disp('Reachable set does not collide with obstacle');
-end
-disp(['time to collision check: ',num2str(toc)]);
+% tic
+% in_collision = false;
+% collision = {};
+% for k = 1:trajectory.N_timesteps
+%     for j = 1:n_obs
+%         if ~isempty(reach.Xrs{k} & obs{j})
+%             in_collision = true;
+%             break
+%         end
+%     end
+% end 
+% if in_collision
+%     disp('Reachable set collides with obstacle');
+% else
+%     disp('Reachable set does not collide with obstacle');
+% end
+% disp(['time to collision check: ',num2str(toc)]);
 
 %% plot reachable sets and rollouts
 
 figure(1); hold on; grid on;
 % reachable sets
 for k = 1:4:trajectory.N_timesteps
-    reach_h = plot(reach.Xrs{k},'EdgeAlpha',1.0,'FaceColor','b','EdgeColor','b','LineWidth',1.5);
+    zono_h = plot(reach.zono{k},[1,2],'Filled',true,'FaceAlpha',0.1,'FaceColor','b','EdgeColor','b','LineWidth',1.5);
+    ellip_h = plot(reach.ellip{k},[1,2],'Filled',true,'FaceAlpha',0.1,'FaceColor','m','EdgeColor','m','LineWidth',1.5);
 end
 % rollouts
-for i = 1:params.N_rollouts
-    roll_h = plot(rollouts.X(1,:,i),rollouts.X(2,:,i));
-    roll_h.Color=[0,0,0,0.5];
-end
+% for i = 1:params.N_rollouts
+%     roll_h = plot(rollouts.X(1,:,i),rollouts.X(2,:,i));
+%     roll_h.Color=[0,0,0,0.5];
+% end
 % obstacle
 for i = 1:n_obs
     obs_h = plot(obs{i},'FaceColor','r','EdgeColor','r','FaceAlpha',0.5,'EdgeAlpha',1.0);
@@ -235,5 +231,5 @@ xlabel('x [m]','Interpreter','latex','FontSize',12);
 ylabel('y [m]','Interpreter','latex','FontSize',12);
 xlim([min(reach.beacon_positions(1,:))-10 max(reach.beacon_positions(1,:))+10]);
 ylim([min(reach.beacon_positions(2,:))-10 max(reach.beacon_positions(2,:))+10]);
-legend([reach_h roll_h obs_h beac_h],'Reachable sets','Trajectory rollouts','Obstacle','Ranging beacons');
+%legend([reach_h roll_h obs_h beac_h],'Reachable sets','Trajectory rollouts','Obstacle','Ranging beacons');
 set(gca,'fontsize',15)

@@ -134,17 +134,27 @@ reach.etope = cell(1,trajectory.N_timesteps);
 
 P = 0.9973; % probability threshold
 eps = -2*log(1-P);
-
+% initial zonotope
 c = trajectory.x_nom(1:2,1);
 reach.zono{1} = cov2zonotope(RRBT{1}(1:2,1:2),3,2) + c;
-
+% initial ellipsoid
 Q = eps*RRBT{1}(1:2,1:2);
 reach.ellip{1} = ellipsoid(Q,c);
+% initial ellipsotope
+G = sqrtm(eps*RRBT{1}(1:2,1:2));
+reach.etope{1} = ellipsotope(2,c,G);
 
-G_robot = rotation_matrix_2D(trajectory.x_nom(3,1)) * 0.5 * diag([robot.length robot.width]);
-robot.body = zonotope(zeros(2,1),G_robot);
+% circumscribing circle
+body_radius = norm([robot.width robot.length]) / 2;
+robot.circ = ellipsotope(2,zeros(2,1),body_radius*eye(2));
+d_theta = erfinv(P) * RRBT{1}(3,3) * sqrt(2);
+robot.rot_body = rotated_body(robot, trajectory.x_nom(3,1), d_theta);
+robot.rot_body_zono = rotated_body_zono(robot, trajectory.x_nom(3,1), d_theta);
+robot.rot_body_ellip = rotated_body_ellip(robot);
 
-%reach.zono{1} = reach.zono{1} + robot.body;
+reach.etope{1} = reach.etope{1} + robot.rot_body;
+reach.zono{1} = reach.zono{1} + robot.rot_body_zono;
+reach.ellip{1} = reach.ellip{1} + robot.rot_body_ellip;
 
 tic
 for k = 2:trajectory.N_timesteps
@@ -168,19 +178,32 @@ for k = 2:trajectory.N_timesteps
     % RRBT distribution
     RRBT{k} = Sigma + Lambda;
     
-    % zonotope
+    % zonotope position uncertainty bound
     c = trajectory.x_nom(1:2,k);
     reach.zono{k} = cov2zonotope(RRBT{k}(1:2,1:2),3,2) + c;
     
-    % ellipsoid
+    % ellipsoid position uncertainty bound
     Q = eps*RRBT{k}(1:2,1:2);
     reach.ellip{k} = ellipsoid(Q,c);
     
+    % ellipsotope position uncertainty bound
+    G = sqrtm(eps*RRBT{k}(1:2,1:2));
+    reach.etope{k} = ellipsotope(2,c,G);
+    
     % compute rotated body overapproximation
     d_theta = erfinv(P) * RRBT{k}(3,3) * sqrt(2);
-    robot.rot_body = rotated_body_zono(robot, trajectory.x_nom(3,k), d_theta);
     
-    %reach.Xrs{k} = reach.Xrs{k} + robot.rot_body;
+    % - zonotope
+    robot.rot_body_zono = rotated_body_zono(robot, trajectory.x_nom(3,k), d_theta);
+    reach.zono{k} = reach.zono{k} + robot.rot_body_zono;
+    
+    % - ellipsoid
+    robot.rot_body_ellip = rotated_body_ellip(robot);
+    reach.ellip{k} = reach.ellip{k} + robot.rot_body_ellip;
+    
+    % - ellipsotope
+    robot.rot_body = rotated_body(robot, trajectory.x_nom(3,k), d_theta);
+    reach.etope{k} = reach.etope{k} + robot.rot_body;
 end
 disp(['time to compute reachable set: ',num2str(toc)]);
 
@@ -210,6 +233,7 @@ figure(1); hold on; grid on;
 for k = 1:4:trajectory.N_timesteps
     zono_h = plot(reach.zono{k},[1,2],'Filled',true,'FaceAlpha',0.1,'FaceColor','b','EdgeColor','b','LineWidth',1.5);
     ellip_h = plot(reach.ellip{k},[1,2],'Filled',true,'FaceAlpha',0.1,'FaceColor','m','EdgeColor','m','LineWidth',1.5);
+    etope_h = plot(reach.etope{k},'EdgeAlpha',1.0,'FaceColor','b','EdgeColor','b','LineWidth',1.5);
 end
 % rollouts
 % for i = 1:params.N_rollouts

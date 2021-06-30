@@ -17,7 +17,7 @@ c = zeros(2,1);
 G = rotation_matrix_2D(theta) * 0.5 * diag([l w]);
 E_body = ellipsotope(2,zeros(2,1),G,[],[],{1,2});
 
-h_sigma = 0.01;
+h_sigma = 0.1;
 P = 0.9;
 d_h = erfinv(P) * h_sigma * sqrt(2);
 
@@ -40,15 +40,31 @@ E_rot2 = rotation_matrix_2D(-d_h) * E_body;
 E_circ = ellipsotope(2,zeros(2,1),r*eye(2));
 
 % halfplanes
-z = (w/2)*sin(pi/2-d_h) + (l/2)*sin(d_h); % "width"
-x1 = c + z*[cos(pi/2+theta);sin(pi/2+theta)];
-h1 = [cos(theta+pi/2),sin(theta+pi/2)]; f1 = h1*x1;
-x2 = c - z*[cos(pi/2+theta);sin(pi/2+theta)];
-h2 = -[cos(theta+pi/2),sin(theta+pi/2)]; f2 = h2*x2;
+z = (w/2) * sin(pi/2-d_h) + (l/2) * sin(d_h); % "width"
+x1 = c + z * [cos(pi/2+theta);sin(pi/2+theta)];
+h1 = [cos(theta+pi/2),sin(theta+pi/2)]; 
+f1 = h1 * x1;
+x2 = c - z * [cos(pi/2+theta);sin(pi/2+theta)];
+h2 = -[cos(theta+pi/2),sin(theta+pi/2)]; 
+f2 = h2 * x2;
 
 % intersect
 E_rot = halfspace_intersect(E_circ,h1,f1);
 E_rot = halfspace_intersect(E_rot,h2,f2);
+
+% clip top and bottom
+psi = atan2(w,l);
+if d_h < psi
+    H = r * cos(psi - d_h);
+    x3 = c + H * [cos(theta);sin(theta)];
+    h3 = [cos(theta),sin(theta)]; 
+    f3 = h3 * x3;
+    x4 = c - H * [cos(theta);sin(theta)];
+    h4 = -[cos(theta),sin(theta)]; 
+    f4 = h4 * x4;
+    E_rot = halfspace_intersect(E_rot,h3,f3);
+    E_rot = halfspace_intersect(E_rot,h4,f4);
+end
 
 %% plot
 figure(1); hold on; grid on; axis equal

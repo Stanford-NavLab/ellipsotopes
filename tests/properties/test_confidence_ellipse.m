@@ -15,7 +15,7 @@ A = rand(2,2);
 Sigma = A'*A;
 
 % for 2D
-P = 0.9; % probability threshold
+P = 0.9973; % probability threshold
 eps = -2*log(1-P);
 G = sqrtm(eps*Sigma);
 E = ellipsotope(2,mu,G);
@@ -26,7 +26,7 @@ flag_save_figure = false;
 %% automated from here
 
 % sample points from the distribution
-n_samples = 1e3;
+n_samples = 1e4;
 P = mvnrnd(mu,Sigma,n_samples);
  
 % test how many points fall in the confidence ellipse
@@ -38,6 +38,7 @@ for i = 1:n_samples
     end
 end
 
+disp(['N(inside):', num2str(n_inside)]);
 disp(['P(inside):', num2str(n_inside/n_samples)]);
 
 %% plotting

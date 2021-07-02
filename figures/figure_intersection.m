@@ -29,7 +29,7 @@ c3 = [0.5 0.5 0];
 h = figure(1) ; clf ; axis equal ; hold on ; grid on ;
 plot(E1,'color',c1,'facealpha',0.1,'edgealpha',0.7);
 plot(E2,'color',c2,'facealpha',0.1,'edgealpha',0.7);
-plot(E_int1,'color',c3,'facealpha',0.5,'edgealpha',0.7);
+plot(E_int1,'color',c3,'facealpha',0.1,'edgealpha',1);
 xlabel('$x\langle 1 \rangle$','Interpreter','latex'); ylabel('$x\langle 2 \rangle$','Interpreter','latex');
 lim = axis; axis(lim + [-1 1 -1 1]);
 legend('$E_1$','$E_2$','$E_1\cap E_2$','Interpreter','latex');
@@ -40,7 +40,7 @@ save_figure_to_png(h,'intersection_ellipses.png')
 h = figure(2) ; clf ; axis equal ; hold on ; grid on ;
 plot(E3,'color',c1,'facealpha',0.1,'edgealpha',0.7);
 plot(E4,'color',c2,'facealpha',0.1,'edgealpha',0.7);
-plot(E_int2,'color',c3,'facealpha',0.5,'edgealpha',0.7);
+plot(E_int2,'color',c3,'facealpha',0.1,'edgealpha',1);
 xlabel('$x\langle 1 \rangle$','Interpreter','latex'); ylabel('$x\langle 2 \rangle$','Interpreter','latex');
 lim = axis; axis(lim + [-1 1 -1 1]);
 legend('$E_1$','$E_2$','$E_1\cap E_2$','Interpreter','latex');

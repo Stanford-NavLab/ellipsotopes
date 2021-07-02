@@ -67,6 +67,12 @@ fh = figure(1) ; clf ;
 
 subplot(2,1,1) ; hold on ; grid on ;
 h_full = boxplot(t_avg_full,'Colors','b','labels',n_gen_list,'labelorientation','horizontal') ;
+axis 'auto y'
+
+n = findobj(gcf,'tag','Outliers');
+for j = 1:numel(n)
+    n(j).MarkerEdgeColor = 'b';
+end
 
 xlabel('# of generators')
 ylabel('time [s]')
@@ -75,6 +81,7 @@ set_plot_fontsize(15) ;
 
 subplot(2,1,2) ; hold on ; grid on ;
 h_empty = boxplot(t_avg_empty,'Colors','r','labels',n_gen_list,'labelorientation','horizontal') ;
+axis 'auto y'
 
 % legend([h_full,h_empty],{'full','empty'},'location','northwest')
 xlabel('# of generators')
@@ -82,4 +89,4 @@ ylabel('time [s]')
 set_plot_linewidths(1.5) ;
 set_plot_fontsize(15) ;
 
-% save_figure_to_png(fh,'emptiness_check_time.png')
+save_figure_to_png(fh,'emptiness_check_time.png')

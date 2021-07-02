@@ -9,7 +9,7 @@ clear
 
 %% robot matrices
 
-params.dt = 0.2;
+params.dt = 0.1;
 params.V = 5;
 params.dx = params.V*params.dt;
 %params.turn_radius = params.V/(20*pi/180);
@@ -29,8 +29,8 @@ robot.Q = 10*diag([0.01, 0.01, 0.001]);
 robot.P0 = diag([0.1 0.1 0.01]);
 
 % robot dimensions
-robot.width = 1;
-robot.length = 2;
+robot.width = 3;
+robot.length = 5;
 
 % measurements
 reach.beacon_positions = [[-10;-10], [60;-10], [60;60], [-10;60]];
@@ -44,7 +44,7 @@ robot.R2 = diag([range_sigma_2*ones(1,4), heading_sigma]);
 %% obstacle
 n_obs = 3;
 obs = {};
-obs{1} = ellipsotope(2,[32;30],8*eye(2),[],[],{1,2});
+obs{1} = ellipsotope(2,[26;28],8*eye(2),[],[],{1,2});
 obs{1} = obs{1} + ellipsotope(2,[0;0],eye(2));
 obs{2} = ellipsotope(2,[14;-3],5*eye(2),[],[],{1,2});
 obs{2} = obs{2} + ellipsotope(2,[0;0],eye(2));
@@ -208,32 +208,86 @@ end
 disp(['time to compute reachable set: ',num2str(toc)]);
 
 %% collision check
-% tic
-% in_collision = false;
-% collision = {};
+
+% zonotope
+tic
+in_collision = false;
+collision = {};
+for k = 1:trajectory.N_timesteps
+    for j = 1:n_obs
+        if ~isempty(reach.zono{k} & obs{j})
+            in_collision = true;
+            break
+        end
+    end
+end 
+if in_collision
+    disp('Reachable set collides with obstacle');
+else
+    disp('Reachable set does not collide with obstacle');
+end
+disp(['time to collision check: ',num2str(toc)]);
+
+% ellipsoid
+tic
+in_collision = false;
+collision = {};
+for k = 1:trajectory.N_timesteps
+    for j = 1:n_obs
+        if ~isempty(reach.zono{k} & obs{j})
+            in_collision = true;
+            break
+        end
+    end
+end 
+if in_collision
+    disp('Reachable set collides with obstacle');
+else
+    disp('Reachable set does not collide with obstacle');
+end
+disp(['time to collision check: ',num2str(toc)]);
+
+% ellipsotope
+tic
+in_collision = false;
+collision = {};
+for k = 1:trajectory.N_timesteps
+    for j = 1:n_obs
+        if ~isempty(reach.zono{k} & obs{j})
+            in_collision = true;
+            break
+        end
+    end
+end 
+if in_collision
+    disp('Reachable set collides with obstacle');
+else
+    disp('Reachable set does not collide with obstacle');
+end
+disp(['time to collision check: ',num2str(toc)]);
+%% compute reach set volumes
+% reach.zono_vol = 0;
+% reach.ellip_vol = 0;
+% reach.etope_vol = 0;
+% 
 % for k = 1:trajectory.N_timesteps
-%     for j = 1:n_obs
-%         if ~isempty(reach.Xrs{k} & obs{j})
-%             in_collision = true;
-%             break
-%         end
-%     end
-% end 
-% if in_collision
-%     disp('Reachable set collides with obstacle');
-% else
-%     disp('Reachable set does not collide with obstacle');
+%    reach.zono_vol = reach.zono_vol + volume(reach.zono{k});
+%    reach.ellip_vol = reach.ellip_vol + volume(reach.ellip{k});
+%    reach.etope_vol = reach.etope_vol + area(reach.etope{k});
 % end
-% disp(['time to collision check: ',num2str(toc)]);
 
 %% plot reachable sets and rollouts
 
+c1 = [156, 52, 235] / 255;
+c2 = [52, 64, 235] / 255;
+c3 = [3, 186, 252] / 255;
+
 figure(1); hold on; grid on;
 % reachable sets
-for k = 1:4:trajectory.N_timesteps
-    zono_h = plot(reach.zono{k},[1,2],'Filled',true,'FaceAlpha',0.1,'FaceColor','b','EdgeColor','b','LineWidth',1.5);
-    ellip_h = plot(reach.ellip{k},[1,2],'Filled',true,'FaceAlpha',0.1,'FaceColor','m','EdgeColor','m','LineWidth',1.5);
-    etope_h = plot(reach.etope{k},'EdgeAlpha',1.0,'FaceColor','b','EdgeColor','b','LineWidth',1.5);
+for k = 1:8:trajectory.N_timesteps
+    zono_h = plot(reach.zono{k},[1,2],'Filled',true,'FaceAlpha',0.1,'FaceColor',c1,'EdgeColor',c1,'LineWidth',1.5);
+    ellip_h = plot(reach.ellip{k},[1,2],'Filled',true,'FaceAlpha',0.1,'FaceColor',c2,'EdgeColor',c2,'LineWidth',1.5);
+    etope_h = plot(reach.etope{k},'EdgeAlpha',1.0,'FaceColor',c3,'EdgeColor',c3,'LineWidth',1.5);
 end
 % rollouts
 % for i = 1:params.N_rollouts
@@ -255,5 +309,5 @@ xlabel('x [m]','Interpreter','latex','FontSize',12);
 ylabel('y [m]','Interpreter','latex','FontSize',12);
 xlim([min(reach.beacon_positions(1,:))-10 max(reach.beacon_positions(1,:))+10]);
 ylim([min(reach.beacon_positions(2,:))-10 max(reach.beacon_positions(2,:))+10]);
-%legend([reach_h roll_h obs_h beac_h],'Reachable sets','Trajectory rollouts','Obstacle','Ranging beacons');
+legend([zono_h ellip_h etope_h],'Zonotope','Ellipsoid','Ellipsotope');
 set(gca,'fontsize',15)

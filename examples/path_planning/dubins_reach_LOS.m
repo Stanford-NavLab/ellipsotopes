@@ -9,7 +9,7 @@ clear
 
 %% robot matrices
 
-params.dt = 0.2;
+params.dt = 0.1;
 params.V = 5;
 params.dx = params.V*params.dt;
 %params.turn_radius = params.V/(20*pi/180);
@@ -29,8 +29,8 @@ robot.Q = 10*diag([0.01, 0.01, 0.001]);
 robot.P0 = diag([0.1 0.1 0.01]);
 
 % robot dimensions
-robot.width = 1;
-robot.length = 2;
+robot.width = 3;
+robot.length = 5;
 
 % measurements
 reach.beacon_positions = [[-10;-10], [60;-10], [60;60], [-10;60]];
@@ -44,7 +44,7 @@ robot.R2 = diag([range_sigma_2*ones(1,4), heading_sigma]);
 %% obstacle
 n_obs = 3;
 obs = {};
-obs{1} = ellipsotope(2,[32;30],8*eye(2),[],[],{1,2});
+obs{1} = ellipsotope(2,[26;28],8*eye(2),[],[],{1,2});
 obs{1} = obs{1} + ellipsotope(2,[0;0],eye(2));
 obs{2} = ellipsotope(2,[14;-3],5*eye(2),[],[],{1,2});
 obs{2} = obs{2} + ellipsotope(2,[0;0],eye(2));
@@ -128,13 +128,13 @@ Lambda = zeros(3);
 RRBT = cell(1,trajectory.N_timesteps);
 RRBT{1} = Sigma;
 
-reach.Xrs = cell(1,trajectory.N_timesteps);
+reach.Xcf = cell(1,trajectory.N_timesteps); % position confidence ellipses
+reach.Xrs = cell(1,trajectory.N_timesteps); % reachable set (including robot body)
 P = 0.9973; % probability threshold
 eps = -2*log(1-P);
 c = trajectory.x_nom(1:2,1);
 G = sqrtm(eps*RRBT{1}(1:2,1:2));
-Q = eps*RRBT{1}(1:2,1:2);
-reach.Xrs{1} = ellipsotope(2,c,G);
+reach.Xcf{1} = ellipsotope(2,c,G);
 
 % circumscribing circle
 body_radius = norm([robot.width robot.length]) / 2;
@@ -146,7 +146,7 @@ robot.body = ellipsotope(2,zeros(2,1),G_robot,[],[],{1,2});
 d_theta = erfinv(P) * RRBT{1}(3,3) * sqrt(2);
 robot.rot_body = rotated_body(robot, trajectory.x_nom(3,1), d_theta);
 
-reach.Xrs{1} = reach.Xrs{1} + robot.rot_body;
+reach.Xrs{1} = reach.Xcf{1} + robot.rot_body;
 
 tic
 for k = 2:trajectory.N_timesteps
@@ -174,18 +174,13 @@ for k = 2:trajectory.N_timesteps
     c = trajectory.x_nom(1:2,k);
     G = sqrtm(eps*RRBT{k}(1:2,1:2));
     Q = eps*RRBT{k}(1:2,1:2);
-    reach.Xrs{k} = ellipsotope(2,c,G);
-    %reach.Xrs{k} = ellipsoid(Q,c);
-    
-    % robot body
-%     G_robot = rotation_matrix_2D(trajectory.x_nom(3,k)) * 0.5 * diag([robot.length robot.width]);
-%     robot.body = ellipsotope(2,zeros(2,1),G_robot,[],[],{1,2});
-    
+    reach.Xcf{k} = ellipsotope(2,c,G);
+
     % compute rotated body
     d_theta = erfinv(P) * RRBT{k}(3,3) * sqrt(2);
     robot.rot_body = rotated_body(robot, trajectory.x_nom(3,k), d_theta);
     
-    %reach.Xrs{k} = reach.Xrs{k} + robot.rot_body;
+    reach.Xrs{k} = reach.Xcf{k} + robot.rot_body;
 end
 disp(['time to compute reachable set: ',num2str(toc)]);
 
@@ -208,11 +203,29 @@ else
 end
 disp(['time to collision check: ',num2str(toc)]);
 
+%% rollout verification
+
+safe_count = zeros(1,trajectory.N_timesteps);
+for i = 1:trajectory.N_timesteps
+    for j = 1:params.N_rollouts
+        % for now, just check if center of mass point is within confidence
+        % ellipsoid
+        pos = rollouts.X(1:2,i,j);
+        if reach.Xcf{i}.contains(pos)
+            safe_count(i) = safe_count(i) + 1;
+        end
+    end
+end
+
+figure(1); 
+plot(safe_count);
+
+
 %% plot reachable sets and rollouts
 
-figure(1); hold on; grid on;
+figure(2); hold on; grid on;
 % reachable sets
-for k = 1:4:trajectory.N_timesteps
+for k = 1:8:trajectory.N_timesteps
     reach_h = plot(reach.Xrs{k},'EdgeAlpha',1.0,'FaceColor','b','EdgeColor','b','LineWidth',1.5);
 end
 % rollouts

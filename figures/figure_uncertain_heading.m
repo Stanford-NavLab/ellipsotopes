@@ -50,6 +50,20 @@ h2 = -[cos(theta+pi/2),sin(theta+pi/2)]; f2 = h2*x2;
 E_rot = halfspace_intersect(E_circ,h1,f1);
 E_rot = halfspace_intersect(E_rot,h2,f2);
 
+% clip top and bottom
+psi = atan2(w,l);
+if d_h < psi
+    H = r * cos(psi - d_h);
+    x3 = c + H * [cos(theta);sin(theta)];
+    h3 = [cos(theta),sin(theta)]; 
+    f3 = h3 * x3;
+    x4 = c - H * [cos(theta);sin(theta)];
+    h4 = -[cos(theta),sin(theta)]; 
+    f4 = h4 * x4;
+    E_rot = halfspace_intersect(E_rot,h3,f3);
+    E_rot = halfspace_intersect(E_rot,h4,f4);
+end
+
 %% plot
 figure(1); hold on; grid on; axis equal
 plot(E_circ,'EdgeAlpha',1.0,'FaceAlpha',0.0,'EdgeColor','#D95319','LineWidth',1.0,'LineStyle','--');

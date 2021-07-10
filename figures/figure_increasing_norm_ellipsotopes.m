@@ -3,11 +3,11 @@
 %
 % Authors: Shreyas Kousik
 % Created: 15 Mar 2021
-% Updated: 20 May 2021 (got ride of zonotope)
+% Updated: 9 July 2021 (got ride of axis labels)
 %
 %% user parameters
 % list of norms
-p_list = [2:4:20, inf] ;
+p_list = [2:2:10, inf] ;
 
 % rng seed
 rng(1) ;
@@ -34,13 +34,13 @@ end
 h = figure(1) ; clf ; axis equal ; hold on ; grid on ;
 
 for idx = length(p_list):-1:1
-    plot(E{idx},'edgealpha',1.0,'linewidth',0.5) ;
+    plot(E{idx},'plot_method','ray','edgealpha',1.0,'linewidth',1) ;
     pause(0.05)
 end
 
-xlabel('$x\langle 1 \rangle$','Interpreter','latex'); ylabel('$x\langle 2 \rangle$','Interpreter','latex');
-lim = axis; axis(lim + 0.25*[-1 1 -1 1]);
+% xlabel('$x\langle 1 \rangle$','Interpreter','latex'); ylabel('$x\langle 2 \rangle$','Interpreter','latex');
+set(gca,'fontsize',15)
 
-%set(gca,'fontsize',15)
+%% saving
 save_figure_to_png(h,'ellipsotope_increasing_norm.png') ;
-save_figure_to_pdf(h,'ellipsotope_increasing_norm.pdf') ;
+% save_figure_to_pdf(h,'ellipsotope_increasing_norm.pdf') ;

@@ -32,7 +32,7 @@ function [F,V] = make_patch_data_coeff_sampling(p,c,G,A,b,I,n_P)
             case 3
                 P = make_superellipse_3D(n_P,p);
             otherwise
-                P = make_superellipse_2D(n_P,p,n_gen);
+                P = make_unit_superellipse_ND(n_P,p,n_gen);
         end
     else
         % generate a bunch of random points 

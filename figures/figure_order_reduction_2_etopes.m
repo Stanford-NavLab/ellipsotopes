@@ -4,7 +4,7 @@
 %
 % Authors: Shreyas Kousik
 % Created: 13 June 2021
-% Updated: 16 June 2021
+% Updated: 9 July 2021
 clear ; clc
 %% user parameters
 % ellipsotope definitions
@@ -116,7 +116,7 @@ for idx = 1:3
     E_possible{idx} = E_left_out_idx + E_rdc_idx ;
 end
 
-%% plotting
+%% plotting input topes
 fh_a = figure(1) ; clf ; axis equal ; hold on ; grid on ;
 h_3 = plot(E_3,'color',[0.7 0 0.7]) ;
 h_2 = plot(E_2,'color',[0 0.7 0.7]) ;
@@ -125,16 +125,20 @@ legend([h_1 h_2 h_3],{'E_1','E_2','E_3'},'location','northwest')
 axis tight
 set_plot_fontsize(15) ;
 
+%% plotting Mink sum figure
 fh_b = figure(2) ; clf ; axis equal ; hold on ; grid on ;
 for idx = 1:3
     plot(E_possible{idx},'color','r')
 end
-plot(E_tilde,'facecolor',[0.7 0.7 1],'edgecolor',[0 0 0.3],'facealpha',1)
-plot(E,'facealpha',0.0,'linestyle','--','edgecolor',[0 0 0.3]) ;
+plot(E_tilde,'facecolor',[0.7 0.7 1],'edgecolor',[0 0 0.3],'facealpha',1,...
+    'linewidth',3)
+plot(E,'facealpha',0.0,'linestyle','--','edgecolor',[0 0 0.3],'linewidth',3,...
+    'edgealpha',1) ;
 
 axis tight
 set_plot_fontsize(15) ;
 
+%% save figures
 save_figure_to_png(fh_a,'order_reduc_heur_2-etope_a.png')
 save_figure_to_png(fh_b,'order_reduc_heur_2-etope_b.png')
 

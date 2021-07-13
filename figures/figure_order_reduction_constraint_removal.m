@@ -8,7 +8,7 @@
 %
 % Authors: Shreyas Kousik
 % Created: 29 May 2021
-% Updated: 16 June 2021
+% Updated: 9 July 2021
 clear ; clc
 %% user parameters
 % rng
@@ -66,7 +66,8 @@ plot(E,'facecolor',[0.7 0.7 1],'facealpha',1) ;
 
 % xlabel('x\langle1\rangle')
 % ylabel('x\langle2\rangle')
-set_plot_linewidths(1.5)
+set_plot_linewidths(2)
 set_plot_fontsize(15)
 
+%% save figure
 save_figure_to_png(fh,'order_reduc_constraint_removal.png')

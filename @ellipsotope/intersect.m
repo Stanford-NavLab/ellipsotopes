@@ -1,13 +1,10 @@
-function out = and(E1, E2)
-% and(E1, E2)
-% E1 & E2
+function out = intersect(E1, E2, R)
+% intersect(E1, E2, R)
 %
-% Compute the intersection of 2 ellipsotopes (as a new ellipsotope). 
-% Overloads the & operator for 2 ellipsotopes.
-% Assumes both ellipsotopes have the same p_norm and are basic.
+% Generalized intersection of E1 and E2 parameterized by R.
 %
 % Authors: Adam Dai 
-% Created: 1 Mar 2021 
+% Created: 12 July 2021 
 % Updated: 
 
 % extract properties
@@ -31,15 +28,15 @@ G = [G1 zeros(size(G2))];
 
 % both basic
 if E1.is_basic() && E2.is_basic()
-    A = [G1 -G2];
-    b = c2 - c1;
+    A = [R*G1 -G2];
+    b = c2 - R*c1;
     I = {1:m1,m1+1:m1+m2};
 % general case
 else
     A = [A1                   zeros(size(A1,1),m2);
          zeros(size(A2,1),m1) A2;
-         G1                  -G2];
-    b = [b1; b2; c2 - c1];
+         R*G1                 -G2];
+    b = [b1; b2; c2 - R*c1];
     I = combine_indices(I1, I2);
 end
 

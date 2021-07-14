@@ -4,7 +4,7 @@
 %
 % Authors: Shreyas Kousik
 % Created: 13 July 2021
-% Updated: not yet
+% Updated: 14 July 2021
 clear ; clc ;
 
 %% automated from here
@@ -26,3 +26,28 @@ I_old = I ;
 
 % identify component ellipsotopes
 [idxs,log_idxs,E_reorg,E_other,E_comp_cell] = E.identify_component_ellipsotopes() ;
+
+% reduce each component ellipsotope (since we know it's constrained = basic!)
+n_comp = length(E_comp_cell) ;
+for idx = 1:n_comp
+    E_comp_cell{idx}.reduce_constrained_2_etope ;
+end
+
+%% reassemble original etope from component+other topes
+E_reassembled = E_other ;
+for idx = 1:length(E_comp_cell)
+    E_reassembled = E_reassembled + E_comp_cell{idx} ;
+end
+
+%% use MVOE order reduction for component etopes
+
+%% plotting
+figure(1) ; clf ; axis equal ; hold on ; grid on ;
+
+plot(E)
+plot(E_reassembled,'color','r','linewidth',3,'linestyle','--')
+
+legend('original','reassembled')
+
+set_plot_fontsize(15)
+

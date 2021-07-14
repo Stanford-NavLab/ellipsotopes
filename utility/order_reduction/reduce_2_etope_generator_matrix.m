@@ -10,7 +10,7 @@ function [G_out, Q] = reduce_2_etope_generator_matrix(G)
 % Authors: Shreyas Kousik
 % Created: 10 Feb 2021
 % Updated: 13 Jul 2021
-G_Q = pinv(G) ;
-Q = G_Q'*G_Q ;
-G_out = pinv(Q^(1/2)) ;
+    G_Q = pinv(G) ;
+    Q = G_Q'*G_Q ;
+    G_out = pinv(Q^(1/2)) ;
 end

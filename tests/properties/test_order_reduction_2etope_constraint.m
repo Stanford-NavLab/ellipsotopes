@@ -23,23 +23,14 @@ n_con = 3 ;
 % make original etope
 [E,c,G,A,b,I] = make_random_ellipsotope(2,2,n_gen,n_con,1) ;
 
-% get affine map to hyperplane
-t = pinv(A)*b ; % center of intersection area
-rd = sqrt(1 - vecnorm(t)^2) ; % radius of intersected ball
-K = null(A) ;
-T = rd*K ;
-
-% compute new etope matrix
-c_rdc = c + G*t ;
-G_rdc = G*T ;
-
-% reduce G_rdc to 2-D
-G_rdc = reduce_2_etope_generator_matrix(G_rdc) ;
-
 % create new tope
-E_rdc = ellipsotope(2,c_rdc,G_rdc) ;
+E_rdc = reduce_constrained_2_etope(E) ;
 
 %% plotting
 figure(1) ; clf ; axis equal ; hold on ; grid on ;
 plot(E)
-plot(E_rdc,'color','r')
+plot(E_rdc,'color','r','linestyle','--','linewidth',3)
+
+legend('orig','reduced')
+
+set_plot_fontsize(15)

@@ -1,4 +1,4 @@
-function [p,c,G,A,b,I,n_dim,n_gen,n_con] = get_properties(E)
+function [p,c,G,A,b,I,n_dim,n_gen,n_con,n_I] = get_properties(E)
 % [c,G,A,b,I] = E.get_properties()
 % [p,c,G,A,b,I,n_dim,n_gen,n_con] = E.get_properties()
 %
@@ -17,4 +17,5 @@ I = E.index_set ;
 [n_dim,n_gen] = size(G) ;
 n_con = size(A,1) ;
 
+n_I = length(I) ;
 end

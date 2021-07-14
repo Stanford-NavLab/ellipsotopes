@@ -4,38 +4,34 @@
 %
 % Authors: Shreyas Kousik
 % Created: 13 July 2021
-% Updated: not yet
+% Updated: 14 July 2021
 clear ; clc ;
 
 %% automated from here
+% make ellipsotope
 rng(0)
-E_1 = make_random_ellipsotope(2,2,4,1,1) ;
-E_2 = make_random_ellipsotope(2,2,4,1,1) ;
-E = E_1 + E_2 ;
+E_comp_1 = make_random_ellipsotope(2,2,4,1,1) ;
+E_comp_2 = make_random_ellipsotope(2,2,4,1,1) ;
+E_other = make_random_ellipsotope(2,2,5,2,2) ;
+E = E_comp_1 + E_other + E_comp_2 ;
 
-% get properties
-[p,c,G,A,b,I,n_dim,n_gen,n_con,n_I] = get_properties(E)
 
-% initialize output
-idxs = [] ;
+% identify component ellipsotopes
+[idxs,log_idxs,E_reorg,E_other,E_comp_cell] = E.identify_component_ellipsotopes() ;
 
-% iterate through index set and check for component etopes
-for idx = 1:n_I
-    % get current indices
-    J = I{idx} ;
-    
-    % get all constraints with nonzero values at the current indices
-    A_row_log = any(A(:,J) ~= 0,2) ;
-    
-    % check if all other entires in the current constraints are zeros
-    A_temp = A ;
-    A_temp(:,J) = [] ;
-    if all(all(A_temp(A_row_log,:),2) == 0)
-        idxs = [idxs, idx] ;
-    end
+%% reassemble original etope from component+other topes
+E_reassembled = E_other ;
+for idx = 1:length(E_comp_cell)
+    E_reassembled = E_reassembled + E_comp_cell{idx} ;
 end
 
-%%
-figure(1) ; clf ; axis equal ; hold on ; 
+%% plotting
+figure(1) ; clf ; axis equal ; hold on ; grid on ;
 
 plot(E)
+plot(E_reassembled,'color','r','linewidth',3,'linestyle','--')
+
+legend('original','reassembled')
+
+set_plot_fontsize(15)
+

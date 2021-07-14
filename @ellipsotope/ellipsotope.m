@@ -5,7 +5,7 @@ classdef ellipsotope < handle
     %
     % Authors: Shreyas Kousik and Adam Dai
     % Created: 10 Feb 2021
-    % Updated: 27 Apr 2021
+    % Updated: 14 July 2021 (added constraint cleanup)
     
     properties
         % basic ellipsotope properties
@@ -55,6 +55,12 @@ classdef ellipsotope < handle
             E.generators = G ;
             
             if nargin > 3
+                % remove all zero rows
+                log_A_zero_rows = all(A == 0,2) ;
+                A = A(~log_A_zero_rows,:) ;
+                b = b(~log_A_zero_rows) ;
+                
+                % set constraints
                 E.constraint_A = A ;
                 E.constraint_b = b ;
             end

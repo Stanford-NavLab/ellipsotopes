@@ -9,7 +9,7 @@ function [out,n_I,n_gen] = check_index_set_validity(I,G)
 %
 % Authors: Shreyas Kousik
 % Created: 4 Apr 2021
-% Updated: 27 Apr 2021 (updated to include generator matrix)
+% Updated: 14 July 2021 (cleaned up comments)
 
     % optimism
     out = true ;
@@ -20,15 +20,14 @@ function [out,n_I,n_gen] = check_index_set_validity(I,G)
     % indices all in one vector
     D = cell2mat(I) ;
 
-    % get the dimension
-    
-
+    % get the dimension of the ball product
     if nargin > 1
         n_gen = size(G,2) ;
     else
         n_gen = max(D) ;
     end
     
+    % check!
     if length(unique(D)) < length(D) || length(D) < n_gen
         out = false ;
     end

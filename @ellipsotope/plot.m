@@ -38,9 +38,13 @@ function h_E = plot(E,varargin)
 %
 % Authors: Adam Dai and Shreyas Kousik
 % Created: in days of yore
-% Updated: 13 Jun 2021 (added 'color' as a property for laziness)
+% Updated: 14 July 2021 (added emptiness check by default)
 
     %% setup
+% check emptiness
+if E.isempty()
+    warning('Ellipsotope is empty! Not plotting!')
+else
     % get properties
     [p,c,G,A,b,I,n_dim,~,~] = E.get_properties() ;
     
@@ -113,5 +117,5 @@ function h_E = plot(E,varargin)
     if nargout > 0
         h_E = h ;
     end
-
+end
 end

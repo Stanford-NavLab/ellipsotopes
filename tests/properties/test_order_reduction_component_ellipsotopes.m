@@ -40,6 +40,9 @@ for idx = 1:length(E_comp_cell)
 end
 
 %% use MVOE order reduction for component etopes
+E_cell_out = reduce_component_2_etopes(E_comp_cell) ;
+
+
 
 %% plotting
 figure(1) ; clf ; axis equal ; hold on ; grid on ;

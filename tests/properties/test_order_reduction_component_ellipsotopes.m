@@ -30,7 +30,7 @@ I_old = I ;
 % reduce each component ellipsotope (since we know it's constrained = basic!)
 n_comp = length(E_comp_cell) ;
 for idx = 1:n_comp
-    E_comp_cell{idx}.reduce_constrained_2_etope ;
+    E_comp_cell{idx} = reduce_constrained_2_etope(E_comp_cell{idx}) ;
 end
 
 %% reassemble original etope from component+other topes
@@ -42,15 +42,22 @@ end
 %% use MVOE order reduction for component etopes
 E_cell_out = reduce_component_2_etopes(E_comp_cell) ;
 
+E_rdc = E_cell_out{1} ;
 
+for idx = 2:length(E_cell_out)
+    E_rdc = E_rdc + E_cell_out{idx} ;
+end
+
+E_rdc = E_rdc + E_other ;
 
 %% plotting
 figure(1) ; clf ; axis equal ; hold on ; grid on ;
 
 plot(E)
 plot(E_reassembled,'color','r','linewidth',3,'linestyle','--')
+plot(E_rdc,'color','g')
 
-legend('original','reassembled')
+legend('original','reassembled','reduced')
 
 set_plot_fontsize(15)
 

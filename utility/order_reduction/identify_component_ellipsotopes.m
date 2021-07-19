@@ -9,7 +9,7 @@ function [idxs,log_idxs,E_reorg,E_other,E_comp_cell] = identify_component_ellips
 %
 % Authors: Shreyas Kousik
 % Created: 13 July 2021
-% Updated: 14 July 2021
+% Updated: 19 July 2021
 
     % get properties
     [~,~,~,A,~,I] = get_properties(E) ;
@@ -102,7 +102,9 @@ function [idxs,log_idxs,E_reorg,E_other,E_comp_cell] = identify_component_ellips
 
         % after iterating through all the index subsets, shift the
         % component etopes to the "end" of the index set
-        I_comp = shift_index_set(I_comp,n_other) ;
+        if ~isempty(I_comp)
+            I_comp = shift_index_set(I_comp,n_other) ;
+        end
 
         % reassemble the etope
         G_new = [G_other, G_comp] ;

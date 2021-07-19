@@ -25,7 +25,7 @@ b_old = b ;
 I_old = I ;
 
 % identify component ellipsotopes
-[idxs,log_idxs,E_reorg,E_other,E_comp_cell] = E.identify_component_ellipsotopes() ;
+[idxs,log_idxs,E_reorg,E_other,E_comp_cell] = identify_component_ellipsotopes(E) ;
 
 % reduce each component ellipsotope (since we know it's constrained = basic!)
 n_comp = length(E_comp_cell) ;

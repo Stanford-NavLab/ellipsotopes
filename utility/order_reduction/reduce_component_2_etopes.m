@@ -9,19 +9,21 @@ function E_cell_out = reduce_component_2_etopes(E_cell_in,n_rdc)
 %
 % Authors: Shreyas Kousik
 % Created: 14 July 2021
-% Updated: nup
+% Updated: 19 July 2021
 
-% set default number of topes to reduce
-if nargin < 2
-    n_rdc = 1 ;
-end
+    % set default number of topes to reduce
+    if nargin < 2
+        n_rdc = 1 ;
+    end
 
-E_cell_out = E_cell_in ;
+    E_cell_out = E_cell_in ;
 
-for idx = 1:n_rdc
-    E_cell_out = reduce_helper_function(E_cell_out) ;
-end
-
+    % reduce reduce reduce!
+    if ~isempty(E_cell_out)
+        for idx = 1:n_rdc
+            E_cell_out = reduce_helper_function(E_cell_out) ;
+        end
+    end
 end
 
 function E_cell_out = reduce_helper_function(E_cell_in)

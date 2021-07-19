@@ -22,6 +22,12 @@ E_rdc = E ;
 if E.n_generators < E.dimension
     warning('Ellipsotope is not full-dimensional! Not reducing!')
 else
+    % make sure n_rdc wouldn't make the ellipsotope smaller than the system
+    % dimension
+    if (E.n_generators - n_rdc) < E.n_dimension
+        n_rdc = E.n_generators - E.n_dimension ;
+    end
+    
     if E.p_norm == 2
         if E.is_basic()
             G_red = reduce_ellipsotope_generator_matrix(E.generators);

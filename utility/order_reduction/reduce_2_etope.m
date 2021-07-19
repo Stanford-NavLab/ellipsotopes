@@ -17,12 +17,6 @@ function E_rdc = reduce_2_etope(E,n_rdc)
     if nargin < 2
         n_rdc = 1 ;
     end
-    
-    % make sure n_rdc wouldn't make the ellipsotope smaller than the system
-    % dimension
-    if (E.n_generators - n_rdc) < E.n_dimension
-        n_rdc = E.n_generators - E.n_dimension ;
-    end
 
     % identify component ellipsotopes
     [~,~,~,E_other,E_comp_cell] = identify_component_ellipsotopes(E) ;

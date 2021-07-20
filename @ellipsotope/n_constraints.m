@@ -5,6 +5,6 @@ function n = n_constraints(E)
 %
 % Authors: Shreyas Kousik
 % Created: 19 July 2021
-% Updated: --
-    n = size(E.constraint_A,2) ;
+% Updated: 20 July 2021 (fixed a big bug)
+    n = size(E.constraint_A,1) ;
 end

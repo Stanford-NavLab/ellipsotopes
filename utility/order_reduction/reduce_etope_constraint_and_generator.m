@@ -17,7 +17,11 @@ function E_rdc = reduce_etope_constraint_and_generator(E)
 [p,~,G,A,b,~,~,n_gen,n_con] = get_properties(E) ;
 
 if p ~= 2
-    error('This script only works for 2-ellipsotopes for now!')
+    error('This function only works for 2-ellipsotopes for now!')
+end
+
+if isempty(A)
+    error('The ellipsotope is unconstrained!')
 end
 
 %% compute bounds on ball product intersecting affine subspace
@@ -96,6 +100,9 @@ end
 %% reduce
 E_rdc = reduce_one_con_and_gen(E,idx_j_min) ;
 
+% cleanup!
+E_rdc.clean_properties() ;
+
 end
 
 %% helper functions
@@ -162,6 +169,16 @@ function E_rdc = reduce_one_con_and_gen(E,j_rdc)
         J(J_log_minus) = J(J_log_minus) - 1 ;
 
         I_rdc{idx} = J ;
+    end
+    
+    % delete any empty index subsets
+    I_empty_log = cellfun(@isempty,I_rdc) ;
+    I_rdc = I_rdc(~I_empty_log) ;
+    
+    % clean up any empty constraints
+    if isempty(A_rdc)
+        A_rdc = [] ;
+        b_rdc = [] ;
     end
 
     E_rdc = ellipsotope(p_norm,c_rdc,G_rdc,A_rdc,b_rdc,I_rdc) ;

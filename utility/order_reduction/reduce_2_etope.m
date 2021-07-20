@@ -28,7 +28,11 @@ function E_rdc = reduce_2_etope(E,n_rdc)
     end
 
     % use MVOE order reduction for component etopes
-    E_cell_out = reduce_component_2_etopes(E_comp_cell,n_rdc) ;
+    if length(E_comp_cell) > 1
+        E_cell_out = reduce_component_2_etopes(E_comp_cell,n_rdc) ;
+    else
+        E_cell_out = E_comp_cell ;
+    end
 
     E_rdc = E_other ;
 

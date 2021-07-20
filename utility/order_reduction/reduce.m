@@ -35,6 +35,9 @@ else
         else
             E_rdc = reduce_2_etope(E,n_rdc) ;
         end
+        
+        % cleanup
+        E.clean_properties
     else
         warning(['Sorry, we are still implementing order reduction for ',...
             'ellipsotopes with p-norm not equal to 2.'])

@@ -5,12 +5,12 @@
 %
 % Authors: Adam Dai
 % Created: 24 May 2021
-% Updated: 4 June 2021
+% Updated: 29 July 2021 (Shreyas fiddled with plotting)
 %
-clc
+clear ; clc ; close all
 %% user parameters
 
-theta = 2*pi/3;
+theta = pi/6; %2*pi/3 ;
 w = 1; l = 2;
 r = norm([w l]) / 2;
 c = zeros(2,1);
@@ -65,17 +65,21 @@ if d_h < psi
 end
 
 %% plot
-figure(1); hold on; grid on; axis equal
-plot(E_circ,'EdgeAlpha',1.0,'FaceAlpha',0.0,'EdgeColor','#D95319','LineWidth',1.0,'LineStyle','--');
+fh = figure(1); clf ; hold on; grid on; axis equal
+plot(E_circ,'EdgeAlpha',1.0,'FaceAlpha',0.0,'EdgeColor','#D95319','LineWidth',1.0);%,'LineStyle','--');
 plot(E_rot,'FaceColor',[0.5 0.5 0],'EdgeColor',[0.5 0.5 0],'FaceAlpha',0.5,'EdgeAlpha',1.0);
 plot(E_rot1,'FaceAlpha',1.0,'FaceColor',[0.7 0.7 1],'EdgeColor','b','LineWidth',1.5); 
 plot(E_body,'FaceAlpha',1.0,'FaceColor',[0.7 0.7 1],'EdgeColor','b','LineWidth',1.5); 
 plot(E_rot2,'FaceAlpha',1.0,'FaceColor',[0.7 0.7 1],'EdgeColor','b','LineWidth',1.5); 
 
+
 % marker for heading
 marker_verts = 0.1 * rotation_matrix_2D(theta-d_h) * [1 -0.5 -0.5; 0 sqrt(3)/2 -sqrt(3)/2];
 patch(marker_verts(1,:),marker_verts(2,:),'black');
 
-lim = axis; axis(lim + 0.25*[-1 1 -1 1]);
-legend('Circumscribing circle','Overbounding of \newline heading uncertainty','Rotated body');
+lim = axis; axis(lim + 0.25*[-2 2 -1 1]);
+legend('Circumscribing Circle','Overbound Ellipsotope','Rotated Body',...
+    'location','northwest');
 set(gca,'fontsize',15)
+
+save_figure_to_png(fh,'heading_uncertainty_cropped.png') ;

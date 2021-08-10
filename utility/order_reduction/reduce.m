@@ -30,7 +30,7 @@ else
     
     if E.p_norm == 2
         if E.is_basic()
-            G_red = reduce_ellipsotope_generator_matrix(E.generators);
+            G_red = reduce_2_etope_generator_matrix(E.generators);
             E_rdc = ellipsotope(E.p_norm,E.center,G_red);
         else
             E_rdc = reduce_2_etope(E,n_rdc) ;

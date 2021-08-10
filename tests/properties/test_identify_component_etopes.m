@@ -17,7 +17,7 @@ E = E_comp_1 + E_other + E_comp_2 ;
 
 
 % identify component ellipsotopes
-[idxs,log_idxs,E_reorg,E_other,E_comp_cell] = E.identify_component_ellipsotopes() ;
+[idxs,log_idxs,E_reorg,E_other,E_comp_cell] = identify_component_ellipsotopes(E) ;
 
 %% reassemble original etope from component+other topes
 E_reassembled = E_other ;

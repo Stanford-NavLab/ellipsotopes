@@ -49,7 +49,7 @@ F_H = [1 2 3 4 1] ;
 V_H = 2.*[K' ; -K'] + repmat(t',4,1) ;
 
 % create ball
-[F_E,V_E] = make_superellipse_3D(p,1,zeros(3,1),500) ;
+[F_E,V_E] = make_superellipse_3D(500,p,1,zeros(3,1)) ;
 
 % plotting
 % create figure

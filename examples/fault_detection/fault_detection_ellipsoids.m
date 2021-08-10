@@ -1,5 +1,5 @@
 %% description
-% Fault detection example
+% Fault detection example using ellipsoids
 %
 % References:
 % [1] Scott, J.K. Constrained zonotopes
@@ -44,11 +44,11 @@ K{1} = dlqr(A{1},B{1},eye(2),0.1);
 K{2} = dlqr(A{2},B{2},eye(2),0.1);
 
 % noise sets
-W = ellipsotope(2,[0;0],eye(2),[],[],{1,2});
-V = ellipsotope(2,[0;0],[0.06 0; 0 0.6],[],[],{1,2});
+W = ellipsoid(eye(2),[0;0]);
+V = ellipsoid([0.06 0; 0 0.6],[0;0]);
 
 % initial set of states
-X0 = ellipsotope(2,[0.6;70],[0.06 0; 0 0.6],[],[],{1,2});
+X0 = ellipsoid([0.06 0; 0 0.6],[0.6;70]);
 
 %% run simulations
 
@@ -58,10 +58,10 @@ avg_detect_steps = 0;
 
 for i = 1:N_sims
     % sample initial state
-    x_0 = sample_from_ellipsotope(X0);
+    x_0 = sample(X0,1);
     % initial measurement
     % sample v_0
-    v_0 = sample_from_ellipsotope(V);
+    v_0 = sample(V,1);
     y_0 = C * x_0 + D * v_0;
     N = 100; % number of iterations
 
@@ -71,7 +71,7 @@ for i = 1:N_sims
 
     % set-based estimator from [1] eqn (32)
     % initialization
-    O_k = intersect(X0, y_0 + (-1)*D*V, C); 
+    O_k = X0 & (y_0 + (-1)*D*V); 
     O = cell(1,N);
     fault = 0;
 
@@ -79,8 +79,8 @@ for i = 1:N_sims
     for k = 1:N
         % simulate faulty model
         % sample w_k and v_k from W and V
-        w_k = sample_from_ellipsotope(W);
-        v_k = sample_from_ellipsotope(V);
+        w_k = sample(W,1);
+        v_k = sample(V,1);
         % control law
         u_k = u_N - K{2} * (y_k - x_N);
         % apply saturation limits
@@ -96,14 +96,14 @@ for i = 1:N_sims
         tic
         % fault detection step
         F = C * (A{1}*O_k + Bw{1}*W) + D*V;
-        if ~F.contains(y_k)
+        if ~F.containsPoint(y_k)
             fault = k;
             fault_steps(i) = fault;
             break
         end
 
         % set-based estimator update
-        O_k = intersect(A{1}*O_k + Bw{1}*W, y_k + (-1)*D*V, C);
+        O_k = (A{1}*O_k + Bw{1}*W) & (y_k + (-1)*D*V);
         O{k} = O_k;
         disp(toc)
     end

@@ -8,7 +8,7 @@ The "examples" folder contains the numerical examples on the paper, and the "fig
 ## Requirements
  - MATLAB (R2018a or greater)
  - [simulator](https://github.com/skousik/simulator) (for geometry and plotting utilities)
- - [tbxmanager](https://www.tbxmanager.com/) 
+ - [MPT3](https://www.mpt3.org/) 
  - [CORA](https://github.com/TUMcps/CORA)
 
 ## References

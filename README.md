@@ -8,8 +8,11 @@ The "examples" folder contains the numerical examples on the paper, and the "fig
 ## Requirements
  - MATLAB (R2018a or greater)
  - [simulator](https://github.com/skousik/simulator) (for geometry and plotting utilities)
- - [MPT3](https://www.mpt3.org/) 
  - [CORA](https://github.com/TUMcps/CORA)
+ - tbxmanager
+   - [MPT3](https://www.mpt3.org/) 
+   - YALMIP
+   - LCP solver
 
 ## References
 If you find this work useful, please cite our paper that is available [here](https://arxiv.org/abs/2108.01750).

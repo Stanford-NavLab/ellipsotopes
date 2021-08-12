@@ -273,49 +273,45 @@ else
     disp('  Reachable set does not collide with obstacle');
 end
 disp(['  time to collision check: ',num2str(toc)]);
+
 %% compute reach set volumes
-% reach.zono_vol = 0;
-% reach.ellip_vol = 0;
-% reach.etope_vol = 0;
-% 
-% for k = 1:trajectory.N_timesteps
-%    reach.zono_vol = reach.zono_vol + volume(reach.zono{k});
-%    reach.ellip_vol = reach.ellip_vol + volume(reach.ellip{k});
-%    reach.etope_vol = reach.etope_vol + area(reach.etope{k});
-% end
+reach.zono_vol = 0;
+reach.ellip_vol = 0;
+reach.etope_vol = 0;
+
+for k = 1:trajectory.N_timesteps
+   reach.zono_vol = reach.zono_vol + volume(reach.zono{k});
+   reach.ellip_vol = reach.ellip_vol + volume(reach.ellip{k});
+   reach.etope_vol = reach.etope_vol + area(reach.etope{k});
+end
 
 %% plot reachable sets and rollouts
 
-% c1 = [156, 52, 235] / 255;
-% c2 = [52, 64, 235] / 255;
-% c3 = [3, 186, 252] / 255;
-% 
-% figure(1); hold on; grid on;
-% % reachable sets
-% for k = 1:8:trajectory.N_timesteps
-%     zono_h = plot(reach.zono{k},[1,2],'Filled',true,'FaceAlpha',0.1,'FaceColor',c1,'EdgeColor',c1,'LineWidth',1.5);
-%     ellip_h = plot(reach.ellip{k},[1,2],'Filled',true,'FaceAlpha',0.1,'FaceColor',c2,'EdgeColor',c2,'LineWidth',1.5);
-%     etope_h = plot(reach.etope{k},'EdgeAlpha',1.0,'FaceColor',c3,'EdgeColor',c3,'LineWidth',1.5);
-% end
-% % rollouts
-% % for i = 1:params.N_rollouts
-% %     roll_h = plot(rollouts.X(1,:,i),rollouts.X(2,:,i));
-% %     roll_h.Color=[0,0,0,0.5];
-% % end
-% % obstacle
-% for i = 1:n_obs
-%     obs_h = plot(obs{i},'FaceColor','r','EdgeColor','r','FaceAlpha',0.5,'EdgeAlpha',1.0);
-% end
-% % beacons
-% beac_h = scatter(reach.beacon_positions(1,:),reach.beacon_positions(2,:),100,'black','^','filled');
-% % measurement region
-% line([meas_plane,meas_plane],[-30,80],'LineStyle','--');
-% patch([30,80,80,30],[80,80,-30,-30],'r','FaceAlpha',0.1,'EdgeAlpha',0.0);
-% axis equal
-% ax = gca; ax.YAxis.FontSize = 8; ax.XAxis.FontSize = 8;
-% xlabel('x [m]','Interpreter','latex','FontSize',12);
-% ylabel('y [m]','Interpreter','latex','FontSize',12);
-% xlim([min(reach.beacon_positions(1,:))-10 max(reach.beacon_positions(1,:))+10]);
-% ylim([min(reach.beacon_positions(2,:))-10 max(reach.beacon_positions(2,:))+10]);
-% legend([zono_h ellip_h etope_h],'Zonotope','Ellipsoid','Ellipsotope');
-% set(gca,'fontsize',15)
+c1 = [156, 52, 235] / 255;
+c2 = [52, 64, 235] / 255;
+c3 = [3, 186, 252] / 255;
+
+figure(1); hold on; grid on; axis equal
+% reachable sets
+for k = 1:8:trajectory.N_timesteps
+    zono_h = plot(reach.zono{k},[1,2],'Filled',true,'FaceAlpha',0.1,'FaceColor',c1,'EdgeColor',c1,'LineWidth',1.5);
+    ellip_h = plot(reach.ellip{k},[1,2],'Filled',true,'FaceAlpha',0.1,'FaceColor',c2,'EdgeColor',c2,'LineWidth',1.5);
+    etope_h = plot(reach.etope{k},'EdgeAlpha',1.0,'FaceColor',c3,'EdgeColor',c3,'LineWidth',1.5);
+end
+% obstacles
+for i = 1:n_obs
+    obs_h = plot(obs.etope{i},'FaceColor','r','EdgeColor','r','FaceAlpha',0.5,'EdgeAlpha',1.0);
+end
+% beacons
+beac_h = scatter(reach.beacon_positions(1,:),reach.beacon_positions(2,:),100,'black','^','filled');
+% measurement region
+line([meas_plane,meas_plane],[-30,80],'LineStyle','--');
+patch([30,80,80,30],[80,80,-30,-30],'r','FaceAlpha',0.1,'EdgeAlpha',0.0);
+axis equal
+ax = gca; ax.YAxis.FontSize = 8; ax.XAxis.FontSize = 8;
+xlabel('x [m]','Interpreter','latex','FontSize',12);
+ylabel('y [m]','Interpreter','latex','FontSize',12);
+xlim([min(reach.beacon_positions(1,:))-10 max(reach.beacon_positions(1,:))+10]);
+ylim([min(reach.beacon_positions(2,:))-10 max(reach.beacon_positions(2,:))+10]);
+legend([zono_h ellip_h etope_h],'Zonotope','Ellipsoid','Ellipsotope');
+set(gca,'fontsize',15)

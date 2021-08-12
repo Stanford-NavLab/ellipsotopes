@@ -22,3 +22,5 @@ E = make_random_ellipsotope(p_norm,n_dim,n_gen,n_con) ;
 
 % emptiness check 
 [out,value] = isempty(E);
+
+disp(['Ellipsotope empty: ',string(logical(out))])

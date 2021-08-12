@@ -58,10 +58,10 @@ avg_detect_steps = 0;
 
 for i = 1:N_sims
     % sample initial state
-    x_0 = sample(X0,1);
+    x_0 = randPoint(X0,1);
     % initial measurement
     % sample v_0
-    v_0 = sample(V,1);
+    v_0 = randPoint(V,1);
     y_0 = C * x_0 + D * v_0;
     N = 100; % number of iterations
 
@@ -79,8 +79,8 @@ for i = 1:N_sims
     for k = 1:N
         % simulate faulty model
         % sample w_k and v_k from W and V
-        w_k = sample(W,1);
-        v_k = sample(V,1);
+        w_k = randPoint(W,1);
+        v_k = randPoint(V,1);
         % control law
         u_k = u_N - K{2} * (y_k - x_N);
         % apply saturation limits
@@ -96,7 +96,7 @@ for i = 1:N_sims
         tic
         % fault detection step
         F = C * (A{1}*O_k + Bw{1}*W) + D*V;
-        if ~F.containsPoint(y_k)
+        if ~in(F,y_k)
             fault = k;
             fault_steps(i) = fault;
             break

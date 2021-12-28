@@ -2,12 +2,12 @@ function [v,P,V,D,p_out,x_out] = estimate_size_ray_tracing_ND(E,D_or_n_ray,p_0,x
 % v = estimate_size_ray_tracing_ND(E)
 %
 % Estimate the size of a (nonempty) ellipsotope by tracing rays outwards
-% from a point p_0 until they hit the boundary, then summing the lengths of
-% the rays. So, it's not really a volume per se, but it works.
+% from a point p_0 until they hit the boundary, then averaging the lengths
+% of the rays. So, it's not really a volume per se, but it works.
 %
 % Authors: Shreyas Kousik
 % Created: 23 Dec 2021
-% Updated: -
+% Updated: 28 Dec 2021 (forgot to divide by n_rays lol)
 
 if ~isempty(E)
     [p_norm,c,G,A,b,I,n_dim,n_gen,n_con] = E.get_properties() ;
@@ -62,7 +62,7 @@ if ~isempty(E)
     end
     
     % output size
-    v = sum(V) ;
+    v = sum(V)./n_ray ;
     
     % output starting point and starting coefficient
     p_out = p_0 ;

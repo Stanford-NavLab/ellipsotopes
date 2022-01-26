@@ -29,6 +29,10 @@ function plot_data = plot_arrow(p,varargin)
 %              'facecolor','r','edgecolor','r','facealpha',0.1)
 %
 % See also: make_arrow_for_patch
+%
+% Authors: Shreyas Kousik
+% Created: shrug
+% Updated: 14 Jan 2021
 
     if mod(length(varargin),2) == 1
         p_start = p ;
@@ -51,6 +55,10 @@ function plot_data = plot_arrow(p,varargin)
         switch lower(varargin{idx})
             case {'shaft_width','head_length','head_width'}
                 patch_args_in = [patch_args_in, varargin(idx:idx+1)] ;
+            case 'color'
+                plot_args_in = [plot_args_in,...
+                                {'facecolor'},varargin(idx+1),...
+                                {'edgecolor'},varargin(idx+1)] ;
             otherwise
                 plot_args_in = [plot_args_in, varargin(idx:idx+1)] ;
         end

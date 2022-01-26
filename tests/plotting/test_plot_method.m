@@ -137,7 +137,8 @@ I = {[1,2],[3 4]};
 
 fh = figure(); axis equal; grid on; 
 E = ellipsotope(p,c,G,A,b,I);
-plot(E,'facealpha',1.0,'edgealpha',1.0); shading flat; title('General 3D 2-ellipsotope');
+%plot(E,'facealpha',1.0,'edgealpha',1.0); shading flat; title('General 3D 2-ellipsotope');
+plot_coeff_sampling(E)
 xlabel('$x\langle 1 \rangle$','Interpreter','latex'); 
 ylabel('$x\langle 2 \rangle$','Interpreter','latex');
 zlabel('$x\langle 3 \rangle$','Interpreter','latex');

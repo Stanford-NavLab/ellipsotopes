@@ -24,13 +24,13 @@ params.m = 3;
 % motion and measurement uncertainty
 robot.Q_lqr = diag([0.1 0.1 10]);
 robot.R_lqr = diag([10 0.1]);
-robot.Q = 10*diag([0.01, 0.01, 0.001]);
+robot.Q = diag([0.01, 0.01, 0.001]);
 
 robot.P0 = diag([0.1 0.1 0.01]);
 
 % robot dimensions
-robot.width = 3;
-robot.length = 5;
+robot.width = 2;
+robot.length = 4;
 
 % measurements
 reach.beacon_positions = [[-10;-10], [60;-10], [60;60], [-10;60]];
@@ -217,73 +217,73 @@ disp(['time to compute reachable set: ',num2str(toc)]);
 
 %% collision check
 
-% zonotope
-disp('Zonotope collision check');
-tic
-in_collision = false;
-for k = 1:trajectory.N_timesteps
-    for j = 1:n_obs
-        if ~isempty(reach.zono{k} & obs.zono{j})
-            in_collision = true;
-            break
-        end
-    end
-end 
-if in_collision
-    disp('  Reachable set collides with obstacle');
-else
-    disp('  Reachable set does not collide with obstacle');
-end
-disp(['  time to collision check: ',num2str(toc)]);
-
-% ellipsoid
-disp('Ellipsoid collision check');
-tic
-in_collision = false;
-for k = 1:trajectory.N_timesteps
-    for j = 1:n_obs
-        if ~isempty(reach.ellip{k} & obs.ellip{j})
-            in_collision = true;
-            break
-        end
-    end
-end 
-if in_collision
-    disp('  Reachable set collides with obstacle');
-else
-    disp('  Reachable set does not collide with obstacle');
-end
-disp(['  time to collision check: ',num2str(toc)]);
-
-% ellipsotope
-disp('Ellipsotope collision check');
-tic
-in_collision = false;
-for k = 1:trajectory.N_timesteps
-    for j = 1:n_obs
-        if ~isempty(reach.etope{k} & obs.etope{j})
-            in_collision = true;
-            break
-        end
-    end
-end 
-if in_collision
-    disp('  Reachable set collides with obstacle');
-else
-    disp('  Reachable set does not collide with obstacle');
-end
-disp(['  time to collision check: ',num2str(toc)]);
-
-%% compute reach set volumes
-reach.zono_vol = 0;
-reach.ellip_vol = 0;
-reach.etope_vol = 0;
-
-for k = 1:trajectory.N_timesteps
-   reach.zono_vol = reach.zono_vol + volume(reach.zono{k});
-   reach.ellip_vol = reach.ellip_vol + volume(reach.ellip{k});
-   reach.etope_vol = reach.etope_vol + area(reach.etope{k});
-end
+% % zonotope
+% disp('Zonotope collision check');
+% tic
+% in_collision = false;
+% for k = 1:trajectory.N_timesteps
+%     for j = 1:n_obs
+%         if ~isempty(reach.zono{k} & obs.zono{j})
+%             in_collision = true;
+%             break
+%         end
+%     end
+% end 
+% if in_collision
+%     disp('  Reachable set collides with obstacle');
+% else
+%     disp('  Reachable set does not collide with obstacle');
+% end
+% disp(['  time to collision check: ',num2str(toc)]);
+% 
+% % ellipsoid
+% disp('Ellipsoid collision check');
+% tic
+% in_collision = false;
+% for k = 1:trajectory.N_timesteps
+%     for j = 1:n_obs
+%         if ~isempty(reach.ellip{k} & obs.ellip{j})
+%             in_collision = true;
+%             break
+%         end
+%     end
+% end 
+% if in_collision
+%     disp('  Reachable set collides with obstacle');
+% else
+%     disp('  Reachable set does not collide with obstacle');
+% end
+% disp(['  time to collision check: ',num2str(toc)]);
+% 
+% % ellipsotope
+% disp('Ellipsotope collision check');
+% tic
+% in_collision = false;
+% for k = 1:trajectory.N_timesteps
+%     for j = 1:n_obs
+%         if ~isempty(reach.etope{k} & obs.etope{j})
+%             in_collision = true;
+%             break
+%         end
+%     end
+% end 
+% if in_collision
+%     disp('  Reachable set collides with obstacle');
+% else
+%     disp('  Reachable set does not collide with obstacle');
+% end
+% disp(['  time to collision check: ',num2str(toc)]);
+% 
+% %% compute reach set volumes
+% reach.zono_vol = 0;
+% reach.ellip_vol = 0;
+% reach.etope_vol = 0;
+% 
+% for k = 1:trajectory.N_timesteps
+%    reach.zono_vol = reach.zono_vol + volume(reach.zono{k});
+%    reach.ellip_vol = reach.ellip_vol + volume(reach.ellip{k});
+%    reach.etope_vol = reach.etope_vol + area(reach.etope{k});
+% end
 
 %% plot reachable sets and rollouts
 

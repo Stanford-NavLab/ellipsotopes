@@ -1,5 +1,5 @@
 %% description
-% Fault detection example
+% Fault detection example using constrained zonotopes
 %
 % References:
 % [1] Scott, J.K. Constrained zonotopes
@@ -44,19 +44,16 @@ K{1} = dlqr(A{1},B{1},eye(2),0.1);
 K{2} = dlqr(A{2},B{2},eye(2),0.1);
 
 % noise sets
-% zonotope noise
-%W = ellipsotope(2,[0;0],eye(2),[],[],{1,2});
-%V = ellipsotope(2,[0;0],[0.06 0; 0 0.6],[],[],{1,2});
-% ellipsoidal noise
-W = ellipsotope(2,[0;0],eye(2));
-V = ellipsotope(2,[0;0],[0.06 0; 0 0.6]);
+W = conZonotope([0;0],eye(2));
+V = conZonotope([0;0],[0.06 0; 0 0.6]);
 
 % initial set of states
-X0 = ellipsotope(2,[0.6;70],[0.06 0; 0 0.6],[],[],{1,2});
+X0 = conZonotope([0.6;70],[0.06 0; 0 0.6]);
 
 %% run simulations
 
 N_sims = 10;
+N = 100; % number of iterations
 fault_steps = zeros(N_sims,1);
 avg_detect_steps = 0;
 avg_step_time = zeros(N_sims,1);
@@ -64,12 +61,11 @@ missed_detections = 0;
 
 for i = 1:N_sims
     % sample initial state
-    x_0 = sample_from_ellipsotope(X0);
+    x_0 = randPoint(X0);
     % initial measurement
     % sample v_0
-    v_0 = sample_from_ellipsotope(V);
+    v_0 = randPoint(V);
     y_0 = C * x_0 + D * v_0;
-    N = 100; % number of iterations
 
     x_k = x_0; y_k = y_0;
 %     X = zeros(2,N);
@@ -77,7 +73,7 @@ for i = 1:N_sims
 
     % set-based estimator from [1] eqn (32)
     % initialization
-    O_k = intersect(X0, y_0 + (-1)*D*V, C); 
+    O_k = (C * X0) & (y_0 + (-1)*D*V); 
     O = cell(1,N);
     fault = 0;
 
@@ -85,8 +81,8 @@ for i = 1:N_sims
     for k = 1:N
         % simulate faulty model
         % sample w_k and v_k from W and V
-        w_k = sample_from_ellipsotope(W);
-        v_k = sample_from_ellipsotope(V);
+        w_k = randPoint(W);
+        v_k = randPoint(V);
         % control law
         u_k = u_N - K{2} * (y_k - x_N);
         % apply saturation limits
@@ -102,14 +98,14 @@ for i = 1:N_sims
         tic
         % fault detection step
         F = C * (A{1}*O_k + Bw{1}*W) + D*V;
-        if ~F.contains(y_k)
+        if ~in(F,y_k)
             fault = k;
             fault_steps(i) = fault;
             break
         end
 
         % set-based estimator update
-        O_k = intersect(A{1}*O_k + Bw{1}*W, y_k + (-1)*D*V, C);
+        O_k = (C * (A{1}*O_k + Bw{1}*W)) & (y_k + (-1)*D*V);
         O{k} = O_k;
         disp(toc)
         avg_step_time(i) = avg_step_time(i) + toc;
@@ -124,6 +120,6 @@ for i = 1:N_sims
     avg_step_time(i) = avg_step_time(i) / k;
 end
 
-disp(['Average timesteps for detection: ', num2str(avg_detect_steps/N_sims)])
+disp(['Average timesteps for detection: ', num2str(avg_detect_steps/(N_sims-missed_detections))])
 disp(['Average time per timestep: ', num2str(mean(avg_step_time))])
 disp(['Missed detections: ', num2str(missed_detections)])

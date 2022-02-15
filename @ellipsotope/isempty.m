@@ -11,7 +11,7 @@ function [out,value,x_feas] = isempty(E,flag_compute_value,method)
 %
 % Authors: Shreyas Kousik
 % Created: 27 Apr 2021
-% Updated: 15 Jun 2021 (fixed bugs with bailing out early and broke logic)
+% Updated: 15 Feb 2022 (tried out sqp instead of interior point)
 
     if nargin < 2
         flag_compute_value = false ;
@@ -61,6 +61,7 @@ function [out,value,x_feas] = isempty(E,flag_compute_value,method)
 
                         % set up options
                         options = optimoptions('fmincon','Display','off',...
+                            'Algorithm','sqp',...
                             'CheckGradients',false,... % useful to set to true sometimes...
                             'SpecifyObjectiveGradient',true) ;
 
@@ -83,6 +84,7 @@ function [out,value,x_feas] = isempty(E,flag_compute_value,method)
 
                         % fmincon options
                         options = optimoptions('fmincon','Display','off',...
+                            'Algorithm','sqp',...
                             'SpecifyObjectiveGradient',true,...
                             'SpecifyConstraintGradient',true) ;
 

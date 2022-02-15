@@ -6,14 +6,15 @@ function make_plot_pretty(fh)
 %
 % Authors: Shreyas Kousik
 % Created: 6 May 2021
-% Updated: 18 Jan 2022
+% Updated: 15 Feb 2022 (to match the one in the simulator repo)
     if nargin < 1
         fh = gcf ;
     end
 
     set_plot_linewidths(1.5,fh)
     set_plot_fontsize(15,fh)
-    
+
     % set marker sizes, woo!
-    set(findobj(fh,'Marker','.') ,'MarkerSize',12) ;
+    h = findobj(fh,'Marker','.') ;
+    set(h,'MarkerSize',12) ;
 end

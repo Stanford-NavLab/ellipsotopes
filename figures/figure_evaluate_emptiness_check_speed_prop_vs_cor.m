@@ -3,7 +3,10 @@
 % of the number of generators. We check the proposition versus the
 % corollary to see which is faster.
 %
-% NOTE this takes ~52 s to run on an i7 8-core processor. 
+% NOTE this takes ~52 s to run on an i7 8-core processor with the default
+% user parameters (see comments below). The runtime is a lot more for
+% any p > 2, which makes sense since we have to switch from solving a QP to
+% solving a generic nonlinear (convex) program.
 %
 % We strongly recommend not bumping up the number of generators much, as
 % the emptiness check can take a long time to solve for an empty
@@ -11,15 +14,15 @@
 %
 % Authors: Shreyas Kousik
 % Created: 27 Jul 2021
-% Updated: 15 Feb 2022 (added sweep over dimensions also)
+% Updated: 15 Feb 2022 (added sweep over dimensions)
 clear ; clc
 %% user parameters
 % rng seed
 rng(0)
 
 % properties that stay fixed
-p_norm = 2 ;
-n_con = 1 ;
+p_norm = 2 ; % default is 2
+n_con = 1 ; % default is 1
 
 % range of properties to test
 n_dim_list = 2:2:10 ; % default is 2:2:10
@@ -27,7 +30,7 @@ n_gen_list = 2:2:20 ; % default is 2:2:10
 n_etopes_per_n_gen = 5 ; % default is 5
 
 % whether or not to save the final figure
-flag_save_figure = true ;
+flag_save_figure = false ;
 
 %% automated from here
 n_n_dim = length(n_dim_list) ;

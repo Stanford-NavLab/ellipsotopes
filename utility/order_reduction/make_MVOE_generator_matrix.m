@@ -1,4 +1,4 @@
-function [G_MVOE,Q_MVOE] = make_MVOE_generator_matrix(G_1,G_2)
+function [G_MVOE,Q_MVOE,bt] = make_MVOE_generator_matrix(G_1,G_2)
 % [G_MVOE,Q_MVOE] = make_MVOE_generator_matrix(G_1,G_2)
 %
 % Compute the shape matrix for the minimum volume outer ellipsoid of the
@@ -12,7 +12,7 @@ function [G_MVOE,Q_MVOE] = make_MVOE_generator_matrix(G_1,G_2)
 %
 % Authors: Shreyas Kousik
 % Created: 13 June 2021
-% Updated: --
+% Updated: 21 Feb 2022 (added beta as output)
     
     % tolerate for iteration
     tol = 1e-10 ;

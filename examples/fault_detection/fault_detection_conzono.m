@@ -107,7 +107,8 @@ for i = 1:N_sims
         % set-based estimator update
         O_k = (C * (A{1}*O_k + Bw{1}*W)) & (y_k + (-1)*D*V);
         O{k} = O_k;
-        disp(toc)
+        %disp(toc)
+        disp(['n_c: ',num2str(size(O_k.A,1)),' n_g: ',num2str(size(O_k.A,2))])
         avg_step_time(i) = avg_step_time(i) + toc;
     end
     

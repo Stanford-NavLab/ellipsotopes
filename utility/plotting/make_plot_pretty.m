@@ -6,7 +6,7 @@ function make_plot_pretty(fh)
 %
 % Authors: Shreyas Kousik
 % Created: 6 May 2021
-% Updated: 15 Feb 2022 (to match the one in the simulator repo)
+% Updated: 22 Feb 2022 (fixed marker size stuff)
     if nargin < 1
         fh = gcf ;
     end
@@ -16,5 +16,9 @@ function make_plot_pretty(fh)
 
     % set marker sizes, woo!
     h = findobj(fh,'Marker','.') ;
-    set(h,'MarkerSize',12) ;
+    for idx = 1:length(h)
+        if h(idx).MarkerSize < 12
+            set(h(idx),'MarkerSize',12) ;
+        end
+    end
 end

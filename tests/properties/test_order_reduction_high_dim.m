@@ -29,7 +29,7 @@ disp('Generating random ellipsotopes')
 c = zeros(n_dim,1) ;
 
 % % uncomment the following lines to make super-similar volume 'topes
-% G = inv(sqrt(make_random_covariance_matrix(n_dim))) ;
+% G = inv(sqrtm(make_random_covariance_matrix(n_dim))) ;
 % G = G./max(G(:)) ;
 % G = 2.*rand(n_dim) - 1 ;
  

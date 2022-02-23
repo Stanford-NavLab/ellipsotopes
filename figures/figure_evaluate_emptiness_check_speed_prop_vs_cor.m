@@ -14,7 +14,7 @@
 %
 % Authors: Shreyas Kousik
 % Created: 27 Jul 2021
-% Updated: 15 Feb 2022 (added sweep over dimensions)
+% Updated: 23 Feb 2022 (fiddled with plotting and stuff)
 clear ; clc
 %% user parameters
 % rng seed
@@ -25,12 +25,12 @@ p_norm = 2 ; % default is 2
 n_con = 1 ; % default is 1
 
 % range of properties to test
-n_dim_list = 2:2:10 ; % default is 2:2:10
+n_dim_list = [2 8 14] ; % default is 2:2:10
 n_gen_list = 2:2:20 ; % default is 2:2:10
 n_etopes_per_n_gen = 5 ; % default is 5
 
 % whether or not to save the final figure
-flag_save_figure = false ;
+flag_save_figure = true ;
 
 %% automated from here
 n_n_dim = length(n_dim_list) ;
@@ -72,7 +72,10 @@ disp([newline,'Total time elapsed:',newline,num2str(toc(start_tic_all),'%0.1f'),
 %% plotting
 % set up colors for the different dimensions
 t_vec = linspace(0,pi,n_n_dim) ;
-colors = 0.3.*[sin(t_vec); sin(t_vec + pi/6); sin(t_vec + 2*pi/3)]' + 0.5 ;
+colors = 0.4.*[sin(t_vec); sin(t_vec + pi/5); sin(t_vec + 4*pi/3)]' + 0.4 ;
+d_dim_offset = 0.2 ;
+d_offset = (n_per_n_gen/5) ;
+n_per_n_gen = mean(diff(n_gen_list)) ;
 
 % start plottin'
 fh = figure(1) ; clf ;
@@ -80,40 +83,30 @@ fh = figure(1) ; clf ;
 subplot(2,1,1) ; hold on ; grid on ;
 
 for idx = 1:n_n_dim
-    % h_prop = boxplot(t_avg_prop(:,:,idx),'Colors',rand(1,3),'labels',n_gen_list,'labelorientation','horizontal') ;
     m = mean(t_avg_prop(:,:,idx),1) ;
-    s = std(t_avg_prop(:,:,idx),1) ;
-    errorbar(n_gen_list+0.1.*(idx-1),m,s,'.','Color',colors(idx,:),'linewidth',2)
+    m_min = m - min(t_avg_prop(:,:,idx),[],1) ;
+    m_max = m + max(t_avg_prop(:,:,idx),[],1) ;
+    errorbar(n_gen_list - d_offset + d_dim_offset.*(idx),m,m_min,m_max,'.',...
+        'Color',colors(idx,:),'linewidth',2,'CapSize',0,'MarkerSize',20)
 end
 legend(arrayfun(@(n) ['n = ',num2str(n)],n_dim_list,'Uni',0),'location','northwest')
-make_plot_pretty()
-% axis 'auto y'
-
-% n = findobj(gcf,'tag','Outliers');
-% for j = 1:numel(n)
-%     n(j).MarkerEdgeColor = 'b';
-% end
-
 xlabel('# of generators')
 ylabel('Prop. 7 time [s]')
-set_plot_linewidths(1.5) ;
-set_plot_fontsize(15) ;
+
+make_plot_pretty()
 
 subplot(2,1,2) ; hold on ; grid on ;
 for idx = 1:n_n_dim
-    % h_cor = boxplot(t_avg_cor(:,:,idx),'Colors',rand(1,3),'labels',n_gen_list,'labelorientation','horizontal') ;
     m = mean(t_avg_cor(:,:,idx),1) ;
-    s = std(t_avg_cor(:,:,idx),1) ;
-    errorbar(n_gen_list+0.1.*(idx-1),m,s,'.','Color',colors(idx,:),'linewidth',2)
+    m_min = m - min(t_avg_cor(:,:,idx),[],1) ;
+    m_max = m + max(t_avg_cor(:,:,idx),[],1) ;
+    errorbar(n_gen_list - d_offset + d_dim_offset.*(idx),m,m_min,m_max,'.',...
+        'Color',colors(idx,:),'linewidth',2,'CapSize',0,'MarkerSize',20)
 end
-% legend(arrayfun(@(n) ['n = ',num2str(n)],n_dim_list,'Uni',0))
-% axis 'auto y'
-
-% legend([h_full,h_empty],{'full','empty'},'location','northwest')
 xlabel('# of generators')
 ylabel('Cor. 8 time [s]')
-set_plot_linewidths(1.5) ;
-set_plot_fontsize(15) ;
+
+make_plot_pretty()
 
 if flag_save_figure
     save_figure_to_png(fh,'emptiness_check_time_prop_vs_cor.png')

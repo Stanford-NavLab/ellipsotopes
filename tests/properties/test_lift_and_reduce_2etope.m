@@ -18,7 +18,7 @@ rng(0) ;
 
 % original tope
 n_dim = 2 ;
-n_gen = 20 ;
+n_gen = 30 ;
 n_con = 3 ;
 n_I = 3 ;
 
@@ -50,14 +50,11 @@ for idx = 1:n_I
 end
 
 % make new 'tope
-c_rdc = cl(1:2) ;
-A_rdc = G_rdc(3:end,:) ;
-b_rdc = -cl(3:end) ;
-G_rdc = G_rdc(1:2,:) ;
-
+c_rdc = cl(1:n_dim) ;
+A_rdc = G_rdc((n_dim+1):end,:) ;
+b_rdc = -cl((n_dim+1):end) ;
+G_rdc = G_rdc(1:n_dim,:) ;
 E_rdc = ellipsotope(2,c_rdc,G_rdc,A_rdc,b_rdc,I_rdc) ;
-
-%% automated from here
 
 %% plotting
 figure(1) ; clf ; axis equal ; hold on ; grid on ;

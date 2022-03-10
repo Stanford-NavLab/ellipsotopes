@@ -10,14 +10,14 @@
 % G = rand(2,5);
 % E = ellipsotope(2,[0;0],G);
 
-E = make_random_ellipsotope();
+E = make_random_ellipsotope(2,2,20);
 
 % whether or not to save flag
 flag_save_figure = true;
 
 %% automated from here
 % perform the order reduction
-E_red = reduce(E);
+E_red = reduce(E,13);
 
 %% plotting
 h = figure(1) ; clf ; axis equal ; hold on ; grid on ;

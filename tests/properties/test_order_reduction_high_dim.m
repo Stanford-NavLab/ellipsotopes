@@ -9,15 +9,15 @@
 %
 % Authors: Shreyas Kousik
 % Created: 21 Feb 2022
-% Updated: --
+% Updated: 5 Mar 2022
 clear ; clc
 %% user parameters
 % random number generator seed
 % rng(0) ;
 
 % number of topes to test (things blow up quadratically so leave this less
-% than, like, 20; default is 12)
-n_topes = 12 ; % default is 12
+% than, like, 20; default is 6)
+n_comp_topes = 6 ; % default is 6
 
 % dimension
 n_dim = 10 ; % default is 10
@@ -34,9 +34,9 @@ c = zeros(n_dim,1) ;
 % G = 2.*rand(n_dim) - 1 ;
  
 % create all ellipsotopes
-E_cell = cell(1,n_topes) ;
+E_cell = cell(1,n_comp_topes) ;
 
-for idx = 1:n_topes
+for idx = 1:n_comp_topes
     % R_idx = RandOrthMat(n_dim) ; % make_random_orthonormal_matrix(n_dim) ;
     % s_idx = 1 ; %(2*rand(1) - 1) + 1 ;
     % G_idx = R_idx*G ;
@@ -54,10 +54,10 @@ end
 disp('Computing true MVOE volumes and heuristic values')
 
 % possible combinations of topes
-combs = combinator(n_topes,2,'c') ;
+combs = combinator(n_comp_topes,2,'c') ;
 n_combs = size(combs,1) ;
 
-% for each combinations...
+% for each combination...
 vols_MVOE = nan(1,n_combs) ; % volume of MVOE
 vols_heur = nan(1,n_combs) ; % heuristic volume value
 bts = nan(1,n_combs) ;
@@ -87,18 +87,16 @@ for idx = 1:n_combs
     Q_i = inv(pinv(G_i)'*pinv(G_i)) ;
     Q_j = inv(pinv(G_j)'*pinv(G_j)) ;
     Q_MVOE = 2*(Q_i + Q_j) ; % assume bt = 1 ;
-    vols_heur(idx) = det(inv(Q_MVOE)) ;
+    vols_heur(idx) = 1/det(inv(Q_MVOE)) ;
     
     % measure timing
     t_heur(idx) = timeit(@() ellipsoid_volume_from_generator_matrix(G_rdc)) ;
     t_MVOE(idx) = timeit(@() make_MVOE_generator_matrix(G_i,G_j)) ;
 end
 
-vols_heur = 1./vols_heur ;
 toc(t_start)
 
-
-%% testing heuristic quality
+%% test heuristic quality
 disp('Testing heuristic quality')
 
 % code from https://www.mathworks.com/help/matlab/data_analysis/linear-regression.html
@@ -113,34 +111,35 @@ SStotal = (length(y)-1) * var(y);
 rsq = 1 - SSresid/SStotal ;
 
 %% plotting setup
+disp('Plotting!')
 x_ln = [0, max(vols_MVOE)] ;
 y_ln = polyval(p,x_ln) ;
 
+%% plotting
+figure(1) ; clf ;
 
-%% plotting: MVOE vs. heuristic correlation
-disp('Plotting!')
-
-figure(1) ; clf ; grid on ; axis equal ; hold on ;
+% MVOE vs. heuristic correlation
+subplot(1,3,1) ; grid on ; axis equal ; hold on ;
 
 plot(x_ln,y_ln,'-','Color',[1 0.5 0])
 plot(vols_MVOE,vols_heur,'b.')
 
-% title('true vs. heuristic volume')
+title('true vs. heuristic volume')
 xlabel('true MVOE volume')
 ylabel('heuristic value')
-text(x_ln(1),0.85*y_ln(2),['r^2 = ',num2str(rsq,'%0.4f')])
+text(x_ln(1)+0.1,0.85*y_ln(2),['r^2 = ',num2str(rsq,'%0.4f')])
 make_plot_pretty()
 
-%% plotting: beta values
-figure(2) ; clf ;
+% zeta values
+subplot(1,3,2)
 histogram(bts)
-title('MVOE \beta values histogram','interpreter','tex')
+title('MVOE \zeta values','interpreter','tex')
 xlabel('bins')
 ylabel('counts')
 make_plot_pretty()
 
-%% plotting: timing
-figure(3) ; clf ; 
+% timing
+subplot(1,3,3) ; hold on ; grid on
 boxplot([t_MVOE ; t_heur]','labels',{'MVOE','heuristic'},'labelorientation','horizontal')
 n = findobj(gcf,'tag','Outliers');
 for j = 1:numel(n)

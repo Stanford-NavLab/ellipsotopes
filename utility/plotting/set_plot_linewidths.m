@@ -20,12 +20,12 @@ function set_plot_linewidths(linewidth,fh)
     % get all lines
     h = findall(fh,'Type','Line') ;
     for idx = 1:length(h)
-        h(idx).LineWidth = linewidth ;
+        h(idx).LineWidth = max([h(idx).LineWidth,linewidth]) ;
     end
     
     % get all patches
     h = findall(fh,'Type','Patch') ;
     for idx = 1:length(h)
-        h(idx).LineWidth = linewidth ;
+        h(idx).LineWidth = max([h(idx).LineWidth,linewidth]) ;
     end
 end

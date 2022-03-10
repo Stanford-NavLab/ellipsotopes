@@ -7,8 +7,10 @@
 %
 %% user parameters
 % basic 2-ellipsotope
-G = rand(2,5);
-E = ellipsotope(2,[0;0],G);
+% G = rand(2,5);
+% E = ellipsotope(2,[0;0],G);
+
+E = make_random_ellipsotope();
 
 % whether or not to save flag
 flag_save_figure = true;

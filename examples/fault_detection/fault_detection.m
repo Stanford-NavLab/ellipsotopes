@@ -54,6 +54,11 @@ V = ellipsotope(2,[0;0],[0.06 0; 0 0.6]);
 % initial set of states
 X0 = ellipsotope(2,[0.6;70],[0.06 0; 0 0.6],[],[],{1,2});
 
+% desired order reduction values
+n_c = 3; % num constraints
+o_d = 5; % degrees-of-freedom order
+n_g = 13; % corresponding number of generators (for dimension 2)
+
 %% run simulations
 
 N_sims = 10;
@@ -111,6 +116,11 @@ for i = 1:N_sims
         % set-based estimator update
         O_k = intersect(A{1}*O_k + Bw{1}*W, y_k + (-1)*D*V, C);
         O{k} = O_k;
+        
+        % order reduction
+        
+        disp(['n_c: ',num2str(size(O_k.constraint_A,1)),' n_g: ',num2str(size(O_k.constraint_A,2))])
+        
         disp(toc)
         avg_step_time(i) = avg_step_time(i) + toc;
     end

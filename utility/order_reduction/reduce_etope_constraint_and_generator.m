@@ -14,7 +14,8 @@ function E_rdc = reduce_etope_constraint_and_generator(E)
 % Updated: --
 
 % get properties
-[p,~,G,A,b,~,~,n_gen,n_con] = get_properties(E) ;
+%[p,~,G,A,b,~,~,n_gen,n_con,~] = get_properties(E) ;
+[p,c,G,A,b,I,n_dim,n_gen,n_con,n_I] = get_properties(E) ;
 
 if p ~= 2
     error('This function only works for 2-ellipsotopes for now!')

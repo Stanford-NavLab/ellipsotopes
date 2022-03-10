@@ -1,7 +1,6 @@
 %% description
-% This script tests a simple reachability example using ellipsotopes.
-% An initial ellipsotope is created and propagated through a linear 
-% dynamical system.
+% This script plots the heading uncertainty ellipsotope along with the
+% corresponding extreme rotated bodies.
 %
 % Authors: Adam Dai
 % Created: 24 May 2021
@@ -67,7 +66,7 @@ end
 %% plot
 fh = figure(1); clf ; hold on; grid on; axis equal
 plot(E_circ,'EdgeAlpha',1.0,'FaceAlpha',0.0,'EdgeColor','#D95319','LineWidth',1.0);%,'LineStyle','--');
-plot(E_rot,'FaceColor',[0.5 0.5 0],'EdgeColor',[0.5 0.5 0],'FaceAlpha',0.5,'EdgeAlpha',1.0,'num_points',500);
+plot(E_rot,'FaceColor',[0.5 0.5 0],'EdgeColor',[0.5 0.5 0],'FaceAlpha',0.5,'EdgeAlpha',1.0,'num_points',10000);
 plot(E_rot1,'FaceAlpha',1.0,'FaceColor',[0.7 0.7 1],'EdgeColor','b','LineWidth',1.5); 
 plot(E_body,'FaceAlpha',1.0,'FaceColor',[0.7 0.7 1],'EdgeColor','b','LineWidth',1.5); 
 plot(E_rot2,'FaceAlpha',1.0,'FaceColor',[0.7 0.7 1],'EdgeColor','b','LineWidth',1.5); 
@@ -80,6 +79,7 @@ patch(marker_verts(1,:),marker_verts(2,:),'black');
 lim = axis; axis(lim + 0.25*[-2 2 -1 1]);
 legend('Circumscribing Circle','Overbound Ellipsotope','Rotated Body',...
     'location','northwest');
-set(gca,'fontsize',15)
+set(gca,'fontsize',10)
 
 save_figure_to_png(fh,'heading_uncertainty_cropped.png') ;
+save_figure_to_pdf(fh,'heading_uncertainty_cropped.pdf') ;

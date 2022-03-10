@@ -57,8 +57,8 @@ legend('$E_1$','$E_2$','$E_1\oplus E_2$','$E_1\cap E_2$','Interpreter','latex');
 %% labeling
 % xlabel('$x\langle 1 \rangle$','Interpreter','latex'); ylabel('$x\langle 2 \rangle$','Interpreter','latex');
 % lim = axis; axis(lim + [-1 1 -1 1]);
+lim = axis; axis(lim + 0.25*[-2 2 -1 1]);
+%set_plot_fontsize(15)
 
-set_plot_fontsize(15)
-
-% save_figure_to_pdf(h,'minkowski_sum_and_intersection.pdf')
+save_figure_to_pdf(h,'minkowski_sum_and_intersection.pdf')
 save_figure_to_png(h,'minkowski_sum_and_intersection.png')

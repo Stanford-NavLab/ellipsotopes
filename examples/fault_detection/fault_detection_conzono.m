@@ -50,6 +50,10 @@ V = conZonotope([0;0],[0.06 0; 0 0.6]);
 % initial set of states
 X0 = conZonotope([0.6;70],[0.06 0; 0 0.6]);
 
+% desired order reduction values
+n_c = 3; % num constraints
+o_d = 5; % degrees-of-freedom order
+
 %% run simulations
 
 N_sims = 10;
@@ -108,7 +112,13 @@ for i = 1:N_sims
         O_k = (C * (A{1}*O_k + Bw{1}*W)) & (y_k + (-1)*D*V);
         O{k} = O_k;
         %disp(toc)
+        
+        % order reduction 
+        O_k = reduce(O_k,'scott',o_d); % reduce to o_d degrees of freedom order
+        O_k = reduceConstraints(O_k,n_c); % reduce to n_c constraints
+        
         disp(['n_c: ',num2str(size(O_k.A,1)),' n_g: ',num2str(size(O_k.A,2))])
+        
         avg_step_time(i) = avg_step_time(i) + toc;
     end
     

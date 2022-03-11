@@ -1,8 +1,8 @@
 %% description
-% This script tests generator-based order reduction.
+% This script tests constraint reduction.
 %
 % Authors: Adam Dai 
-% Created: 20 May 2021
+% Created: 3 Mar 2022
 % Updated: 
 %
 %% user parameters
@@ -10,14 +10,16 @@
 % G = rand(2,5);
 % E = ellipsotope(2,[0;0],G);
 
-E = make_random_ellipsotope(2,2,20);
+E = make_random_ellipsotope(2,2,10,6); % 6 constraints
+disp(['Original ellipsotope number of constraints: ', num2str(E.n_cons)]);
 
 % whether or not to save flag
 flag_save_figure = true;
 
 %% automated from here
 % perform the order reduction
-E_red = reduce(E,13);
+E_red = reduce_constraint(E,3); % reduce to 3 constraints
+disp(['Reduced ellipsotope number of constraints: ', num2str(E_rdc.n_cons)]);
 
 %% plotting
 h = figure(1) ; clf ; axis equal ; hold on ; grid on ;

@@ -24,6 +24,7 @@ classdef ellipsotope < handle
         % complexity
         dimension = [] ;
         order = [] ;
+        n_cons = [] ;
         
         % plot methods
         plot_handle = [] ;
@@ -63,6 +64,7 @@ classdef ellipsotope < handle
                 % set constraints
                 E.constraint_A = A ;
                 E.constraint_b = b ;
+                E.n_cons = size(A,1) ;
             end
             
             if nargin > 5

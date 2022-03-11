@@ -118,7 +118,8 @@ for i = 1:N_sims
         O{k} = O_k;
         
         % order reduction
-        
+        %O_k = reduce_2_etope_to_minimal_exact_rep(O_k); 
+        O_k = reduce_constraint(O_k,n_c); % reduce to n_c constraints
         disp(['n_c: ',num2str(size(O_k.constraint_A,1)),' n_g: ',num2str(size(O_k.constraint_A,2))])
         
         disp(toc)

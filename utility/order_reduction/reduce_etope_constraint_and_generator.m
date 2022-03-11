@@ -135,7 +135,7 @@ function E_rdc = reduce_one_con_and_gen(E,j_rdc)
     % solve the first constraint for the coefficient value
     E_j1 = zeros(n_gen,n_con) ;
     E_j1(j_rdc,1) = 1 ;
-    a_1j_inv = 1./A(1,j_rdc) ;
+    a_1j_inv = 1./(A(1,j_rdc)+1e-5) ;
 
     % create Gamma and Lambda
     Gm = G*E_j1*a_1j_inv ;

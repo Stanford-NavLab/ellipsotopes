@@ -8,7 +8,7 @@
 %
 % Authors: Shreyas Kousik
 % Created: 10 Mar 2022
-% Updated: 10 Mar 2022
+% Updated: 13 Mar 2022
 clear ; clc ; close all ;
 %% user parameters
 % rng seed
@@ -50,15 +50,17 @@ for idx = 1:n_I
     if nc > nr
         G_idx = reduce_2_etope_generator_matrix(G_idx) ;
         % I_idx = (1:nl) + get_max_index(I_rdc) ;
+        
+        % approximate volume of each reduced 'tope
+        vols(idx) = ellipsoid_volume_from_generator_matrix(G_idx) ;
     else
+        % in this case, the G matrix is tall, so we can't treat it like a
+        % component ellipsoid
         % I_idx = (1:nc) + get_max_index(I_rdc) ;
     end
     G_rdc = [G_rdc, {G_idx}] ;
     % I_rdc = [I_rdc, {I_idx}] ; % we'll reconstruct this later
     n_gen_remaining = n_gen_remaining + size(G_idx,2) ;
-    
-    % approximate volume of each reduced 'tope
-    vols(idx) = ellipsoid_volume_from_generator_matrix(G_idx) ;
 end
 
 %% overapproximate with MVOEs

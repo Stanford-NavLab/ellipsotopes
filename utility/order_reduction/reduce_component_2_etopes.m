@@ -9,7 +9,7 @@ function E_cell_out = reduce_component_2_etopes(E_cell_in,n_rdc)
 %
 % Authors: Shreyas Kousik
 % Created: 14 July 2021
-% Updated: 19 July 2021
+% Updated: 13 Mar 2022 (updated to use new heuristic)
 
     % set default number of topes to reduce
     if nargin < 2
@@ -26,7 +26,7 @@ function E_cell_out = reduce_component_2_etopes(E_cell_in,n_rdc)
     end
 end
 
-function E_cell_out = reduce_helper_function(E_cell_in)
+function E_cell_out = reduce_helper_function(E_cell)
 % E_cell_out = reduce_helper_function(E_cell_in)
 %
 % This helper function reduces the length of E_cell_in by 1. For now, this
@@ -34,67 +34,46 @@ function E_cell_out = reduce_helper_function(E_cell_in)
 %
 % Authors: Shreyas Kousik
 % Created: 14 July 2021
-% Updated: nup
+% Updated: 13 Mar 2022 (updated to use new heuristic)
 
     % number of etopes
-    n_E = length(E_cell_in) ;
-
-    % set up to save generator matrices
-    G_cell = cell(1,n_E) ;
-
-    % compute ellipsoid axes for each etope
-    V = cell(1,n_E) ;
-    for idx = 1:n_E
-        % get current etope
-        E_idx = E_cell_in{idx} ;
-        G_idx = E_idx.generators ;
-        G_cell{idx} = G_idx ;
-
-        G_inv = pinv(G_idx) ;
-        Q = G_inv'*G_inv ;
-        [V_idx,E_idx] = eig(inv(Q)) ;
-
-        % get axis for largest eigenvalue
-        E_idx = diag(E_idx) ;
-        [~,idx_max] = max(E_idx) ;
-
-        V{idx} = V_idx(:,idx_max) ;
-    end
-
+    n_E = length(E_cell) ;
+    
     % create all (i,j) pairs
     combs = combinator(n_E,2,'c') ;
     n_idx = size(combs,1) ;
 
     % iterate over pairs to compute statistic
-    rdc_heur = nan(n_E,1) ;
+    vols_heur = nan(n_E,1) ;
     for idx = 1:n_idx
         % get ellipsoids to compare
         idx_ij = combs(idx,:) ;
-
-        % get longest axes
-        v_i = V{idx_ij(1)} ;
-        v_j = V{idx_ij(2)} ;
+        G_i = E_cell{idx_ij(1)}.generators ;
+        G_j = E_cell{idx_ij(2)}.generators ;
 
         % compute heuristic
-        rdc_heur(idx) = abs(v_i'*v_j) ;
+        Q_i = inv(pinv(G_i)'*pinv(G_i)) ;
+        Q_j = inv(pinv(G_j)'*pinv(G_j)) ;
+        Q_MVOE = 2*(Q_i + Q_j) ; % assume bt = 1 ;
+        vols_heur(idx) = 1/det(inv(Q_MVOE)) ;
     end
 
-    % get the pair of topes that max the heuristic
-    [~,idx_max] = max(rdc_heur) ;
-    idx_ij = combs(idx_max,:) ;
+    % get the pair of topes that minimize the heuristic
+    [~,idx_min] = min(vols_heur) ;
+    idx_ij = combs(idx_min,:) ;
     idx_i = idx_ij(1) ;
     idx_j = idx_ij(2) ;
 
     % extract the two topes
-    E_i = E_cell_in{idx_i} ;
-    E_j = E_cell_in{idx_j} ;
-    E_cell_in(idx_ij) = []  ; % delete the topes from the input
+    E_i = E_cell{idx_i} ;
+    E_j = E_cell{idx_j} ;
+    E_cell(idx_ij) = []  ; % delete the topes from the input
 
-    % compute MVOE generator matrix
+    % compute new MVOE etope
     c_MVOE = E_i.center + E_j.center ;
-    G_MVOE = make_MVOE_generator_matrix(G_cell{idx_i},G_cell{idx_j}) ;
+    G_MVOE = make_MVOE_generator_matrix(E_i.generators,E_j.generators) ;
     E_MVOE = ellipsotope(2,c_MVOE,G_MVOE) ;
     
     % create output
-    E_cell_out = [E_cell_in, {E_MVOE}] ;
+    E_cell_out = [E_cell, {E_MVOE}] ;
 end

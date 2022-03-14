@@ -4,8 +4,14 @@
 % References:
 % [1] Scott, J.K. Constrained zonotopes
 %
-clear 
-%% setup
+% Authors: Adam Dai
+% Created: Shrug
+% Updated: 14 Mar 2022 (Shreyas did some debuggins)
+clear ; clc ;
+%% user parameters
+% random number generator seed (for replicability)
+rng(0)
+
 % Nominal (1) and Faulty (2) model parameters
 Ra(1) = 1.2030; Ra(2) = 1.5030;
 L(1) = 5.5840; L(2) = 5.5840;
@@ -59,9 +65,11 @@ n_c = 3; % num constraints
 o_d = 5; % degrees-of-freedom order
 n_g = 13; % corresponding number of generators (for dimension 2)
 
-%% run simulations
+% number of simulations to run
+N_sims = 10 ;
 
-N_sims = 10;
+%% run simulations
+% set up to save info
 fault_steps = zeros(N_sims,1);
 avg_detect_steps = 0;
 avg_step_time = zeros(N_sims,1);
@@ -107,6 +115,24 @@ for i = 1:N_sims
         tic
         % fault detection step
         F = C * (A{1}*O_k + Bw{1}*W) + D*V;
+%         F_cond = cond(F.constraint_A) ;
+%         
+%         if F_cond > 1e8
+%             dbstop in fault_detection at 116
+%             disp('hi')
+%         end
+        
+        %%% SHREYAS DEBUGGING DEGENERATE CONSTRAINTS %%%
+        
+%         A_test = F.constraint_A ;
+%         b_test = F.constraint_b ;
+%         x_test = pinv(A_test)*b_test ;
+%         if vecnorm(A_test*x_test - b_test) > 1e-7
+%             dbstop in fault_detection at 120
+%             disp('hi')
+%         end
+        %%% SHREYAS DEBUGGING DEGENERATE CONSTRAINTS %%%
+        
         if ~F.contains(y_k)
             fault = k;
             fault_steps(i) = fault;

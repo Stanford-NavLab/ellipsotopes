@@ -83,24 +83,29 @@ end
 function E_rdc = reduce_one_con_and_gen(E,j_rdc)
     [p_norm,c,G,A,b,I,~,n_gen,n_con] = E.get_properties() ;
 
-    % solve the first constraint for the coefficient value
-    E_j1 = zeros(n_gen,n_con) ;
-    E_j1(j_rdc,1) = 1 ;
-    a_1j_inv = 1./(A(1,j_rdc)+1e-5) ;
+    % find a constraint where the j-th entry is nonzero (this must always
+    % exist or else we can't reduce that constraint! ha ha ha ha)
+    a_ij_all = A(:,j_rdc) ;
+    i_rdc = find(a_ij_all ~= 0,1) ;
+    
+    % solve the first constraint where a_ij is nonzero for the coef value
+    E_ij = zeros(n_gen,n_con) ;
+    E_ij(j_rdc,i_rdc) = 1 ;
+    a_ij_inv = 1./(A(i_rdc,j_rdc)) ;
 
-    % create Gamma and Lambda
-    Gm = G*E_j1*a_1j_inv ;
-    Lm = A*E_j1*a_1j_inv ;
+    % create Gamma and Lambda as in Prop. 5 of [1]
+    Gm = G*E_ij*a_ij_inv ;
+    Lm = A*E_ij*a_ij_inv ;
 
-    % create new etope
+    % create new etope parameters
     c_rdc = c + Gm*b ;
     G_rdc = G - Gm*A ;
     A_rdc = A - Lm*A ;
     b_rdc = b - Lm*b ;
 
-    % delete first constraint and j-th generator column
-    A_rdc = A_rdc(2:end,:) ;
-    b_rdc = b_rdc(2:end) ;
+    % delete i-th constraint and j-th generator column
+    A_rdc(i_rdc,:) = [] ;
+    b_rdc(i_rdc) = [] ;
     A_rdc(:,j_rdc) = [] ;
 
     % delete j-th generator

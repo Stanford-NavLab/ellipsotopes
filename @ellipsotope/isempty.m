@@ -38,7 +38,7 @@ function [out,value,x_feas] = isempty(E,flag_compute_value,method)
         x_0 = pinv(A)*b ;
 
         % check if x_0 is actually feasible to the constraints
-        if vecnorm(A*x_0 - b) > 1e-10
+        if vecnorm(A*x_0 - b) > 1e-7
             out = true ;
             value = [] ;
             x_feas = [] ;

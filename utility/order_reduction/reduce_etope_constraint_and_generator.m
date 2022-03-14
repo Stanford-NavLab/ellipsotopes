@@ -9,9 +9,11 @@ function E_rdc = reduce_etope_constraint_and_generator(E)
 %     Constrained zonotopes: A new tool for set-based estimation and fault
 %     detection. Automatica, 69, pp.126-136.
 %
+% See also: estimate_interval_ball_product_intersection.m
+%
 % Authors: Shreyas Kousik
 % Created: 20 July 2021
-% Updated: --
+% Updated: 14 March 2022 (functionized some stuff and fixed some bugz)
 
 % get properties
 %[p,~,G,A,b,~,~,n_gen,n_con,~] = get_properties(E) ;
@@ -26,44 +28,7 @@ if isempty(A)
 end
 
 %% compute bounds on ball product intersecting affine subspace
-% initialize
-int_E = [-ones(n_gen,1), ones(n_gen,1)] ;
-int_R = [-inf(n_gen,1), inf(n_gen,1)] ;
-
-% iterate Algorithm 1 of [1]
-for idx_i = 1:n_con
-    for idx_j = 1:n_gen
-        a_ij = A(idx_i,idx_j) ;
-        
-        if a_ij ~= 0
-            R_j = int_R(idx_j,:) ;
-            E_j = int_E(idx_j,:) ;
-            
-            a_ij_inv = 1./a_ij ;
-            
-            idxs_k = 1:n_gen ;
-            idxs_k(idx_j) = [] ;
-                        
-            R_j_RHS = a_ij_inv*b(idx_i).*[1 1] ;
-            E_k_sum = [0 0] ;
-            for idx_k = idxs_k
-                a_ik = A(idx_i,idx_k) ;
-                E_k = int_E(idx_k,:) ;
-                E_k_prod = interval_scalar_mult(a_ij_inv*a_ik,E_k) ;
-                E_k_sum = interval_add(E_k_sum,E_k_prod) ;
-            end
-            
-            R_j_RHS = interval_subtract(R_j_RHS, E_k_sum) ;
-            
-            R_j = interval_intersect(R_j, R_j_RHS) ;
-            
-            E_j = interval_intersect(E_j,R_j) ;
-            
-            int_R(idx_j,:) = R_j ;
-            int_E(idx_j,:) = E_j ;
-        end
-    end
-end
+[~,~,int_R_rescaled] = estimate_interval_ball_product_intersection(E) ;
 
 %% test computing approximate Hausdorff distance
 % this applies the method in the appendix of [1]
@@ -71,32 +36,40 @@ end
 % preallocate for solutions
 H_hat = nan(1,n_gen) ;
 
-% compute r_j values
-int_r = max(abs(int_R),[],2) ;
+% compute r_j values as in (A.6) of [1]
+r_j_all = max([zeros(n_gen,1), max(abs(int_R_rescaled),[],2) - 1],[],2) ;
 
-% compute H_hat approx for each j
-for idx_j = 1:n_gen
-    % create j unit vector
-    e_j = zeros(n_gen,1) ;
-    e_j(idx_j) = 1 ;
-       
-    % create matrix
-    LHS = [G'*G + eye(n_gen), A', e_j ;
-        A, zeros(n_con,n_con), zeros(n_con,1) ;
-        e_j', zeros(1,n_con), 0] ;
-    RHS = [zeros(n_gen+n_con,1) ; int_r(idx_j)] ;
-    
-    % solve for d_hat and lambda_hat
-    sol = inv(LHS)*RHS ;
-    
-    % extract d_hat
-    d_hat = sol(1:n_gen) ;
-    
-    % compute H_hat approximate cost
-    H_hat(idx_j) = vecnorm(G*d_hat,2) + vecnorm(d_hat) ;
+% check if any r_j = 0 (within some numerical tolerance)
+r_j_test = abs(r_j_all) < 1e-8 ;
+if any(r_j_test)
+    idx_j_min = find(r_j_test,1) ;
+else
+    % compute H_hat approx for each j
+    for idx_j = 1:n_gen
+        % create j unit vector
+        e_j = zeros(n_gen,1) ;
+        e_j(idx_j) = 1 ;
+
+        % create QP solution matrix as in (A.7)
+        LHS = [G'*G + eye(n_gen), A', e_j ;
+            A, zeros(n_con,n_con), zeros(n_con,1) ;
+            e_j', zeros(1,n_con), 0] ;
+        RHS = [zeros(n_gen+n_con,1) ; r_j_all(idx_j)] ;
+
+        % solve for d_hat and lambda_hat (Shreyas was lazy and didn't
+        % pre-factorize the Q = (G'G + I) matrix, but like, this could be done
+        % faster in the future I guess...
+        sol = pinv(LHS)*RHS ;
+
+        % extract d_hat
+        d_hat = sol(1:n_gen) ;
+
+        % compute H_hat approximate cost
+        H_hat(idx_j) = vecnorm(G*d_hat,2) + vecnorm(d_hat) ;
+    end
+
+    [~,idx_j_min] = min(H_hat) ;
 end
-
-[~,idx_j_min] = min(H_hat) ;
 
 %% reduce
 E_rdc = reduce_one_con_and_gen(E,idx_j_min) ;
@@ -107,28 +80,6 @@ E_rdc.clean_properties() ;
 end
 
 %% helper functions
-function I = interval_intersect(I_1,I_2)
-     I_lo = [I_1(:,1), I_2(:,1)] ;
-     I_hi = [I_1(:,2), I_2(:,2)] ;
-     
-     I = [max(I_lo,[],2), min(I_hi,[],2)] ;
-end
-
-function I = interval_add(I_1,I_2)
-    I = [I_1(:,1) + I_2(:,1), I_1(:,2) + I_2(:,2)] ;
-end
-
-function I = interval_subtract(I_1,I_2)
-    I = [I_1(:,1) - I_2(:,2), I_1(:,2) - I_2(:,1)] ;
-end
-
-function I = interval_scalar_mult(s,I)
-    I = s.*I ;
-    if s < 0
-        I = [I(:,2), I(:,1)] ;
-    end
-end
-
 function E_rdc = reduce_one_con_and_gen(E,j_rdc)
     [p_norm,c,G,A,b,I,~,n_gen,n_con] = E.get_properties() ;
 

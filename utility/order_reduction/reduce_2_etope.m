@@ -77,7 +77,7 @@ function E = reduce_2_etope(E,n_rdc)
     n_dim = E.dimension ;
     n_con = E.n_constraints ;
     
-    n_con_to_remove = max((n_dim + n_con - n_gen_max),0) 
+    n_con_to_remove = max((n_dim + n_con - n_gen_max),0) ;
     
     for idx = 1:n_con_to_remove
         E = reduce_etope_constraint_and_generator(E) ;
@@ -95,6 +95,8 @@ function E = reduce_2_etope(E,n_rdc)
     
 %% try component zonotopes
     if n_gen > n_des
-        error('still gotta write this!')
+        warning(['Still gotta write how to reduce component zonotopes! ',...
+            'So the output of this function might not be as reduced as ',...
+            'you desire.'])
     end
 end

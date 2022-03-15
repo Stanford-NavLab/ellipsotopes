@@ -61,10 +61,12 @@ function E = reduce_2_etope(E,n_rdc)
     end
     
 %% try removing constraints so the minimal rep thing will get us low enough
-    while n_gen > n_des
+    n_con = E.n_constraints ;
+    while (n_gen > n_des) && (n_con > 0)
         E = reduce_etope_constraint_and_generator(E) ;
         E = reduce_2_etope_to_minimal_exact_rep(E) ;
         n_gen = E.n_generators ;
+        n_con = E.n_constraints ;
     end
 
 % %% try lift-and-reduce
@@ -74,10 +76,13 @@ function E = reduce_2_etope(E,n_rdc)
 %     
 %     n_gen = E.n_generators ;
 %     
-% %% try component zonotopes
-%     if n_gen > n_des
-%         warning(['Still gotta write how to reduce component zonotopes! ',...
-%             'So the output of this function might not be as reduced as ',...
-%             'you desire.'])
-%     end
+% %% try component zonotopes?
+
+    %% sanity check
+    n_gen = E.n_generators ;
+    if n_gen > n_des
+        warning(['Still gotta write how to reduce component zonotopes! ',...
+            'So the output of this function might not be as reduced as ',...
+            'you desire.'])
+    end
 end

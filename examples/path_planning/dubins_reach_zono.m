@@ -200,13 +200,13 @@ for k = 2:trajectory.N_timesteps
     % RRBT distribution
     RRBT{k} = Sigma + Lambda;
     
-%     % zonotope position uncertainty bound
-%     c = trajectory.x_nom(1:2,k);
-%     reach.zono{k} = cov2zonotope(RRBT{k}(1:2,1:2),3,2) + c;
-%     
-%     % ellipsoid position uncertainty bound
-%     Q = eps*RRBT{k}(1:2,1:2);
-%     reach.ellip{k} = ellipsoid(Q,c);
+    % zonotope position uncertainty bound
+    c = trajectory.x_nom(1:2,k);
+    reach.zono{k} = cov2zonotope(RRBT{k}(1:2,1:2),3,2) + c;
+    
+    % ellipsoid position uncertainty bound
+    Q = eps*RRBT{k}(1:2,1:2);
+    reach.ellip{k} = ellipsoid(Q,c);
     
     % ellipsotope position uncertainty bound
     G = sqrtm(eps*RRBT{k}(1:2,1:2));
@@ -215,13 +215,13 @@ for k = 2:trajectory.N_timesteps
     % compute rotated body overapproximation
     d_theta = erfinv(P) * RRBT{k}(3,3) * sqrt(2);
     
-%     % - zonotope
-%     robot.rot_body_zono = rotated_body_zono(robot, trajectory.x_nom(3,k), d_theta);
-%     reach.zono{k} = reach.zono{k} + robot.rot_body_zono;
-%     
-%     % - ellipsoid
-%     robot.rot_body_ellip = rotated_body_ellip(robot);
-%     reach.ellip{k} = reach.ellip{k} + robot.rot_body_ellip;
+    % - zonotope
+    robot.rot_body_zono = rotated_body_zono(robot, trajectory.x_nom(3,k), d_theta);
+    reach.zono{k} = reach.zono{k} + robot.rot_body_zono;
+    
+    % - ellipsoid
+    robot.rot_body_ellip = rotated_body_ellip(robot);
+    reach.ellip{k} = reach.ellip{k} + robot.rot_body_ellip;
     
     % - ellipsotope
     robot.rot_body = rotated_body(robot, trajectory.x_nom(3,k), d_theta);
@@ -231,43 +231,43 @@ disp(['time to compute reachable set: ',num2str(toc)]);
 
 %% collision check
 
-% zonotope
-disp('Zonotope collision check');
-tic
-in_collision = false;
-for k = 1:trajectory.N_timesteps
-    for j = 1:n_obs
-        if ~isempty(reach.zono{k} & obs.zono{j})
-            in_collision = true;
-            break
-        end
-    end
-end 
-if in_collision
-    disp('  Reachable set collides with obstacle');
-else
-    disp('  Reachable set does not collide with obstacle');
-end
-disp(['  time to collision check: ',num2str(toc)]);
+% % zonotope
+% disp('Zonotope collision check');
+% tic
+% in_collision = false;
+% for k = 1:trajectory.N_timesteps
+%     for j = 1:n_obs
+%         if ~isempty(reach.zono{k} & obs.zono{j})
+%             in_collision = true;
+%             break
+%         end
+%     end
+% end 
+% if in_collision
+%     disp('  Reachable set collides with obstacle');
+% else
+%     disp('  Reachable set does not collide with obstacle');
+% end
+% disp(['  time to collision check: ',num2str(toc)]);
 
-% ellipsoid
-disp('Ellipsoid collision check');
-tic
-in_collision = false;
-for k = 1:trajectory.N_timesteps
-    for j = 1:n_obs
-        if ~isempty(reach.ellip{k} & obs.ellip{j})
-            in_collision = true;
-            break
-        end
-    end
-end 
-if in_collision
-    disp('  Reachable set collides with obstacle');
-else
-    disp('  Reachable set does not collide with obstacle');
-end
-disp(['  time to collision check: ',num2str(toc)]);
+% % ellipsoid
+% disp('Ellipsoid collision check');
+% tic
+% in_collision = false;
+% for k = 1:trajectory.N_timesteps
+%     for j = 1:n_obs
+%         if ~isempty(reach.ellip{k} & obs.ellip{j})
+%             in_collision = true;
+%             break
+%         end
+%     end
+% end 
+% if in_collision
+%     disp('  Reachable set collides with obstacle');
+% else
+%     disp('  Reachable set does not collide with obstacle');
+% end
+% disp(['  time to collision check: ',num2str(toc)]);
 
 % ellipsoid converted to ellipsotope
 reach.ellip_etope = cell(1,trajectory.N_timesteps);
@@ -314,15 +314,15 @@ end
 disp(['  time to collision check: ',num2str(toc)]);
 
 %% compute reach set volumes
-reach.zono_vol = 0;
-reach.ellip_vol = 0;
-reach.etope_vol = 0;
-
-for k = 1:trajectory.N_timesteps
-   reach.zono_vol = reach.zono_vol + volume(reach.zono{k});
-   reach.ellip_vol = reach.ellip_vol + volume(reach.ellip{k});
-   reach.etope_vol = reach.etope_vol + area(reach.etope{k});
-end
+% reach.zono_vol = 0;
+% reach.ellip_vol = 0;
+% reach.etope_vol = 0;
+% 
+% for k = 1:trajectory.N_timesteps
+%    reach.zono_vol = reach.zono_vol + volume(reach.zono{k});
+%    reach.ellip_vol = reach.ellip_vol + volume(reach.ellip{k});
+%    reach.etope_vol = reach.etope_vol + area(reach.etope{k});
+% end
 
 %% plot reachable sets 
 

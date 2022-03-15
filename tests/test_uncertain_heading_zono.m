@@ -1,7 +1,6 @@
 %% description
-% This script tests a simple reachability example using ellipsotopes.
-% An initial ellipsotope is created and propagated through a linear 
-% dynamical system.
+% This script tests overapproximation of a body rotated by an uncertain
+% amount using zonotopes
 %
 % Authors: Adam Dai
 % Created: 24 May 2021

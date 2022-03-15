@@ -10,7 +10,7 @@ clear ; clc ; close all
 %% user parameters
 
 theta = pi/6; %2*pi/3 ;
-w = 1; l = 2;
+w = 2; l = 4;
 r = norm([w l]) / 2;
 c = zeros(2,1);
 G = rotation_matrix_2D(theta) * 0.5 * diag([l w]);

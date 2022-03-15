@@ -87,7 +87,7 @@ for idx_j = 1:n_gen
     RHS = [zeros(n_gen+n_con,1) ; int_r(idx_j)] ;
     
     % solve for d_hat and lambda_hat
-    sol = inv(LHS)*RHS ;
+    sol = pinv(LHS)*RHS ;
     
     % extract d_hat
     d_hat = sol(1:n_gen) ;

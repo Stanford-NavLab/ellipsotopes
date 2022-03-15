@@ -1,4 +1,4 @@
-function E_rdc = reduce_constraint(E,n_cons)
+function E_rdc = reduce_constraint(E,n_cons_to_keep)
 % E_rdc = reduce_constraint(E,n_cons)
 % E_rdc = reduce(E,n_rdc)
 %
@@ -8,7 +8,7 @@ function E_rdc = reduce_constraint(E,n_cons)
 % Created: 9 Mar 2022
 % Updated: 
 
-n_rdc = size(E.constraint_A,1) - n_cons;
+n_rdc = size(E.constraint_A,1) - n_cons_to_keep;
 
 E_rdc = E;
 

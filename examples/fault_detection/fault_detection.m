@@ -51,11 +51,11 @@ K{2} = dlqr(A{2},B{2},eye(2),0.1);
 
 % noise sets
 % zonotope noise
-%W = ellipsotope(2,[0;0],eye(2),[],[],{1,2});
-%V = ellipsotope(2,[0;0],[0.06 0; 0 0.6],[],[],{1,2});
+W = ellipsotope(2,[0;0],eye(2),[],[],{1,2});
+V = ellipsotope(2,[0;0],[0.06 0; 0 0.6],[],[],{1,2});
 % ellipsoidal noise
-W = ellipsotope(2,[0;0],eye(2));
-V = ellipsotope(2,[0;0],[0.06 0; 0 0.6]);
+% W = ellipsotope(2,[0;0],eye(2));
+% V = ellipsotope(2,[0;0],[0.06 0; 0 0.6]);
 
 % initial set of states
 X0 = ellipsotope(2,[0.6;70],[0.06 0; 0 0.6],[],[],{1,2});
@@ -144,7 +144,9 @@ for i = 1:N_sims
         O{k} = O_k;
         
         % order reduction
-        %O_k = reduce_2_etope_to_minimal_exact_rep(O_k); 
+        if O_k.order > n_g
+            O_k = reduce(O_k, O_k.order - n_g); 
+        end
         disp(['n_c: ',num2str(size(O_k.constraint_A,1)),' n_g: ',num2str(size(O_k.constraint_A,2))])
         O_k = reduce_constraint(O_k,n_c); % reduce to n_c constraints
         disp(['n_c: ',num2str(size(O_k.constraint_A,1)),' n_g: ',num2str(size(O_k.constraint_A,2))])
@@ -162,6 +164,6 @@ for i = 1:N_sims
     avg_step_time(i) = avg_step_time(i) / k;
 end
 
-disp(['Average timesteps for detection: ', num2str(avg_detect_steps/N_sims)])
+disp(['Average timesteps for detection: ', num2str(avg_detect_steps/(N_sims-missed_detections))])
 disp(['Average time per timestep: ', num2str(mean(avg_step_time))])
 disp(['Missed detections: ', num2str(missed_detections)])

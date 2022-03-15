@@ -6,8 +6,8 @@ function E_rdc = reduce(E,n_rdc)
 % argument is specified, we try to remove that many generators.
 %
 % Authors: Shreyas Kousik
-% Created: who knows!
-% Updated: 19 July 2021
+% Created: in days of yore
+% Updated: 14 Mar 2022 (leveraging new proposition)
     
 
 % default number of generators to reduce

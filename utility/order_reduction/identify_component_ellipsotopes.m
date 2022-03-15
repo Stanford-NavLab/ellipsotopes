@@ -7,9 +7,11 @@ function [idxs,log_idxs,E_reorg,E_other,E_comp_cell] = identify_component_ellips
 % reorganizes the ellipsotope's data so that the component ellipsotopes
 % are the last few index subsets.
 %
+% See also: identify_component_zonotopes.m
+%
 % Authors: Shreyas Kousik
 % Created: 13 July 2021
-% Updated: 19 July 2021
+% Updated: 14 Mar 2022
 
     % get properties
     [~,~,~,A,~,I] = get_properties(E) ;

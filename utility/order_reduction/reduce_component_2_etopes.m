@@ -9,19 +9,24 @@ function E_cell_out = reduce_component_2_etopes(E_cell_in,n_rdc)
 %
 % Authors: Shreyas Kousik
 % Created: 14 July 2021
-% Updated: 13 Mar 2022 (updated to use new heuristic)
+% Updated: 14 Mar 2022 (fixed how n_rdc is used)
 
     % set default number of topes to reduce
     if nargin < 2
         n_rdc = 1 ;
     end
+    
+    n_gen_in = get_total_number_of_generators(E_cell_in) ;
+    n_gen_des = n_gen_in - n_rdc ; % desired number of generateurs
 
     E_cell_out = E_cell_in ;
+    n_gen = n_gen_in ;
 
     % reduce reduce reduce!
     if ~isempty(E_cell_out)
-        for idx = 1:n_rdc
+        while n_gen > n_gen_des
             E_cell_out = reduce_helper_function(E_cell_out) ;
+            n_gen = get_total_number_of_generators(E_cell_out) ;
         end
     end
 end
@@ -76,4 +81,14 @@ function E_cell_out = reduce_helper_function(E_cell)
     
     % create output
     E_cell_out = [E_cell, {E_MVOE}] ;
+end
+
+function n_gen = get_total_number_of_generators(E_cell)
+% n_gen = get_total_number_of_generators(E_cell)
+%
+%
+    n_gen = 0 ;
+    for idx = 1:length(E_cell)
+        n_gen = n_gen + E_cell{idx}.n_generators ;
+    end
 end

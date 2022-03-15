@@ -60,43 +60,24 @@ function E = reduce_2_etope(E,n_rdc)
         n_gen = E.n_generators ;
     end
     
-%% try removing constraints
-    % first, check how many constraints must be removed before the minimal
-    % representation will actually pay off, meaning that n_dim + n_con is
-    % strictly less than the max number of generators within at least one
-    % of the index subsets (i.e., one of the lifted generator subsets is
-    % wide instead of tall)
-    
-    % get index set
-    I = E.index_set ;
-    
-    % get max number of generators in any index subset
-    n_gen_max = get_max_n_gen_per_index_subset(I) ;
-    
-    % get dimension and number of constraints
-    n_dim = E.dimension ;
-    n_con = E.n_constraints ;
-    
-    n_con_to_remove = max((n_dim + n_con - n_gen_max),0) ;
-    
-    for idx = 1:n_con_to_remove
+%% try removing constraints so the minimal rep thing will get us low enough
+    while n_gen > n_des
         E = reduce_etope_constraint_and_generator(E) ;
+        E = reduce_2_etope_to_minimal_exact_rep(E) ;
+        n_gen = E.n_generators ;
     end
-    
-    E = reduce_2_etope_to_minimal_exact_rep(E) ;
-    n_gen = E.n_generators ;
-    
-%% try lift-and-reduce
-    if n_gen > n_des
-        E = reduce_2_etope_lift_and_reduce(E,n_gen - n_des) ;
-    end
-    
-    n_gen = E.n_generators ;
-    
-%% try component zonotopes
-    if n_gen > n_des
-        warning(['Still gotta write how to reduce component zonotopes! ',...
-            'So the output of this function might not be as reduced as ',...
-            'you desire.'])
-    end
+
+% %% try lift-and-reduce
+%     if n_gen > n_des
+%         E = reduce_2_etope_lift_and_reduce(E,n_gen - n_des) ;
+%     end
+%     
+%     n_gen = E.n_generators ;
+%     
+% %% try component zonotopes
+%     if n_gen > n_des
+%         warning(['Still gotta write how to reduce component zonotopes! ',...
+%             'So the output of this function might not be as reduced as ',...
+%             'you desire.'])
+%     end
 end

@@ -1,4 +1,4 @@
-function E = reduce_2_etope(E,n_rdc)
+function E = reduce_2_etope(E,n_gen_to_remove,n_con_to_keep)
 % E_rdc = reduce_2_etope(E)
 %
 % This function implements the 2-ellipsotope order reduction strategy in
@@ -7,7 +7,7 @@ function E = reduce_2_etope(E,n_rdc)
 %
 % Authors: Shreyas Kousik
 % Created: in days of yore
-% Updated: 14 Mar 2022 (leveraging new proposition)
+% Updated: 15 Mar 2022
 
 %% setup
     % sanity check
@@ -17,19 +17,23 @@ function E = reduce_2_etope(E,n_rdc)
     
     % set default number of topes to reduce
     if nargin < 2
-        n_rdc = 1 ;
+        n_gen_to_remove = 1 ;
+    end
+    
+    if nargin < 3
+        n_con_to_keep = 3 ; % threeee is a magic number
     end
     
     % desired number of gennies
     n_gen_orig = E.n_generators ;
-    n_des = n_gen_orig - n_rdc ;
+    n_des = n_gen_orig - n_gen_to_remove ;
     
 %% get into minimal form
     E = reduce_2_etope_to_minimal_exact_rep(E) ;
     n_gen = E.n_generators ;
     
 %% try using component ellipsotopes
-    if n_gen > (n_gen_orig - n_rdc)
+    if n_gen > (n_gen_orig - n_gen_to_remove)
         % identify component ellipsotopes
         [~,~,~,E_other,E_comp_cell] = identify_component_ellipsotopes(E) ;
         
@@ -43,7 +47,7 @@ function E = reduce_2_etope(E,n_rdc)
 
             % use MVOE order reduction for component etopes
             if length(E_comp_cell) > 1
-                E_cell_out = reduce_component_2_etopes(E_comp_cell,n_rdc) ;
+                E_cell_out = reduce_component_2_etopes(E_comp_cell,n_gen_to_remove) ;
             else
                 E_cell_out = E_comp_cell ;
             end
@@ -62,27 +66,27 @@ function E = reduce_2_etope(E,n_rdc)
     
 %% try removing constraints so the minimal rep thing will get us low enough
     n_con = E.n_constraints ;
-    while (n_gen > n_des) && (n_con > 0)
+    while (n_gen > n_des) && (n_con > n_con_to_keep)
         E = reduce_etope_constraint_and_generator(E) ;
         E = reduce_2_etope_to_minimal_exact_rep(E) ;
         n_gen = E.n_generators ;
         n_con = E.n_constraints ;
     end
 
-% %% try lift-and-reduce
-%     if n_gen > n_des
-%         E = reduce_2_etope_lift_and_reduce(E,n_gen - n_des) ;
-%     end
-%     
-%     n_gen = E.n_generators ;
-%     
-% %% try component zonotopes?
+%% try lift-and-reduce
+    if n_gen > n_des
+        E = reduce_2_etope_lift_and_reduce(E,n_gen - n_des) ;
+    end
+    
+    n_gen = E.n_generators ;
+    
+%% try MVOEing degenerate component ellipsoids
 
     %% sanity check
     n_gen = E.n_generators ;
     if n_gen > n_des
-        warning(['Still gotta write how to reduce component zonotopes! ',...
+        warning(['Still gotta write how to reduce as much as desired! ',...
             'So the output of this function might not be as reduced as ',...
-            'you desire.'])
+            'you wanted :('])
     end
 end

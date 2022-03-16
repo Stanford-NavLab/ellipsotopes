@@ -27,7 +27,7 @@ function E = reduce_2_etope(E,n_gen_to_remove,n_con_to_keep,flag_force_reduce)
         error('This function only works for 2-ellipsotopes!')
     end
     
-    % set default number of topes to reduce
+    % set default number of generators to reduce
     if nargin < 2
         n_gen_to_remove = 1 ;
     end
@@ -37,7 +37,7 @@ function E = reduce_2_etope(E,n_gen_to_remove,n_con_to_keep,flag_force_reduce)
     end
     
     if nargin < 4
-        flag_force_reduce = true ;
+        flag_force_reduce = false ;
     end
     
     % desired number of gennies
@@ -82,34 +82,52 @@ function E = reduce_2_etope(E,n_gen_to_remove,n_con_to_keep,flag_force_reduce)
     
 %% try component (constrained) zonotopes
     if n_gen > n_des
-        if ~flag_force_reduce
-            E = reduce_component_zonotope(E,n_gen - n_des) ;
-        else
-            % if forced reduction is needed, figure out trade-off between
-            % reducing constraints and reducing generators, then pop enough
-            % generators to reduce below the desired threshold.
-            
-            % number of generators we could reduce by removing one
-            % constraint:
-            I = E.index_set ;
-            n_dim = E.n_dimension ;
-            n_con = E.n_constraints ;
-            L = get_index_set_lengths(I) ;
-            d_l = n_dim + n_con -1 ; % dim of lifted tope with one less con
-            n_E_reduceable = sum(L > d_l) ;
-            
-            % number of generators we would need to pop 
-            
-            error('Shreyas has to finish this!')
-        end
+        E = reduce_component_zonotope(E,n_gen - n_des) ;
     else
         return ;
+    end
+    
+    n_gen = E.n_generators ;
+    
+%% force reduction
+    if flag_force_reduce
+        while (n_con > 0) && (n_gen > n_des)
+            % we'll try both methods, then see which one worked better
+            
+            % reduce a constraint
+            E_con = reduce_etope_constraint_and_generator(E) ;
+            E_con = reduce_2_etope_to_minimal_exact_rep(E_con) ;
+            
+            % pop and reduce
+            E_pop = pop_generator(E) ;
+            E_pop = reduce_2_etope_to_minimal_exact_rep(E_pop) ;
+            E_pop = reduce_component_zonotope(E_pop) ;
+            
+            if E_con.n_generators > E_pop.n_generators
+                E = E_pop ;
+            else
+                E = E_con ;
+            end
+            
+            n_gen = E.n_generators ;
+            n_con = E.n_constraints ;
+        end
+        
+        % the last resort is just pop-n-drop
+        while (n_gen > n_des)
+            E = pop_generator(E) ;
+            E = reduce_2_etope_to_minimal_exact_rep(E) ;
+            E = reduce_component_zonotope(E) ;
+            n_gen = E.n_generators ;
+        end
     end
 
 %% final check
     n_gen = E.n_generators ;
     if n_gen > n_des
-        warning(['The ellipsotope was not reduced as much as you wanted! ',...
+        warning(['The ellipsotope was not reduced as much as you wanted! ',newline,...
+            'The final ellipsotope has ',num2str(n_gen),' generators, ',...
+            'whereas you wanted ',num2str(n_des),'.',newline,...
             'Consider trying again and forcing order reduction by calling: ',...
             newline,newline,...
             '    reduce_2_etope(E,',num2str(n_gen_to_remove),',',num2str(n_con_to_keep),',true)',...

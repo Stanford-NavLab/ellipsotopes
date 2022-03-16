@@ -6,17 +6,20 @@ function E = reduce_component_zonotope(E,n_rdc)
 %
 % Authors: Shreyas Kousik
 % Created: 16 Mar 2022
-% Updated: nah
+% Updated: 16 Mar 2022 (fixed a bug!)
 
     % lift!
     n_dim = E.dimension ;
     E_l_orig = lift(E) ;
     [E_l,idx_Z_I,idx_Z] = identify_component_zonotope(E_l_orig) ;
     [p,c_l,G_l,~,~,I_l,~,n_gen,~] = get_properties(E_l) ;
+    n_dim_l = length(c_l) ;
 
-    % figure out how much to reduce the zonotope generators
+    % figure out how many generators can be reduced
     if nargin < 2
-        n_rdc = n_gen - n_des ;
+        L = get_index_set_lengths(I_l) ;
+        n_reduceable = sum(L == 1) ;
+        n_rdc = n_reduceable - n_dim_l ;
     end
 
     % get the lifted generator matrix of the component zonotope
@@ -26,7 +29,7 @@ function E = reduce_component_zonotope(E,n_rdc)
     % if G_rdc is "wide" then it can be reduced, otherwise we need to
     % pop some generators...
 
-    if n_c > n_r
+    if (n_c > n_r) && (n_rdc > 0)
         G_rdc = reduce_zonotope_Chischi(G_rdc,n_rdc) ;
 
         % create a new index set for the reduced generator matrix

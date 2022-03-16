@@ -29,5 +29,5 @@ function clean_properties(E)
     end
     
     %% sanity check
-    E.sanity_check()
+    sanity_check(E)
 end

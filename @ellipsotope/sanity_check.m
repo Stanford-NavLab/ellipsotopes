@@ -23,7 +23,7 @@ function sanity_check(E)
         error('Constraint matrices are mismatched!')
     end
     
-    if n_gen_G ~= n_gen_A
+    if (~isempty(A)) && (n_gen_G ~= n_gen_A)
         error('Generator and constraint matrices are mismatched!')
     end
     

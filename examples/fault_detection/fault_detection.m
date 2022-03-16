@@ -10,9 +10,9 @@
 clear; clc; close all
 %% user parameters
 % random number generator seed (for replicability)
-rng(1)
+%rng(1)
 
-plot_flag = true;
+plot_flag = false;
 
 % Nominal (1) and Faulty (2) model parameters
 Ra(1) = 1.2030; Ra(2) = 1.5030;
@@ -53,11 +53,11 @@ K{2} = dlqr(A{2},B{2},eye(2),0.1);
 
 % noise sets
 % zonotope noise
-W = ellipsotope(2,[0;0],eye(2),[],[],{1,2});
-V = ellipsotope(2,[0;0],[0.06 0; 0 0.6],[],[],{1,2});
+% W = ellipsotope(2,[0;0],eye(2),[],[],{1,2});
+% V = ellipsotope(2,[0;0],[0.06 0; 0 0.6],[],[],{1,2});
 % ellipsoidal noise
-% W = ellipsotope(2,[0;0],eye(2));
-% V = ellipsotope(2,[0;0],[0.06 0; 0 0.6]);
+W = ellipsotope(2,[0;0],eye(2));
+V = ellipsotope(2,[0;0],[0.06 0; 0 0.6]);
 
 % initial set of states
 X0 = ellipsotope(2,[0.6;70],[0.06 0; 0 0.6],[],[],{1,2});

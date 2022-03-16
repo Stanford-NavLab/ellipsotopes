@@ -10,6 +10,23 @@ function E_out = pop_generator(E,idx_gen)
     % get properties
     [p,c,G,A,b,I,~,~,~,n_I] = get_properties(E) ;
     
+    %% picking a generator to pop
+    if nargin < 2
+        % lift the tope (just the generators)
+        G_l = [G ; A] ;
+
+        % get all poppable generators
+        L = get_index_set_lengths(I) ;
+        log_pop = L > 1 ;
+        idx_pop = cell2mat(I(log_pop)) ;
+
+        % compute the lengths of poppable generators of the lifted tope
+        v = vecnorm(G_l(:,idx_pop)) ;
+        [~,sort_idxs] = sort(v,'ascend') ;
+        idx_gen = idx_pop(sort_idxs(1)) ;
+    end
+    
+    %% popping
     % get the index subset containing idx_gen
     idx_J = get_index_set_index_containing_generator(I,idx_gen) ;
     J = I{idx_J} ;

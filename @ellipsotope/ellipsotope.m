@@ -5,7 +5,7 @@ classdef ellipsotope < handle
     %
     % Authors: Shreyas Kousik and Adam Dai
     % Created: 10 Feb 2021
-    % Updated: 14 July 2021 (added constraint cleanup)
+    % Updated: 15 Mar 2022 (don't have to pass in G any more)
     
     properties
         % basic ellipsotope properties
@@ -53,6 +53,12 @@ classdef ellipsotope < handle
             % basic ellipsotope properties
             E.p_norm = p ;
             E.center = c ;
+            
+            n_dim = length(c) ;
+            
+            if nargin < 3
+                G = zeros(n_dim,0) ;
+            end
             E.generators = G ;
             
             if nargin > 3
@@ -75,7 +81,7 @@ classdef ellipsotope < handle
             end
             
             % get the size
-            E.dimension = size(G,1) ;
+            E.dimension = n_dim ;
             E.order = size(G,2) ;
             
             % if index set is empty, initialize with default index set

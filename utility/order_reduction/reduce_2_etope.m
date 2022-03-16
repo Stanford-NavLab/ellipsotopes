@@ -1,5 +1,16 @@
 function E = reduce_2_etope(E,n_gen_to_remove,n_con_to_keep)
 % E_rdc = reduce_2_etope(E)
+% E_rdc = reduce_2_etope(E,n_gen_to_remove,n_con_to_keep)
+%
+% Inputs:
+%   E - ellipsotope
+%
+%   n_gen_to_remove - number of generators to (attempt to) remove
+%
+%   n_con_to_keep - minimum number of constraints to keep
+%
+% Outputs:
+%   E_rdc - reduced ellipsotope
 %
 % This function implements the 2-ellipsotope order reduction strategy in
 % the ellipsotope paper. If the second input, n_rdc, is specified, then we
@@ -22,6 +33,10 @@ function E = reduce_2_etope(E,n_gen_to_remove,n_con_to_keep)
     
     if nargin < 3
         n_con_to_keep = 3 ; % threeee is a magic number
+    end
+    
+    if nargin < 4
+        flag_force_reduce = true ;
     end
     
     % desired number of gennies
@@ -80,9 +95,37 @@ function E = reduce_2_etope(E,n_gen_to_remove,n_con_to_keep)
     
     n_gen = E.n_generators ;
     
-%% try MVOEing degenerate component ellipsoids
+%% try component (constrained) zonotopes
+    if n_gen > n_des
+        % lift!
+        E_l = lift(E) ;
+        [E_l,idx_Z_I,idx_Z] = identify_component_zonotope(E_l) ;
+        [p,c_l,G_l,~,~,I_l] = get_properties(E_l) ;
 
-    %% sanity check
+        % figure out how much to reduce the zonotope generators
+        n_rdc = n_gen - n_des ;
+        
+        % get the lifted generator matrix of the component zonotope
+        G_rdc = G_l(:,idx_Z:n_gen) ;
+        [n_r,n_c] = size(G_rdc) ;
+        
+        % if G_rdc is "wide" then it can be reduced, otherwise we need to
+        % pop some generators...
+        
+        if n_c > n_r
+            G_rdc = reduce_zonotope_Chischi(G_rdc,n_rdc) ;
+
+            % create a new index set for the reduced generator matrix
+            I_rdc = I_l(1:(idx_Z_I-1)) ;
+            I_rdc = [I_rdc, num2cell((1:size(G_rdc,2))+idx_Z)] ;
+
+            % reconstruct tope
+            E_l = ellipsotope(p,c_l,G_rdc,[],[],I_rdc) ;
+            E = drop(E_l,n_dim) ;
+        end
+    end
+
+%% final check
     n_gen = E.n_generators ;
     if n_gen > n_des
         warning(['Still gotta write how to reduce as much as desired! ',...

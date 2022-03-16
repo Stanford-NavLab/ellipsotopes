@@ -1,4 +1,4 @@
-function [int_E,int_R,int_R_rescaled] = estimate_interval_ball_product_intersection(E)
+function [int_E,int_R,int_R_rescaled,xi_m,xi_r] = estimate_interval_ball_product_intersection(E)
 % [int_E,int_R] = estimate_interval_ball_product_intersection(E)
 %
 % This script implements the method in Alg. 1 of [1] for computing an

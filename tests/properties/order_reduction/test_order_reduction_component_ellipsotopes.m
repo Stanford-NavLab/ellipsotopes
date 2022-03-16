@@ -2,9 +2,11 @@
 % This script demonstrates reducing an ellipsotope's number of generators
 % by identifying component ellipsotopes.
 %
+% See also: reduce_component_2_etopes.m (functionized version)
+%
 % Authors: Shreyas Kousik
 % Created: 13 July 2021
-% Updated: 14 Mar 2022 (I fiddled with it a bit I guess)
+% Updated: 16 Mar 2022 (functionized the reduction code)
 clear ; clc ;
 
 %% automated from here
@@ -18,7 +20,7 @@ E = E_comp_1 + E_other + E_comp_2 ;
 % get propz
 [p,c,G,A,b,I,n_dim,n_gen,n_con,n_I] = get_properties(E) ;
 
-% create copies of propz
+% create copies of properties
 G_old = G ;
 A_old = A ;
 b_old = b ;
@@ -40,7 +42,7 @@ for idx = 1:length(E_comp_cell)
 end
 
 %% use MVOE order reduction for component etopes
-E_cell_out = reduce_component_2_etopes(E_comp_cell) ;
+E_cell_out = reduce_component_2_etopes_cell(E_comp_cell) ;
 
 E_rdc = E_cell_out{1} ;
 

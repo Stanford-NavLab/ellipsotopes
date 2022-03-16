@@ -56,32 +56,7 @@ function E = reduce_2_etope(E,n_gen_to_remove,n_con_to_keep)
     
 %% try using component ellipsotopes
     if n_gen > (n_gen_orig - n_gen_to_remove)
-        % identify component ellipsotopes
-        [~,~,~,E_other,E_comp_cell] = identify_component_ellipsotopes(E) ;
-        
-        if ~isempty(E_comp_cell)
-            % reduce each component ellipsotope to an ellipsoid using the
-            % fact that constrained = basic for ellipsotopes
-            n_comp = length(E_comp_cell) ;
-            for idx = 1:n_comp
-                E_comp_cell{idx} = reduce_constrained_2_etope(E_comp_cell{idx}) ;
-            end
-
-            % use MVOE order reduction for component etopes
-            if length(E_comp_cell) > 1
-                E_cell_out = reduce_component_2_etopes(E_comp_cell,n_gen_to_remove) ;
-            else
-                E_cell_out = E_comp_cell ;
-            end
-
-            E = E_other ;
-
-            if ~isempty(E_cell_out)
-                for idx = 1:length(E_cell_out)
-                    E = E + E_cell_out{idx} ;
-                end
-            end
-        end
+        E = reduce_component_2_etopes(E,n_gen_to_remove) ;
         
         n_gen = E.n_generators ;
     end

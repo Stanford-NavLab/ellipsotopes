@@ -2,7 +2,8 @@ function E_rdc = reduce_constraint(E,n_cons_to_keep)
 % E_rdc = reduce_constraint(E,n_cons)
 % E_rdc = reduce(E,n_rdc)
 %
-% Reduce the number of constraints in ellipsotope to desired number n_cons
+% Reduce the number of constraints in ellipsotope to desired number
+% n_cons_to_keep
 %
 % Authors: Adam Dai
 % Created: 9 Mar 2022

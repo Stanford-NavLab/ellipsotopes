@@ -4,7 +4,10 @@
 % References:
 % [1] Scott, J.K. Constrained zonotopes
 %
-clear 
+clear; clc; close all
+%% for debugging
+rng(1)
+
 %% setup
 % Nominal (1) and Faulty (2) model parameters
 Ra(1) = 1.2030; Ra(2) = 1.5030;
@@ -54,14 +57,20 @@ X0 = conZonotope([0.6;70],[0.06 0; 0 0.6]);
 n_c = 3; % num constraints
 o_d = 5; % degrees-of-freedom order
 
+N_sims = 10; % number of simulations to run
+N = 100; % number of iterations
+
 %% run simulations
 
-N_sims = 10;
-N = 100; % number of iterations
 fault_steps = zeros(N_sims,1);
 avg_detect_steps = 0;
 avg_step_time = zeros(N_sims,1);
 missed_detections = 0;
+
+% state domain plot
+f1 = figure(1); axis equal; hold on
+% measurement domain plot
+f2 = figure(2); axis equal; hold on
 
 for i = 1:N_sims
     % sample initial state
@@ -72,8 +81,6 @@ for i = 1:N_sims
     y_0 = C * x_0 + D * v_0;
 
     x_k = x_0; y_k = y_0;
-%     X = zeros(2,N);
-%     Y = zeros(2,N);
 
     % set-based estimator from [1] eqn (32)
     % initialization
@@ -95,14 +102,15 @@ for i = 1:N_sims
         x_k = A{2} * x_k + B{2} * u_k + Bw{2} * w_k;
         % measurement
         y_k = C * x_k + D * v_k;
-        % record state and measurement
-%         X(:,k) = x_k;
-%         Y(:,k) = y_k;
+        
+        figure(1); scatter(x_k(1),x_k(2));
+        figure(2); scatter(y_k(1),y_k(2));
         
         tic
         % fault detection step
         F = C * (A{1}*O_k + Bw{1}*W) + D*V;
         if ~in(F,y_k)
+            disp('Fault detected');
             fault = k;
             fault_steps(i) = fault;
             break
@@ -111,15 +119,22 @@ for i = 1:N_sims
         % set-based estimator update
         O_k = (C * (A{1}*O_k + Bw{1}*W)) & (y_k + (-1)*D*V);
         O{k} = O_k;
+        
         %disp(toc)
         
         % order reduction 
-        O_k = reduce(O_k,'scott',o_d); % reduce to o_d degrees of freedom order
-        O_k = reduceConstraints(O_k,n_c); % reduce to n_c constraints
+%         O_k = reduce(O_k,'scott',o_d); % reduce to o_d degrees of freedom order
+%         O_k = reduceConstraints(O_k,n_c); % reduce to n_c constraints
+
+        % plot 
+        figure(1); plot(O_k);
+        figure(2); plot(F);
         
         disp(['n_c: ',num2str(size(O_k.A,1)),' n_g: ',num2str(size(O_k.A,2))])
         
         avg_step_time(i) = avg_step_time(i) + toc;
+        
+        clf(f1); clf(f2); % set breakpoint here for plotting
     end
     
     if fault == 0

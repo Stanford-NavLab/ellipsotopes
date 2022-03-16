@@ -88,7 +88,19 @@ function E = reduce_2_etope(E,n_gen_to_remove,n_con_to_keep,flag_force_reduce)
             % if forced reduction is needed, figure out trade-off between
             % reducing constraints and reducing generators, then pop enough
             % generators to reduce below the desired threshold.
-            error('Shreyas hasn''t implemented this yet lol')
+            
+            % number of generators we could reduce by removing one
+            % constraint:
+            I = E.index_set ;
+            n_dim = E.n_dimension ;
+            n_con = E.n_constraints ;
+            L = get_index_set_lengths(I) ;
+            d_l = n_dim + n_con -1 ; % dim of lifted tope with one less con
+            n_E_reduceable = sum(L > d_l) ;
+            
+            % number of generators we would need to pop 
+            
+            error('Shreyas has to finish this!')
         end
     else
         return ;

@@ -8,17 +8,20 @@
 %
 % Authors: Shreyas Kousik
 % Created: 29 May 2021
-% Updated: 9 July 2021
+% Updated: 16 Mar 2022 (added flag to save figure, plus functionized stuff)
 clear ; clc
 %% user parameters
 % rng
-rng(0)
+% rng(0)
 
 % etope specs
 p_norm = 2 ;
 n_dim = 2 ;
 n_gen = 8 ;
 n_con = 2 ;
+
+% whether or not to save output figure
+flag_save_figure = false ;
 
 %% autoamted from here
 % make random etope
@@ -33,25 +36,11 @@ Gm = zeros(n_dim,n_con) ;
 E_list = cell(1,n_con) ;
 
 for idx = 1:n_con
-% create Lambda
-lm = zeros(n_con,1) ;
-lm(idx) = 1 ;
-Lm = diag(lm) ;
-    
-% create new etope
-c_rdc = c + Gm*b ;
-G_rdc = G - Gm*A ;
-A_rdc = A - Lm*A ;
-b_rdc = b - Lm*b ;
-
-% delete first constraints
-A_rdc = A_rdc(~lm,:) ;
-b_rdc = b_rdc(~lm) ;
-
-E_rdc = ellipsotope(p_norm,c_rdc,G_rdc,A_rdc,b_rdc,I) ;
-
-E_list{idx} = E_rdc ;
+    E_list{idx} = reduce_etope_constraint(E,idx) ;
 end
+
+%% compare against reducing a constraint and a generator
+E_rdc_con_and_gen = reduce_etope_constraint_and_generator(E) ;
 
 %% plotting
 fh = figure(1) ; clf ; axis equal ; hold on ; grid on ;
@@ -60,6 +49,9 @@ fh = figure(1) ; clf ; axis equal ; hold on ; grid on ;
 for idx = 1:n_con
     plot(E_list{idx},'color','r','linestyle','--','facealpha',0.1)
 end
+
+% plot con+gen reduced
+plot(E_rdc_con_and_gen,'color','g','linestyle','--','facealpha',0.1)
 
 % plot origetope
 plot(E,'facecolor',[0.7 0.7 1],'facealpha',1) ;
@@ -70,4 +62,6 @@ set_plot_linewidths(2)
 set_plot_fontsize(15)
 
 %% save figure
-save_figure_to_png(fh,'order_reduc_constraint_removal.png')
+if flag_save_figure
+    save_figure_to_png(fh,'order_reduc_constraint_removal.png')
+end

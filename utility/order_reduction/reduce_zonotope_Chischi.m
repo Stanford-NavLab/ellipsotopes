@@ -26,6 +26,13 @@ function [G,n_gen,flag_success] = reduce_zonotope_Chischi(G,n_rdc)
         return ;
     end
     
+    % make sure we're not trying to reduce more than n_dim
+    if (n_gen - n_rdc) < n_dim
+        n_rdc = n_gen - n_dim ;
+        warning(['Cannot reduce as many generators as requested! ',...
+            'Reducing only ',num2str(n_rdc),' of them.'])
+    end
+    
     % find an invertible subset of generators
     GS = sparse(G);
     [~,~,~,q,~]=lu(GS,'vector');

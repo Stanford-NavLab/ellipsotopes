@@ -1,11 +1,14 @@
 %% description
 % This script tests generator-based order reduction.
 %
-% Authors: Adam Dai 
+% Authors: Adam Dai and Shreyas Kousik
 % Created: 20 May 2021
-% Updated: 
+% Updated: 16 Mar 2022 (added rng seed)
 %
 %% user parameters
+% rng seed
+rng(1) ;
+
 % basic 2-ellipsotope
 % G = rand(2,5);
 % E = ellipsotope(2,[0;0],G);
@@ -14,7 +17,7 @@ E = make_random_ellipsotope(2,2,20);
 disp(['Original ellipsotope number of generators: ', num2str(E.order)]);
 
 % whether or not to save flag
-flag_save_figure = true;
+flag_save_figure = false ;
 
 %% automated from here
 % perform the order reduction

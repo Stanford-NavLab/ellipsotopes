@@ -7,7 +7,7 @@ function E_rdc = reduce(E,n_rdc)
 %
 % Authors: Shreyas Kousik
 % Created: in days of yore
-% Updated: 16 Mar 2022 (moved all 2-etope stuff into relevant function)
+% Updated: 16 Mar 2022 (added warning about asking for too much reduction)
     
 
 % default number of generators to reduce
@@ -26,6 +26,8 @@ else
     % dimension
     if (E.n_generators - n_rdc) < E.n_dimension
         n_rdc = E.n_generators - E.n_dimension ;
+        warning(['Cannot reduce ellipsotope to less than its dimension, ',...
+            'meaning ',num2str(E.n_dimension),' generators.'])
     end
     
     if E.p_norm == 2

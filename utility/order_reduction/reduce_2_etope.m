@@ -1,6 +1,7 @@
-function E = reduce_2_etope(E,n_gen_to_remove,n_con_to_keep)
+function E = reduce_2_etope(E,n_gen_to_remove,n_con_to_keep,flag_force_reduce)
 % E_rdc = reduce_2_etope(E)
 % E_rdc = reduce_2_etope(E,n_gen_to_remove,n_con_to_keep)
+% E_rdc = reduce_2_etope(E,n_gen_to_remove,n_con_to_keep,flag_force_reduce)
 %
 % Inputs:
 %   E - ellipsotope
@@ -81,7 +82,14 @@ function E = reduce_2_etope(E,n_gen_to_remove,n_con_to_keep)
     
 %% try component (constrained) zonotopes
     if n_gen > n_des
-        E = reduce_component_zonotope(E,n_gen - n_des) ;
+        if ~flag_force_reduce
+            E = reduce_component_zonotope(E,n_gen - n_des) ;
+        else
+            % if forced reduction is needed, figure out trade-off between
+            % reducing constraints and reducing generators, then pop enough
+            % generators to reduce below the desired threshold.
+            error('Shreyas hasn''t implemented this yet lol')
+        end
     else
         return ;
     end
@@ -89,8 +97,10 @@ function E = reduce_2_etope(E,n_gen_to_remove,n_con_to_keep)
 %% final check
     n_gen = E.n_generators ;
     if n_gen > n_des
-        warning(['Still gotta write how to reduce as much as desired! ',...
-            'So the output of this function might not be as reduced as ',...
-            'you wanted :('])
+        warning(['The ellipsotope was not reduced as much as you wanted! ',...
+            'Consider trying again and forcing order reduction by calling: ',...
+            newline,newline,...
+            '    reduce_2_etope(E,',num2str(n_gen_to_remove),',',num2str(n_con_to_keep),',true)',...
+            newline])
     end
 end

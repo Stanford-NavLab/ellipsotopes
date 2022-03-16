@@ -1,4 +1,4 @@
-function E_rdc = reduce_component_zonotope(E,n_rdc)
+function E = reduce_component_zonotope(E,n_rdc)
 % E_rdc = reduce_component_zonotope(E,n_rdc)
 %
 % Identify and reduce component zonotopes by lifting E and reducing. Works
@@ -36,6 +36,6 @@ function E_rdc = reduce_component_zonotope(E,n_rdc)
 
         % reconstruct tope
         E_l = ellipsotope(p,c_l,[G_l(:,1:(idx_Z-1)),G_rdc],[],[],I_rdc) ;
-        E_rdc = drop(E_l,n_dim) ;
+        E = drop(E_l,n_dim) ;
     end
 end

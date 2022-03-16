@@ -98,6 +98,7 @@ function E = reduce_2_etope(E,n_gen_to_remove,n_con_to_keep)
 %% try component (constrained) zonotopes
     if n_gen > n_des
         % lift!
+        n_dim = E.dimension ;
         E_l = lift(E) ;
         [E_l,idx_Z_I,idx_Z] = identify_component_zonotope(E_l) ;
         [p,c_l,G_l,~,~,I_l] = get_properties(E_l) ;
@@ -117,7 +118,8 @@ function E = reduce_2_etope(E,n_gen_to_remove,n_con_to_keep)
 
             % create a new index set for the reduced generator matrix
             I_rdc = I_l(1:(idx_Z_I-1)) ;
-            I_rdc = [I_rdc, num2cell((1:size(G_rdc,2))+idx_Z)] ;
+            idx_max = get_max_index(I_rdc) ;
+            I_rdc = [I_rdc, num2cell((1:size(G_rdc,2)) + idx_max)] ;
 
             % reconstruct tope
             E_l = ellipsotope(p,c_l,G_rdc,[],[],I_rdc) ;

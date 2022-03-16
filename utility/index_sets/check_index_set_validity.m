@@ -9,7 +9,7 @@ function [out,n_I,n_gen] = check_index_set_validity(I,G)
 %
 % Authors: Shreyas Kousik
 % Created: 4 Apr 2021
-% Updated: 14 July 2021 (cleaned up comments)
+% Updated: 15 Mar 2022 (fixed bug when G is passed in)
 
     % optimism
     out = true ;
@@ -28,7 +28,9 @@ function [out,n_I,n_gen] = check_index_set_validity(I,G)
     end
     
     % check!
-    if length(unique(D)) < length(D) || length(D) < n_gen
+    if (length(unique(D)) < length(D)) || ... % no repeated indices
+            (length(D) ~= n_gen) || ... % correct length
+            (max(D) > n_gen) || (min(D) ~= 1) % not shifted to wrong index
         out = false ;
     end
 end

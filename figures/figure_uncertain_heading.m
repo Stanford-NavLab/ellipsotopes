@@ -4,7 +4,7 @@
 %
 % Authors: Adam Dai
 % Created: 24 May 2021
-% Updated: 29 July 2021 (Shreyas fiddled with plotting)
+% Updated: 15 Mar 2022 
 %
 clear ; clc ; close all
 %% user parameters
@@ -38,7 +38,7 @@ E_rot2 = rotation_matrix_2D(-d_h) * E_body;
 % outer circle
 E_circ = ellipsotope(2,zeros(2,1),r*eye(2));
 
-% halfplanes
+% halfspaces
 z = (w/2)*sin(pi/2-d_h) + (l/2)*sin(d_h);
 x1 = c + z*[cos(pi/2+theta);sin(pi/2+theta)];
 h1 = [cos(theta+pi/2),sin(theta+pi/2)]; f1 = h1*x1;
@@ -66,11 +66,17 @@ end
 %% plot
 fh = figure(1); clf ; hold on; grid on; axis equal
 plot(E_circ,'EdgeAlpha',1.0,'FaceAlpha',0.0,'EdgeColor','#D95319','LineWidth',1.0);%,'LineStyle','--');
-plot(E_rot,'FaceColor',[0.5 0.5 0],'EdgeColor',[0.5 0.5 0],'FaceAlpha',0.5,'EdgeAlpha',1.0,'num_points',10000);
+%plot(E_rot,'FaceColor',[0.5 0.5 0],'EdgeColor',[0.5 0.5 0],'FaceAlpha',0.5,'EdgeAlpha',1.0,'num_points',10000);
+plot(E_rot,'FaceColor',[0.5 0.5 0],'EdgeColor',[0.5 0.5 0],'FaceAlpha',0.5,'EdgeAlpha',1.0,'num_points',500);
 plot(E_rot1,'FaceAlpha',1.0,'FaceColor',[0.7 0.7 1],'EdgeColor','b','LineWidth',1.5); 
 plot(E_body,'FaceAlpha',1.0,'FaceColor',[0.7 0.7 1],'EdgeColor','b','LineWidth',1.5); 
 plot(E_rot2,'FaceAlpha',1.0,'FaceColor',[0.7 0.7 1],'EdgeColor','b','LineWidth',1.5); 
 
+% show halfspaces
+plot([x1(1) - h1(2), x1(1) + h1(2)],[x1(2) - h1(1), x1(2) + h1(1)])
+scatter(x2(1),x2(2))
+scatter(x3(1),x3(2))
+scatter(x4(1),x4(2))
 
 % marker for heading
 marker_verts = 0.1 * rotation_matrix_2D(theta-d_h) * [1 -0.5 -0.5; 0 sqrt(3)/2 -sqrt(3)/2];

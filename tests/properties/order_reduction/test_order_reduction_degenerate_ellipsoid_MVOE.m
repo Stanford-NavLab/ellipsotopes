@@ -8,32 +8,40 @@
 %
 % Authors: Shreyas Kousik
 % Created: 14 Mar 2022
-% Updated: -
+% Updated: 15 Mar 2022
 clear ; clc ;
-%% automated from here
-G_i = 2*rand(4,2) - 1 ;
-G_j = 2*rand(4,2) - 1 ;
+%% user parameters
+% random number generatrix
+rng(0)
 
-% make G_i and G_j full rank
+% ellipsotope specs
+n_dim = 4 ;
+n_gen_per_G = 2 ;
+
+%% automated from here
+G_i = 2*rand(n_dim,n_gen_per_G) - 1 ;
+G_j = 2*rand(n_dim,n_gen_per_G) - 1 ;
+
+% make G_i and G_j full rank by adding a tiny bit of volume
 G_i_full = make_full_rank(G_i) ;
 G_j_full = make_full_rank(G_j) ;
 
-
+%% combine into one (probably nearly degenerate) ellipsoid
 G_ij = make_MVOE_generator_matrix(G_i_full,G_j_full) ;
 
 %% plotting setup
-E = ellipsotope(2,zeros(4,1),[G_i,G_j],[],[],{[1 2],[3 4]}) ;
-E_i = ellipsotope(2,zeros(4,1),G_i_full) ;
-E_j = ellipsotope(2,zeros(4,1),G_j_full) ;
-E_rdc = ellipsotope(2,zeros(4,1),G_ij) ;
+E = ellipsotope(2,zeros(n_dim,1),[G_i,G_j],[],[],{[1:n_gen_per_G],[(n_gen_per_G+1):(2*n_gen_per_G)]}) ;
+E_i = ellipsotope(2,zeros(n_dim,1),G_i_full) ;
+E_j = ellipsotope(2,zeros(n_dim,1),G_j_full) ;
+E_rdc = ellipsotope(2,zeros(n_dim,1),G_ij) ;
 
 %% plotting
 figure(1) ; clf ;
 
 plot(E,'color',[0 0 0],'plot_all_dims',true)
 plot(E_rdc,'color',[1 0 0],'plot_all_dims',true)
-plot(E_i,'color',[1 1 0],'plot_all_dims',true)
-plot(E_j,'color',[0 1 1],'plot_all_dims',true)
+% plot(E_i,'color',[1 1 0],'plot_all_dims',true)
+% plot(E_j,'color',[0 1 1],'plot_all_dims',true)
 
 
 %% helper functions

@@ -7,10 +7,12 @@
 % Authors: Adam Dai
 % Created: Shrug
 % Updated: 14 Mar 2022 (Shreyas did some debuggins)
-clear ; clc ;
+clear; clc; close all
 %% user parameters
 % random number generator seed (for replicability)
-rng(0)
+rng(1)
+
+plot_flag = true;
 
 % Nominal (1) and Faulty (2) model parameters
 Ra(1) = 1.2030; Ra(2) = 1.5030;
@@ -51,11 +53,11 @@ K{2} = dlqr(A{2},B{2},eye(2),0.1);
 
 % noise sets
 % zonotope noise
-%W = ellipsotope(2,[0;0],eye(2),[],[],{1,2});
-%V = ellipsotope(2,[0;0],[0.06 0; 0 0.6],[],[],{1,2});
+W = ellipsotope(2,[0;0],eye(2),[],[],{1,2});
+V = ellipsotope(2,[0;0],[0.06 0; 0 0.6],[],[],{1,2});
 % ellipsoidal noise
-W = ellipsotope(2,[0;0],eye(2));
-V = ellipsotope(2,[0;0],[0.06 0; 0 0.6]);
+% W = ellipsotope(2,[0;0],eye(2));
+% V = ellipsotope(2,[0;0],[0.06 0; 0 0.6]);
 
 % initial set of states
 X0 = ellipsotope(2,[0.6;70],[0.06 0; 0 0.6],[],[],{1,2});
@@ -65,15 +67,22 @@ n_c = 3; % num constraints
 o_d = 5; % degrees-of-freedom order
 n_g = 13; % corresponding number of generators (for dimension 2)
 
-% number of simulations to run
-N_sims = 10 ;
+N_sims = 10; % number of simulations to run
+N = 100; % number of iterations 
 
 %% run simulations
-% set up to save info
+
 fault_steps = zeros(N_sims,1);
 avg_detect_steps = 0;
 avg_step_time = zeros(N_sims,1);
 missed_detections = 0;
+
+if plot_flag
+    % state domain plot
+    f1 = figure(1); axis equal; hold on; title('State space')
+    % measurement domain plot
+    f2 = figure(2); axis equal; hold on; title('Measurement space')
+end
 
 for i = 1:N_sims
     % sample initial state
@@ -82,12 +91,11 @@ for i = 1:N_sims
     % sample v_0
     v_0 = sample_from_ellipsotope(V);
     y_0 = C * x_0 + D * v_0;
-    N = 100; % number of iterations
+%     x_0 = [0.5900; 70.2644];
+%     y_0 = [0.5301; 70.0272];
 
     x_k = x_0; y_k = y_0;
-%     X = zeros(2,N);
-%     Y = zeros(2,N);
-
+    
     % set-based estimator from [1] eqn (32)
     % initialization
     O_k = intersect(X0, y_0 + (-1)*D*V, C); 
@@ -100,6 +108,8 @@ for i = 1:N_sims
         % sample w_k and v_k from W and V
         w_k = sample_from_ellipsotope(W);
         v_k = sample_from_ellipsotope(V);
+%         w_k = [-0.7065; -0.8153];
+%         v_k = [-0.0376; -0.1853];
         % control law
         u_k = u_N - K{2} * (y_k - x_N);
         % apply saturation limits
@@ -108,9 +118,11 @@ for i = 1:N_sims
         x_k = A{2} * x_k + B{2} * u_k + Bw{2} * w_k;
         % measurement
         y_k = C * x_k + D * v_k;
-        % record state and measurement
-%         X(:,k) = x_k;
-%         Y(:,k) = y_k;
+        
+        if plot_flag
+            figure(1); scatter(x_k(1),x_k(2));
+            figure(2); scatter(y_k(1),y_k(2));
+        end
         
         tic
         % fault detection step
@@ -133,26 +145,40 @@ for i = 1:N_sims
 %         end
         %%% SHREYAS DEBUGGING DEGENERATE CONSTRAINTS %%%
         
+        
+
+        % set-based estimator update
+        %O_k = intersect(A{1}*O_k + Bw{1}*W, y_k + (-1)*D*V, C);
+        O_k = (C * (A{1}*O_k + Bw{1}*W)) & (y_k + (-1)*D*V);
+        O{k} = O_k;
+        
+        % order reduction
+%         n_rdc = O_k.order - n_g;
+%         if n_rdc > 0
+%             O_k = reduce(O_k,n_rdc); 
+%         end
+        disp(['n_c: ',num2str(size(O_k.constraint_A,1)),' n_g: ',num2str(size(O_k.constraint_A,2))])
+        %O_k = reduce_constraint(O_k,n_c); % reduce to n_c constraints
+        disp(['n_c: ',num2str(size(O_k.constraint_A,1)),' n_g: ',num2str(size(O_k.constraint_A,2))])
+        
+        if plot_flag
+            figure(1); plot(O_k);
+            figure(2); plot(F);
+        end
+        
+        disp(toc)
+        avg_step_time(i) = avg_step_time(i) + toc;
+        
+        if plot_flag
+            clf(f1); clf(f2); % set breakpoint here for plotting
+        end
+        
         if ~F.contains(y_k)
+            disp('Fault detected');
             fault = k;
             fault_steps(i) = fault;
             break
         end
-
-        % set-based estimator update
-        O_k = intersect(A{1}*O_k + Bw{1}*W, y_k + (-1)*D*V, C);
-        O{k} = O_k;
-        
-        % order reduction
-        n_rdc = O_k.order - n_g;
-        if n_rdc > 0
-            O_k = reduce(O_k,n_rdc); 
-        end
-        O_k = reduce_constraint(O_k,n_c); % reduce to n_c constraints
-        disp(['n_c: ',num2str(size(O_k.constraint_A,1)),' n_g: ',num2str(size(O_k.constraint_A,2))])
-        
-        disp(toc)
-        avg_step_time(i) = avg_step_time(i) + toc;
     end
     
     if fault == 0

@@ -137,7 +137,18 @@ else
             case 'ray'
                 [F,V] = make_patch_data_ray_tracing_2D(patch_data_args_in{:}) ;
             case 'zono'
-                [F,V] = make_patch_data_constrained_zonotope(patch_data_args_in{:}) ;
+                try
+                    [F,V] = make_patch_data_constrained_zonotope(patch_data_args_in{:}) ;
+                catch
+                    warning(['Cannot plot a zonotope with lots of generators! ',...
+                        'Using ray tracing method instead!'])
+                    % create patch data args in
+                    patch_data_args_in = {p,c,G,A,b,I} ;
+                    if ~isempty(n_P)
+                        patch_data_args_in = [patch_data_args_in,{n_P}] ;
+                    end
+                    [F,V] = make_patch_data_ray_tracing_2D(patch_data_args_in{:}) ;
+                end
             otherwise
                 error('Invalid plot method! Please choose sample, ray, or zono.')
         end

@@ -8,7 +8,9 @@ function [rdc_heur,rdc_pair_idxs,vols] = compute_order_reduction_heuristic(E_cel
 %
 % Authors: Shreyas Kousik
 % Created: 21 Feb 2022
-% Updated: nah
+% Updated: 15 Mar 2022 (added warning)
+
+warning('Hey! This heuristic is broken! Don''t use it!')
 
 if nargin < 2
     flag_compute_volumes = false ;

@@ -3,8 +3,9 @@
 %
 % Authors: Shreyas Kousik
 % Created: 19 May 2021
-% Updated: 25 May 2021
+% Updated: 15 Mar 2022
 clear ; clc ;
+warning('This script is deprecated!')
 %% user parameters
 % rng seed
 rng(0) ; 

@@ -1,5 +1,12 @@
 %% description
+% This script demonstrates the overapproximation created by "popping" a
+% single generator. We test out a bunch of different generators that could
+% be popped, and maybe take a guess at which one is the least
+% overapproximative when popped...? I don't know, man, this is hard.
 %
+% Authors: Shreyas Kousik
+% Created: 16 Mar 2022
+% Updated: no
 clear ; clc ;
 %% user parameters
 % rng seed
@@ -8,7 +15,7 @@ rng(0)
 % etope specs
 p = 2 ;
 n_dim = 2 ; 
-n_gen = 7 ;
+n_gen = 10 ;
 n_con = 2 ;
 n_I = 3 ; % ensure that at least one J \in I has more than one generator
 
@@ -29,13 +36,27 @@ L = get_index_set_lengths(I) ;
 log_pop = L > 1 ;
 idx_pop = cell2mat(I(log_pop)) ;
 
+%% try out different heuristics for which gen to pop
+% It seems, for now, like picking the lifted generator of smallest
+% 2-norm length is the best one to pop... usually. At least, in 2-D for a
+% few different random seeds.
+
 % compute the lengths of poppable generators of the lifted tope
-v = vecnorm(G_l(:,idx_pop)) ;
+G_pop = G_l(:,idx_pop) ;
+v = vecnorm(G_pop) ;
 [v,sort_idxs] = sort(v,'ascend') ;
+
+% % order generators by nearness to a scaled unit vector
+% v = (sum(G_pop,1) - max(G_pop,[],1)) ;
+% [v, sort_idxs] = sort(v,'ascend') ;
+
+% reorganize the popperz
 idx_pop = idx_pop(sort_idxs) ;
 
 % number of gens to pop
-if n_pop < length(idx_pop)
+if n_pop > length(idx_pop)
+    warning(['Cannot pop as many generators as was requested! ',...
+        'Popping only ',num2str(length(idx_pop)),' instead.'])
     idx_pop = idx_pop(1:n_pop) ;
 end
 
@@ -53,19 +74,23 @@ end
 %% plotting
 figure(1) ; clf ; axis equal ; grid on ; hold on ;
 
-plot(E) ;
+colors = [1 0.5 0 ; 0 1 0.5] ; % create colors
 
 for idx = 1:n_pop
     d = (idx-1)/(n_pop-1) ;
-    col = [d, 1-d, 0] ;
-    plot(E_pop{idx},'color',col, 'linestyle', ':') ;
+    col = interp1([0;1],colors,d) ;
+    plot(E_pop{idx},'color',col,'facealpha',0.01,'linewidth',2) ;
 end
 
+plot(E,'linestyle',':') ;
+
 %% plotting cleanup
-l = {'orig'} ;
+l = [] ;
 for idx = 1:n_pop
     l = [l, {num2str(v(idx))}] ;
 end
+l = [l, {'orig'}] ;
+
 legend(l{:})
 
 make_plot_pretty() ;

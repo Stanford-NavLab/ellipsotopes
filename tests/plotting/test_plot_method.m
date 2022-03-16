@@ -75,9 +75,9 @@ fh = figure(); axis equal; grid on
 E = ellipsotope(p,c,G,[],[],I);
 plot(E); title('Zonotope using indexed ellipsotope (eqn 8)')
 set(gca,'fontsize',15)
-if flag_save_figures_to_png
-    save_figure_to_png(fh,'plot_ex_zonotope_as_ellipsotope.png')
-end
+% if flag_save_figures_to_png
+%     save_figure_to_png(fh,'plot_ex_zonotope_as_ellipsotope.png')
+% end
 
 %% random 2D general 2-ellipsotope
 p = 2;

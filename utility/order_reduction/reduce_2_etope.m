@@ -18,7 +18,7 @@ function E = reduce_2_etope(E,n_gen_to_remove,n_con_to_keep)
 %
 % Authors: Shreyas Kousik
 % Created: in days of yore
-% Updated: 15 Mar 2022
+% Updated: 16 Mar 2022
 
 %% setup
     % sanity check
@@ -42,6 +42,13 @@ function E = reduce_2_etope(E,n_gen_to_remove,n_con_to_keep)
     % desired number of gennies
     n_gen_orig = E.n_generators ;
     n_des = n_gen_orig - n_gen_to_remove ;
+    
+%% check if basic, then things are easy-peasy
+    if E.is_basic()
+        G_rdc = reduce_2_etope_generator_matrix(E.generators) ;
+        E = ellipsotope(E.p_norm,E.center,G_rdc) ;
+        return ;
+    end
     
 %% get into minimal form
     E = reduce_2_etope_to_minimal_exact_rep(E) ;
@@ -91,40 +98,17 @@ function E = reduce_2_etope(E,n_gen_to_remove,n_con_to_keep)
 %% try lift-and-reduce
     if n_gen > n_des
         E = reduce_2_etope_lift_and_reduce(E,n_gen - n_des) ;
+    else
+        return ;
     end
     
     n_gen = E.n_generators ;
     
 %% try component (constrained) zonotopes
     if n_gen > n_des
-        % lift!
-        n_dim = E.dimension ;
-        E_l = lift(E) ;
-        [E_l,idx_Z_I,idx_Z] = identify_component_zonotope(E_l) ;
-        [p,c_l,G_l,~,~,I_l] = get_properties(E_l) ;
-
-        % figure out how much to reduce the zonotope generators
-        n_rdc = n_gen - n_des ;
-        
-        % get the lifted generator matrix of the component zonotope
-        G_rdc = G_l(:,idx_Z:n_gen) ;
-        [n_r,n_c] = size(G_rdc) ;
-        
-        % if G_rdc is "wide" then it can be reduced, otherwise we need to
-        % pop some generators...
-        
-        if n_c > n_r
-            G_rdc = reduce_zonotope_Chischi(G_rdc,n_rdc) ;
-
-            % create a new index set for the reduced generator matrix
-            I_rdc = I_l(1:(idx_Z_I-1)) ;
-            idx_max = get_max_index(I_rdc) ;
-            I_rdc = [I_rdc, num2cell((1:size(G_rdc,2)) + idx_max)] ;
-
-            % reconstruct tope
-            E_l = ellipsotope(p,c_l,G_rdc,[],[],I_rdc) ;
-            E = drop(E_l,n_dim) ;
-        end
+        E = reduce_component_zonotope(E,n_gen - n_des) ;
+    else
+        return ;
     end
 
 %% final check

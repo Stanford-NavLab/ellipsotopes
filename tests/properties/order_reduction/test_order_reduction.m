@@ -21,13 +21,13 @@ flag_save_figure = false ;
 
 %% automated from here
 % perform the order reduction
-E_red = reduce(E,7);  % remove 7 generators
-disp(['Reduced ellipsotope number of generators: ', num2str(E_red.order)]);
+E_rdc = reduce(E,7);  % remove 7 generators
+disp(['Reduced ellipsotope number of generators: ', num2str(E_rdc.order)]);
 
 %% plotting
 h = figure(1) ; clf ; axis equal ; hold on ; grid on ;
 plot(E,'facecolor','r','edgecolor','r','facealpha',0.1);
-plot(E_red,'facecolor','b','edgecolor','b','facealpha',0.1);
+plot(E_rdc,'facecolor','b','edgecolor','b','facealpha',0.1);
 xlabel('$x\langle 1 \rangle$','Interpreter','latex'); ylabel('$x\langle 2 \rangle$','Interpreter','latex');
 %set(gca,'fontsize',15)
 lim = axis; axis(lim + [-1 1 -1 1]);

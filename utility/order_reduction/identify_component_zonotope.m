@@ -60,7 +60,7 @@ function [E_reorg,idx_Z_I,idx_Z] = identify_component_zonotope(E)
     idx_Z = n_last + 1 ;
     I_reorg = [I_reorg, num2cell(idx_Z:n_gen)] ;
     
-    idx_Z_I = find(cellfun(@(J) length(J),I) == 1,1,'first') ;
+    idx_Z_I = find(cellfun(@(J) length(J),I_reorg) == 1,1,'first') ;
 
     % make new reorganized tope
     E_reorg = ellipsotope(p,c,G_reorg,A_reorg,b,I_reorg) ;

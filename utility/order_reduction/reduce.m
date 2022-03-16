@@ -7,7 +7,7 @@ function E_rdc = reduce(E,n_rdc)
 %
 % Authors: Shreyas Kousik
 % Created: in days of yore
-% Updated: 14 Mar 2022 (leveraging new proposition)
+% Updated: 16 Mar 2022 (moved all 2-etope stuff into relevant function)
     
 
 % default number of generators to reduce
@@ -29,12 +29,7 @@ else
     end
     
     if E.p_norm == 2
-        if E.is_basic()
-            G_red = reduce_2_etope_generator_matrix(E.generators);
-            E_rdc = ellipsotope(E.p_norm,E.center,G_red);
-        else
-            E_rdc = reduce_2_etope(E,n_rdc) ;
-        end
+        E_rdc = reduce_2_etope(E,n_rdc) ;
         
         % cleanup
         E.clean_properties

@@ -21,7 +21,8 @@ flag_save_figure = false ;
 
 %% automated from here
 % perform the order reduction
-E_rdc = reduce(E,7);  % remove 7 generators
+%E_rdc = reduce(E,7);  % remove 7 generators
+E_rdc = reduce_2_etope(E,7,3,true);
 disp(['Reduced ellipsotope number of generators: ', num2str(E_rdc.order)]);
 
 %% plotting

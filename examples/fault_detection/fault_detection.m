@@ -10,9 +10,11 @@
 clear; clc; close all
 %% user parameters
 % random number generator seed (for replicability)
-%rng(1)
+rng(1)
 
 plot_flag = false;
+
+load('samples.mat')
 
 % Nominal (1) and Faulty (2) model parameters
 Ra(1) = 1.2030; Ra(2) = 1.5030;
@@ -53,11 +55,11 @@ K{2} = dlqr(A{2},B{2},eye(2),0.1);
 
 % noise sets
 % zonotope noise
-% W = ellipsotope(2,[0;0],eye(2),[],[],{1,2});
-% V = ellipsotope(2,[0;0],[0.06 0; 0 0.6],[],[],{1,2});
+W = ellipsotope(2,[0;0],eye(2),[],[],{1,2});
+V = ellipsotope(2,[0;0],[0.06 0; 0 0.6],[],[],{1,2});
 % ellipsoidal noise
-W = ellipsotope(2,[0;0],eye(2));
-V = ellipsotope(2,[0;0],[0.06 0; 0 0.6]);
+% W = ellipsotope(2,[0;0],eye(2));
+% V = ellipsotope(2,[0;0],[0.06 0; 0 0.6]);
 
 % initial set of states
 X0 = ellipsotope(2,[0.6;70],[0.06 0; 0 0.6],[],[],{1,2});
@@ -67,7 +69,7 @@ n_c = 3; % num constraints
 o_d = 5; % degrees-of-freedom order
 n_g = 13; % corresponding number of generators (for dimension 2)
 
-N_sims = 10; % number of simulations to run
+N_sims = 7; % number of simulations to run
 N = 100; % number of iterations 
 
 %% run simulations
@@ -85,11 +87,14 @@ if plot_flag
 end
 
 for i = 1:N_sims
+    disp(['i = ',num2str(i)])
     % sample initial state
-    x_0 = sample_from_ellipsotope(X0);
+    %x_0 = sample_from_ellipsotope(X0);
+    x_0 = samples.x0(:,i);
     % initial measurement
     % sample v_0
-    v_0 = sample_from_ellipsotope(V);
+    %v_0 = sample_from_ellipsotope(V);
+    v_0 = samples.v(i,:,1)';
     y_0 = C * x_0 + D * v_0;
 %     x_0 = [0.5900; 70.2644];
 %     y_0 = [0.5301; 70.0272];
@@ -104,10 +109,14 @@ for i = 1:N_sims
 
     % apply estimator to nominal model and simulate faulty model 
     for k = 1:N
+        disp([' k = ',num2str(k)])
         % simulate faulty model
         % sample w_k and v_k from W and V
-        w_k = sample_from_ellipsotope(W);
-        v_k = sample_from_ellipsotope(V);
+        %w_k = sample_from_ellipsotope(W);
+        %v_k = sample_from_ellipsotope(V);
+        w_k = samples.w(i,:,k)';
+        v_k = samples.v(i,:,k+1)';
+        disp(['  w_k: (',num2str(w_k(1)),', ',num2str(w_k(2)),') v_k: (',num2str(v_k(1)),', ',num2str(v_k(2)),')']);
 %         w_k = [-0.7065; -0.8153];
 %         v_k = [-0.0376; -0.1853];
         % control law
@@ -118,6 +127,7 @@ for i = 1:N_sims
         x_k = A{2} * x_k + B{2} * u_k + Bw{2} * w_k;
         % measurement
         y_k = C * x_k + D * v_k;
+        disp(['  x_k: (',num2str(x_k(1)),', ',num2str(x_k(2)),') y_k: (',num2str(y_k(1)),', ',num2str(y_k(2)),')']);
         
         if plot_flag
             figure(1); scatter(x_k(1),x_k(2));
@@ -153,20 +163,20 @@ for i = 1:N_sims
         O{k} = O_k;
         
         % order reduction
-%         n_rdc = O_k.order - n_g;
-%         if n_rdc > 0
-%             O_k = reduce(O_k,n_rdc); 
-%         end
-        disp(['n_c: ',num2str(size(O_k.constraint_A,1)),' n_g: ',num2str(size(O_k.constraint_A,2))])
-        %O_k = reduce_constraint(O_k,n_c); % reduce to n_c constraints
-        disp(['n_c: ',num2str(size(O_k.constraint_A,1)),' n_g: ',num2str(size(O_k.constraint_A,2))])
+        n_rdc = O_k.order - n_g;
+        if n_rdc > 0
+            O_k = reduce_2_etope(O_k,n_rdc,n_c,true); 
+        end
+        %disp(['n_c: ',num2str(size(O_k.constraint_A,1)),' n_g: ',num2str(size(O_k.constraint_A,2))])
+        O_k = reduce_constraint(O_k,n_c); % reduce to n_c constraints
+        disp([' n_c: ',num2str(size(O_k.constraint_A,1)),' n_g: ',num2str(size(O_k.constraint_A,2))])
         
         if plot_flag
             figure(1); plot(O_k);
             figure(2); plot(F);
         end
         
-        disp(toc)
+        %disp(toc)
         avg_step_time(i) = avg_step_time(i) + toc;
         
         if plot_flag

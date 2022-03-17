@@ -8,7 +8,12 @@ clear; clc; close all
 %% for debugging
 rng(1)
 
+plot_flag = false;
+
 %% setup
+
+load('samples.mat')
+
 % Nominal (1) and Faulty (2) model parameters
 Ra(1) = 1.2030; Ra(2) = 1.5030;
 L(1) = 5.5840; L(2) = 5.5840;
@@ -57,7 +62,7 @@ X0 = conZonotope([0.6;70],[0.06 0; 0 0.6]);
 n_c = 3; % num constraints
 o_d = 5; % degrees-of-freedom order
 
-N_sims = 10; % number of simulations to run
+N_sims = 7; % number of simulations to run
 N = 100; % number of iterations
 
 %% run simulations
@@ -67,17 +72,22 @@ avg_detect_steps = 0;
 avg_step_time = zeros(N_sims,1);
 missed_detections = 0;
 
-% state domain plot
-f1 = figure(1); axis equal; hold on
-% measurement domain plot
-f2 = figure(2); axis equal; hold on
+if plot_flag
+    % state domain plot
+    f1 = figure(1); axis equal; hold on
+    % measurement domain plot
+    f2 = figure(2); axis equal; hold on
+end
 
 for i = 1:N_sims
+    disp(['i = ',num2str(i)])
     % sample initial state
-    x_0 = randPoint(X0);
+    %x_0 = randPoint(X0);
+    x_0 = samples.x0(:,i);
     % initial measurement
     % sample v_0
-    v_0 = randPoint(V);
+    %v_0 = randPoint(V);
+    v_0 = samples.v(i,:,1)';
     y_0 = C * x_0 + D * v_0;
 
     x_k = x_0; y_k = y_0;
@@ -90,10 +100,14 @@ for i = 1:N_sims
 
     % apply estimator to nominal model and simulate faulty model 
     for k = 1:N
+        disp([' k = ',num2str(k)])
         % simulate faulty model
         % sample w_k and v_k from W and V
-        w_k = randPoint(W);
-        v_k = randPoint(V);
+        %w_k = randPoint(W);
+        %v_k = randPoint(V);
+        w_k = samples.w(i,:,k)';
+        v_k = samples.v(i,:,k+1)';
+        disp(['  w_k: (',num2str(w_k(1)),', ',num2str(w_k(2)),') v_k: (',num2str(v_k(1)),', ',num2str(v_k(2)),')']);
         % control law
         u_k = u_N - K{2} * (y_k - x_N);
         % apply saturation limits
@@ -102,9 +116,12 @@ for i = 1:N_sims
         x_k = A{2} * x_k + B{2} * u_k + Bw{2} * w_k;
         % measurement
         y_k = C * x_k + D * v_k;
+        disp(['  x_k: (',num2str(x_k(1)),', ',num2str(x_k(2)),') y_k: (',num2str(y_k(1)),', ',num2str(y_k(2)),')']);
         
-        figure(1); scatter(x_k(1),x_k(2));
-        figure(2); scatter(y_k(1),y_k(2));
+        if plot_flag
+            figure(1); scatter(x_k(1),x_k(2));
+            figure(2); scatter(y_k(1),y_k(2));
+        end
         
         tic
         % fault detection step
@@ -120,21 +137,22 @@ for i = 1:N_sims
         O_k = (C * (A{1}*O_k + Bw{1}*W)) & (y_k + (-1)*D*V);
         O{k} = O_k;
         
-        %disp(toc)
-        
         % order reduction 
-%         O_k = reduce(O_k,'scott',o_d); % reduce to o_d degrees of freedom order
-%         O_k = reduceConstraints(O_k,n_c); % reduce to n_c constraints
+        O_k = reduce(O_k,'scott',o_d); % reduce to o_d degrees of freedom order
+        O_k = reduceConstraints(O_k,n_c); % reduce to n_c constraints
+        disp([' n_c: ',num2str(size(O_k.A,1)),' n_g: ',num2str(size(O_k.A,2))])
 
-        % plot 
-        figure(1); plot(O_k);
-        figure(2); plot(F);
+        if plot_flag
+            figure(1); plot(O_k);
+            figure(2); plot(F);
+        end
         
-        disp(['n_c: ',num2str(size(O_k.A,1)),' n_g: ',num2str(size(O_k.A,2))])
-        
+        %disp(toc)
         avg_step_time(i) = avg_step_time(i) + toc;
         
-        clf(f1); clf(f2); % set breakpoint here for plotting
+        if plot_flag
+            clf(f1); clf(f2); % set breakpoint here for plotting
+        end
     end
     
     if fault == 0

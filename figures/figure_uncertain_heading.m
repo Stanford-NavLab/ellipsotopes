@@ -66,17 +66,17 @@ end
 %% plot
 fh = figure(1); clf ; hold on; grid on; axis equal
 plot(E_circ,'EdgeAlpha',1.0,'FaceAlpha',0.0,'EdgeColor','#D95319','LineWidth',1.0);%,'LineStyle','--');
-%plot(E_rot,'FaceColor',[0.5 0.5 0],'EdgeColor',[0.5 0.5 0],'FaceAlpha',0.5,'EdgeAlpha',1.0,'num_points',10000);
-plot(E_rot,'FaceColor',[0.5 0.5 0],'EdgeColor',[0.5 0.5 0],'FaceAlpha',0.5,'EdgeAlpha',1.0,'num_points',500);
+plot(E_rot,'FaceColor',[0.5 0.5 0],'EdgeColor',[0.5 0.5 0],'FaceAlpha',0.5,'EdgeAlpha',1.0,'num_points',10000);
+%plot(E_rot,'FaceColor',[0.5 0.5 0],'EdgeColor',[0.5 0.5 0],'FaceAlpha',0.5,'EdgeAlpha',1.0,'num_points',500);
 plot(E_rot1,'FaceAlpha',1.0,'FaceColor',[0.7 0.7 1],'EdgeColor','b','LineWidth',1.5); 
 plot(E_body,'FaceAlpha',1.0,'FaceColor',[0.7 0.7 1],'EdgeColor','b','LineWidth',1.5); 
 plot(E_rot2,'FaceAlpha',1.0,'FaceColor',[0.7 0.7 1],'EdgeColor','b','LineWidth',1.5); 
 
 % show halfspaces
-plot([x1(1) - h1(2), x1(1) + h1(2)],[x1(2) - h1(1), x1(2) + h1(1)])
-scatter(x2(1),x2(2))
-scatter(x3(1),x3(2))
-scatter(x4(1),x4(2))
+plot([x1(1) - 2*h1(2), x1(1) + 2*h1(2)],[x1(2) + 2*h1(1), x1(2) - 2*h1(1)],'c--','LineWidth',1.5)
+plot([x2(1) - 2*h2(2), x2(1) + 2*h2(2)],[x2(2) + 2*h2(1), x2(2) - 2*h2(1)],'c--','LineWidth',1.5)
+plot([x3(1) - h3(2), x3(1) + h3(2)],[x3(2) + h3(1), x3(2) - h3(1)],'c--','LineWidth',1.5)
+plot([x4(1) - h4(2), x4(1) + h4(2)],[x4(2) + h4(1), x4(2) - h4(1)],'c--','LineWidth',1.5)
 
 % marker for heading
 marker_verts = 0.1 * rotation_matrix_2D(theta-d_h) * [1 -0.5 -0.5; 0 sqrt(3)/2 -sqrt(3)/2];

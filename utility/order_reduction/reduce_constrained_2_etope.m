@@ -31,6 +31,7 @@ function E_rdc = reduce_constrained_2_etope(E)
             G_rdc = G*T ;
         end
     else
+        c_rdc = c;
         G_rdc = G ;
     end
 

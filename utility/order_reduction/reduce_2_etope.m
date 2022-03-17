@@ -55,13 +55,13 @@ function E = reduce_2_etope(E,n_gen_to_remove,n_con_to_keep,flag_force_reduce)
     E = reduce_2_etope_to_minimal_exact_rep(E) ;
     n_gen = E.n_generators ;
     
-%% try using component ellipsotopes
-    if n_gen > (n_gen_orig - n_gen_to_remove)
-        E = reduce_component_2_etopes(E,n_gen_to_remove) ;
-        
-        n_gen = E.n_generators ;
-    end
-    
+% %% try using component ellipsotopes
+%     if n_gen > (n_gen_orig - n_gen_to_remove)
+%         E = reduce_component_2_etopes(E,n_gen_to_remove) ;
+%         
+%         n_gen = E.n_generators ;
+%     end
+%     
 %% try removing constraints so the minimal rep thing will get us low enough
     n_con = E.n_constraints ;
     while (n_gen > n_des) && (n_con > n_con_to_keep)

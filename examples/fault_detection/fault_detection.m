@@ -10,7 +10,7 @@
 clear; clc; close all
 %% user parameters
 % random number generator seed (for replicability)
-rng(1)
+rng(3)
 
 plot_flag = false;
 
@@ -28,18 +28,22 @@ fr(1) = 2.4500; fr(2) = 2.4500;
 dt = 1e-3;
 
 % Nominal model
-A{1} = dt * [-Ra(1)/L(1) -Ke(1)/L(1); 
-             Kt(1)/J1(1) -fr(1)/J1(1)];
-B{1} = dt * [1/L(1); 0];
-Bw{1} = [-0.0085 -0.0006;
-         -0.0603 0.0002];
+% A{1} = dt * [-Ra(1)/L(1) -Ke(1)/L(1); 
+%              Kt(1)/J1(1) -fr(1)/J1(1)];
+% B{1} = dt * [1/L(1); 0];
+Bw{1} = [-0.1 -0.2;
+         -0.2 0.1];
+A{1} = dt * eye(2);
+B{1} = dt * [1; 0];
 
 % Faulty model
-A{2} = dt * [-Ra(2)/L(2) -Ke(2)/L(2); 
-             Kt(2)/J1(2) -fr(2)/J1(2)];
-B{2} = dt * [1/L(2); 0];
-Bw{2} = [-0.0101 -0.0006;
-         -0.0595 0.0002];
+% A{2} = dt * [-Ra(2)/L(2) -Ke(2)/L(2); 
+%              Kt(2)/J1(2) -fr(2)/J1(2)];
+% B{2} = dt * [1/L(2); 0];
+Bw{2} = [-0.2 -0.2;
+         -0.1 0.1];
+A{2} = dt * 2 * eye(2);
+B{2} = dt * [2; 0];
 
 C = eye(2);
 D = eye(2);
@@ -69,7 +73,7 @@ n_c = 3; % num constraints
 o_d = 5; % degrees-of-freedom order
 n_g = 13; % corresponding number of generators (for dimension 2)
 
-N_sims = 7; % number of simulations to run
+N_sims = 5; % number of simulations to run
 N = 100; % number of iterations 
 
 %% run simulations
@@ -89,12 +93,12 @@ end
 for i = 1:N_sims
     disp(['i = ',num2str(i)])
     % sample initial state
-    %x_0 = sample_from_ellipsotope(X0);
-    x_0 = samples.x0(:,i);
+    x_0 = sample_from_ellipsotope(X0);
+    %x_0 = samples.x0(:,i);
     % initial measurement
     % sample v_0
-    %v_0 = sample_from_ellipsotope(V);
-    v_0 = samples.v(i,:,1)';
+    v_0 = sample_from_ellipsotope(V);
+    %v_0 = samples.v(i,:,1)';
     y_0 = C * x_0 + D * v_0;
 %     x_0 = [0.5900; 70.2644];
 %     y_0 = [0.5301; 70.0272];
@@ -112,10 +116,10 @@ for i = 1:N_sims
         disp([' k = ',num2str(k)])
         % simulate faulty model
         % sample w_k and v_k from W and V
-        %w_k = sample_from_ellipsotope(W);
-        %v_k = sample_from_ellipsotope(V);
-        w_k = samples.w(i,:,k)';
-        v_k = samples.v(i,:,k+1)';
+        w_k = sample_from_ellipsotope(W);
+        v_k = sample_from_ellipsotope(V);
+        %w_k = samples.w(i,:,k)';
+        %v_k = samples.v(i,:,k+1)';
         disp(['  w_k: (',num2str(w_k(1)),', ',num2str(w_k(2)),') v_k: (',num2str(v_k(1)),', ',num2str(v_k(2)),')']);
 %         w_k = [-0.7065; -0.8153];
 %         v_k = [-0.0376; -0.1853];

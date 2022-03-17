@@ -6,7 +6,7 @@
 %
 clear; clc; close all
 %% for debugging
-rng(1)
+rng(3)
 
 plot_flag = false;
 
@@ -26,18 +26,22 @@ fr(1) = 2.4500; fr(2) = 2.4500;
 dt = 1e-3;
 
 % Nominal model
-A{1} = dt * [-Ra(1)/L(1) -Ke(1)/L(1); 
-             Kt(1)/J1(1) -fr(1)/J1(1)];
-B{1} = dt * [1/L(1); 0];
-Bw{1} = [-0.0085 -0.0006;
-         -0.0603 0.0002];
+% A{1} = dt * [-Ra(1)/L(1) -Ke(1)/L(1); 
+%              Kt(1)/J1(1) -fr(1)/J1(1)];
+% B{1} = dt * [1/L(1); 0];
+Bw{1} = [-0.1 -0.2;
+         -0.2 0.1];
+A{1} = dt * eye(2);
+B{1} = dt * [1; 0];
 
 % Faulty model
-A{2} = dt * [-Ra(2)/L(2) -Ke(2)/L(2); 
-             Kt(2)/J1(2) -fr(2)/J1(2)];
-B{2} = dt * [1/L(2); 0];
-Bw{2} = [-0.0101 -0.0006;
-         -0.0595 0.0002];
+% A{2} = dt * [-Ra(2)/L(2) -Ke(2)/L(2); 
+%              Kt(2)/J1(2) -fr(2)/J1(2)];
+% B{2} = dt * [1/L(2); 0];
+Bw{2} = [-0.2 -0.2;
+         -0.1 0.1];
+A{2} = dt * 2 * eye(2);
+B{2} = dt * [2; 0];
 
 C = eye(2);
 D = eye(2);
@@ -52,8 +56,15 @@ K{1} = dlqr(A{1},B{1},eye(2),0.1);
 K{2} = dlqr(A{2},B{2},eye(2),0.1);
 
 % noise sets
+% zonotope noise
 W = conZonotope([0;0],eye(2));
 V = conZonotope([0;0],[0.06 0; 0 0.6]);
+% ellipsoidal noise
+% W_e = ellipsoid(eye(2),[0;0]);
+% V_e = ellipsoid([0.06 0; 0 0.6],[0;0]);
+% W = zonotope(W_e,3,'o:norm');
+% V = zonotope(V_e,3,'o:norm');
+
 
 % initial set of states
 X0 = conZonotope([0.6;70],[0.06 0; 0 0.6]);
@@ -62,7 +73,7 @@ X0 = conZonotope([0.6;70],[0.06 0; 0 0.6]);
 n_c = 3; % num constraints
 o_d = 5; % degrees-of-freedom order
 
-N_sims = 7; % number of simulations to run
+N_sims = 5; % number of simulations to run
 N = 100; % number of iterations
 
 %% run simulations
@@ -82,12 +93,12 @@ end
 for i = 1:N_sims
     disp(['i = ',num2str(i)])
     % sample initial state
-    %x_0 = randPoint(X0);
-    x_0 = samples.x0(:,i);
+    x_0 = randPoint(X0);
+    %x_0 = samples.x0(:,i);
     % initial measurement
     % sample v_0
-    %v_0 = randPoint(V);
-    v_0 = samples.v(i,:,1)';
+    v_0 = randPoint(V);
+    %v_0 = samples.v(i,:,1)';
     y_0 = C * x_0 + D * v_0;
 
     x_k = x_0; y_k = y_0;
@@ -103,10 +114,10 @@ for i = 1:N_sims
         disp([' k = ',num2str(k)])
         % simulate faulty model
         % sample w_k and v_k from W and V
-        %w_k = randPoint(W);
-        %v_k = randPoint(V);
-        w_k = samples.w(i,:,k)';
-        v_k = samples.v(i,:,k+1)';
+        w_k = randPoint(W);
+        v_k = randPoint(V);
+%         w_k = samples.w(i,:,k)';
+%         v_k = samples.v(i,:,k+1)';
         disp(['  w_k: (',num2str(w_k(1)),', ',num2str(w_k(2)),') v_k: (',num2str(v_k(1)),', ',num2str(v_k(2)),')']);
         % control law
         u_k = u_N - K{2} * (y_k - x_N);

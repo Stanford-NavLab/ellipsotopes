@@ -2,13 +2,16 @@
 % Dubins reachability
 % Given a robot running an LQR controler and KF state estimator, and
 % nominal trajectory, compute forward reachable set
-
+%
+% Authors: Adam Dai
+% Created: May 2021
+% Updated: 18 Mar 2022
 clc
 clear
 % close all
 
-%% robot matrices
-
+%% user parameters (robot matrices)
+% parameters
 params.dt = 0.1;
 params.V = 5;
 params.dx = params.V*params.dt;
@@ -41,7 +44,12 @@ heading_sigma = 0.001;
 robot.R1 = diag([range_sigma_1*ones(1,4), heading_sigma]);
 robot.R2 = diag([range_sigma_2*ones(1,4), heading_sigma]);
 
-%% obstacle
+% plotting
+flag_plot_figure = false ;
+flag_save_figure = false ;
+
+%% obstacles
+disp('Making obstacles')
 n_obs = 2;
 
 % obs.etope{1} = ellipsotope(2,[26;28],8*eye(2),[],[],{1,2});
@@ -71,6 +79,7 @@ obs.ellip{1} = ellipsoid(3*eye(2),[10;-2]);
 obs.ellip{2} = ellipsoid(5*eye(2),[30;10]);
 
 %% generate nominal trajectory
+disp('Making nominal trajectory')
 
 %trajectory.waypoints = [ [0; 0; pi/2], [40; 10; pi/4], [50; 50; pi/8] ];
 trajectory.waypoints = [ [0; 0; pi/3], [30; 0; 0], [50; 20; pi/4] ];
@@ -92,7 +101,7 @@ end
 % scatter(trajectory.x_nom(1,:),trajectory.x_nom(2,:));
 
 %% generate trajectory rollouts
-
+disp('Rolling out trajectories')
 rollouts.X = nan(3,trajectory.N_timesteps,params.N_rollouts);
 
 for i = 1:params.N_rollouts
@@ -144,7 +153,7 @@ for i = 1:params.N_rollouts
 end
 
 %% RRBT uncertainty propagation and reachable set formation
-
+disp('Computing reachable sets')
 Sigma = robot.P0;
 Lambda = zeros(3);
 RRBT = cell(1,trajectory.N_timesteps);
@@ -180,6 +189,7 @@ reach.ellip{1} = reach.ellip{1} + robot.rot_body_ellip;
 
 tic
 for k = 2:trajectory.N_timesteps
+    disp(['   k = ',num2str(k)])
     
     %obtain system matrices
     [robot.A, robot.B, robot.C, robot.K] = obtain_system_matrices( k, trajectory, reach, params );
@@ -230,7 +240,7 @@ end
 disp(['time to compute reachable set: ',num2str(toc)]);
 
 %% collision check
-
+disp('Collision checking')
 % % zonotope
 % disp('Zonotope collision check');
 % tic
@@ -324,71 +334,75 @@ disp(['  time to collision check: ',num2str(toc)]);
 %    reach.etope_vol = reach.etope_vol + area(reach.etope{k});
 % end
 
-%% plot reachable sets 
+%% plot reachable sets
+if flag_plot_figure
+    disp('Plotting!')
+    c1 = [156, 52, 235] / 255;
+    c2 = [52, 64, 235] / 255;
+    c3 = [3, 186, 252] / 255;
 
-c1 = [156, 52, 235] / 255;
-c2 = [52, 64, 235] / 255;
-c3 = [3, 186, 252] / 255;
+    h1 = figure('Position',[200 200 900 600]); hold on; grid on; axis equal
 
-h1 = figure('Position',[200 200 900 600]); hold on; grid on; axis equal
+    % reachable sets
+    for k = 1:8:trajectory.N_timesteps
+        zono_h = plot(reach.zono{k},[1,2],'Filled',true,'FaceAlpha',0.1,'FaceColor',c1,'EdgeColor',c1,'LineWidth',1.5);
+        ellip_h = plot(reach.ellip{k},[1,2],'Filled',true,'FaceAlpha',0.1,'FaceColor',c2,'EdgeColor',c2,'LineWidth',1.5);
+        etope_h = plot(reach.etope{k},'EdgeAlpha',1.0,'FaceColor',c3,'EdgeColor',c3,'LineWidth',1.5);
+    end
 
-% reachable sets
-for k = 1:8:trajectory.N_timesteps
-    zono_h = plot(reach.zono{k},[1,2],'Filled',true,'FaceAlpha',0.1,'FaceColor',c1,'EdgeColor',c1,'LineWidth',1.5);
-    ellip_h = plot(reach.ellip{k},[1,2],'Filled',true,'FaceAlpha',0.1,'FaceColor',c2,'EdgeColor',c2,'LineWidth',1.5);
-    etope_h = plot(reach.etope{k},'EdgeAlpha',1.0,'FaceColor',c3,'EdgeColor',c3,'LineWidth',1.5);
+    % obstacles
+    for i = 1:n_obs
+        obs_h = plot(obs.etope{i},'FaceColor','r','EdgeColor','r','FaceAlpha',0.5,'EdgeAlpha',1.0);
+    end
+
+    % beacons
+    beac_h = scatter(reach.beacon_positions(1,:),reach.beacon_positions(2,:),100,'black','^','filled');
+
+    % measurement region
+    line([meas_plane,meas_plane],[-30,80],'LineStyle','--');
+    patch([30,80,80,30],[80,80,-30,-30],'r','FaceAlpha',0.1,'EdgeAlpha',0.0);
+
+    axis equal
+    ax = gca; ax.YAxis.FontSize = 8; ax.XAxis.FontSize = 8;
+    xlabel('x [m]','Interpreter','latex','FontSize',12);
+    ylabel('y [m]','Interpreter','latex','FontSize',12);
+    xmin = min(reach.beacon_positions(1,:))-10; xmax = max(reach.beacon_positions(1,:))+10;
+    ymin = min(reach.beacon_positions(2,:))-10; ymax = max(reach.beacon_positions(2,:))+10;
+    xlim([xmin xmax]);
+    ylim([ymin ymax]);
+    leg = legend([zono_h ellip_h etope_h],'Zonotope','Ellipsoid','Ellipsotope');
+    set(leg,'AutoUpdate','off')
+    set(gca,'fontsize',15)
+
+    % zoom window
+    zoom_idx = 73; % time index to zoom in on
+    % place box around set in trajectory
+    zoom_box = interval(reach.zono{zoom_idx}) + 0.5 * interval([-1;-1],[1;1]);
+    plot(zoom_box,[1,2],'Color','k','LineWidth',2);
+    % zoom lines
+    zoom_ax_pos = [.25 .6 .25 .25]; % [left bottom width height]
+    zoom_ax_lx = -5.5; %zoom_ax_lx = zoom_ax_pos(1)*(xmax-xmin) + xmin;
+    zoom_ax_ly = 16.5; %zoom_ax_ly = zoom_ax_pos(2)*(ymax-ymin) + ymin;
+    zoom_ax_ux = 22.5; %zoom_ax_ux = (zoom_ax_pos(1)+zoom_ax_pos(3))*(xmax-xmin) + xmin;
+    zoom_ax_uy = 35.5; %zoom_ax_uy = (zoom_ax_pos(2)+zoom_ax_pos(4))*(ymax-ymin) + ymin;
+
+    plot([zoom_box.sup(1);zoom_ax_ux],[zoom_box.sup(2);zoom_ax_uy],'Color','k','LineWidth',2); % upper right corner to upper right
+    plot([zoom_box.inf(1);zoom_ax_lx],[zoom_box.inf(2);zoom_ax_ly],'Color','k','LineWidth',2); % lower left corner to lower left
+    % create a new pair of axes inside current figure
+    axes('position',zoom_ax_pos)
+    box on % put box around new pair of axes
+    set(gca,'linewidth',3)
+    set(gca,'XTick',[])
+    set(gca,'YTick',[])
+
+    %h2 = figure(2); 
+    hold on; axis equal
+    plot(reach.zono{zoom_idx},[1,2],'Filled',true,'FaceAlpha',0.1,'FaceColor',c1,'EdgeColor',c1,'LineWidth',1.5);
+    plot(reach.ellip{zoom_idx},[1,2],'Filled',true,'FaceAlpha',0.1,'FaceColor',c2,'EdgeColor',c2,'LineWidth',1.5);
+    plot(reach.etope{zoom_idx},'EdgeAlpha',1.0,'FaceColor',c3,'EdgeColor',c3,'LineWidth',1.5);
+    lim = axis; axis(lim + 0.5*[-1 1 -1 1]);
+
+    if flag_save_figure
+        save_figure_to_pdf(h1,'path_planning_zoom.pdf')
+    end
 end
-
-% obstacles
-for i = 1:n_obs
-    obs_h = plot(obs.etope{i},'FaceColor','r','EdgeColor','r','FaceAlpha',0.5,'EdgeAlpha',1.0);
-end
-
-% beacons
-beac_h = scatter(reach.beacon_positions(1,:),reach.beacon_positions(2,:),100,'black','^','filled');
-
-% measurement region
-line([meas_plane,meas_plane],[-30,80],'LineStyle','--');
-patch([30,80,80,30],[80,80,-30,-30],'r','FaceAlpha',0.1,'EdgeAlpha',0.0);
-
-axis equal
-ax = gca; ax.YAxis.FontSize = 8; ax.XAxis.FontSize = 8;
-xlabel('x [m]','Interpreter','latex','FontSize',12);
-ylabel('y [m]','Interpreter','latex','FontSize',12);
-xmin = min(reach.beacon_positions(1,:))-10; xmax = max(reach.beacon_positions(1,:))+10;
-ymin = min(reach.beacon_positions(2,:))-10; ymax = max(reach.beacon_positions(2,:))+10;
-xlim([xmin xmax]);
-ylim([ymin ymax]);
-leg = legend([zono_h ellip_h etope_h],'Zonotope','Ellipsoid','Ellipsotope');
-set(leg,'AutoUpdate','off')
-set(gca,'fontsize',15)
-
-% zoom window
-zoom_idx = 73; % time index to zoom in on
-% place box around set in trajectory
-zoom_box = interval(reach.zono{zoom_idx}) + 0.5 * interval([-1;-1],[1;1]);
-plot(zoom_box,[1,2],'Color','k','LineWidth',2);
-% zoom lines
-zoom_ax_pos = [.25 .6 .25 .25]; % [left bottom width height]
-zoom_ax_lx = -5.5; %zoom_ax_lx = zoom_ax_pos(1)*(xmax-xmin) + xmin;
-zoom_ax_ly = 16.5; %zoom_ax_ly = zoom_ax_pos(2)*(ymax-ymin) + ymin;
-zoom_ax_ux = 22.5; %zoom_ax_ux = (zoom_ax_pos(1)+zoom_ax_pos(3))*(xmax-xmin) + xmin;
-zoom_ax_uy = 35.5; %zoom_ax_uy = (zoom_ax_pos(2)+zoom_ax_pos(4))*(ymax-ymin) + ymin;
-
-plot([zoom_box.sup(1);zoom_ax_ux],[zoom_box.sup(2);zoom_ax_uy],'Color','k','LineWidth',2); % upper right corner to upper right
-plot([zoom_box.inf(1);zoom_ax_lx],[zoom_box.inf(2);zoom_ax_ly],'Color','k','LineWidth',2); % lower left corner to lower left
-% create a new pair of axes inside current figure
-axes('position',zoom_ax_pos)
-box on % put box around new pair of axes
-set(gca,'linewidth',3)
-set(gca,'XTick',[])
-set(gca,'YTick',[])
-
-%h2 = figure(2); 
-hold on; axis equal
-plot(reach.zono{zoom_idx},[1,2],'Filled',true,'FaceAlpha',0.1,'FaceColor',c1,'EdgeColor',c1,'LineWidth',1.5);
-plot(reach.ellip{zoom_idx},[1,2],'Filled',true,'FaceAlpha',0.1,'FaceColor',c2,'EdgeColor',c2,'LineWidth',1.5);
-plot(reach.etope{zoom_idx},'EdgeAlpha',1.0,'FaceColor',c3,'EdgeColor',c3,'LineWidth',1.5);
-lim = axis; axis(lim + 0.5*[-1 1 -1 1]);
-
-save_figure_to_pdf(h1,'path_planning_zoom.pdf')

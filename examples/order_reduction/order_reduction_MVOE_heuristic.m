@@ -2,7 +2,7 @@
 % This script illustrates the order reduction heuristic for 2-ellipstopes
 % over a variety of state dimensions and component ellipsoids.
 %
-% For 3 different dimensions, 6 component topes, and 100 topes per dim,
+% For 5 different dimensions, 6 component topes, and 50 topes per dim,
 % this takes about 2 mins to run on a 2020 MacBook Pro.
 %
 % See also: figure_order_reduction_2_etopes.m,
@@ -20,10 +20,10 @@ rng(0)
 n_comp_topes = 6 ; % default is 10
 
 % dimensions to test
-n_dim_list = [2 8 14] ;
+n_dim_list = [2 8 14 50 100] ;
 
 % number of topes to test
-n_topes_per_dim = 100 ;
+n_topes_per_dim = 50 ;
 
 % whether or not to save figures
 flag_save_figures = true ;

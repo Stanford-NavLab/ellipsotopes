@@ -62,8 +62,8 @@ K{2} = dlqr(A{2},B{2},eye(2),0.1);
 % ellipsoidal noise
 W_e = ellipsoid(eye(2),[0;0]);
 V_e = ellipsoid([0.06 0; 0 0.6],[0;0]);
-W = zonotope(W_e,14,'o:norm');
-V = zonotope(V_e,14,'o:norm');
+W = zonotope(W_e,3,'o:norm');
+V = zonotope(V_e,3,'o:norm');
 
 
 % initial set of states

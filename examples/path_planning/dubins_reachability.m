@@ -2,13 +2,14 @@
 % Dubins reachability
 % Given a robot running an LQR controler and KF state estimator, and
 % nominal trajectory, compute forward reachable set
-
+%
+% Authors: Adam Dai
+% Created: May 2021
+% Updated: 18 Mar 2022
 clc
 clear
 % close all
-
-%% robot matrices
-
+%% user parameters (robot matrices)
 params.dt = 0.2;
 params.V = 5;
 params.dx = params.V*params.dt;
@@ -35,13 +36,19 @@ robot.P0 = diag([0.1 0.1 0.01]);
 robot.width = 1;
 robot.length = 2;
 
-
+% measurement beacon positions
 reach.beacon_positions = [[-10;-10], [60;-10], [60;60], [-10;60]];
 
-%% generate nominal trajectory
-
+% nominal trajectory
 trajectory.waypoints = [ [0; 0; pi/2], [40; 10; pi/4], [50; 50; pi/8] ];
 % trajectory.waypoints = [ [0; 0; -pi/2], [10; -30; 0] ];
+
+% plotting
+flag_plot_result = false ;
+
+
+%% automated from here
+% generate nominal trajectory
 trajectory.dubins_offset = 0;
 [trajectory.x_nom, trajectory.u_nom, trajectory.K_nom, ~, trajectory.dubins_offset] = dubins_curve(trajectory.waypoints(:,1)', trajectory.waypoints(:,2)', params.turn_radius, params.dx, params.dt, trajectory.dubins_offset, 1, robot);
 for i = 3:size(trajectory.waypoints,2)
@@ -57,7 +64,6 @@ for k = 2:trajectory.N_timesteps
 end
 
 %% generate trajectory rollouts
-
 rollouts.X = nan(3,trajectory.N_timesteps,params.N_rollouts);
 
 for i = 1:params.N_rollouts
@@ -184,22 +190,23 @@ end
 disp(['time to collision check: ',num2str(toc)]);
 
 %% plot reachable sets and rollouts
-
-figure(1); hold on; grid on;
-for k = 1:4:trajectory.N_timesteps
-    reach_h = plot(reach.Xrs{k},'EdgeAlpha',1.0,'FaceColor','b','EdgeColor','b','LineWidth',1.5);
+if flag_plot_result
+    figure(1); hold on; grid on;
+    for k = 1:4:trajectory.N_timesteps
+        reach_h = plot(reach.Xrs{k},'EdgeAlpha',1.0,'FaceColor','b','EdgeColor','b','LineWidth',1.5);
+    end
+    for i = 1:params.N_rollouts
+        roll_h = plot(rollouts.X(1,:,i),rollouts.X(2,:,i));
+        roll_h.Color=[0,0,0,0.5];
+    end
+    obs_h = plot(E_obs,'FaceColor','r','EdgeColor','r','FaceAlpha',0.5,'EdgeAlpha',1.0);
+    beac_h = scatter(reach.beacon_positions(1,:),reach.beacon_positions(2,:),100,'black','^','filled');
+    axis equal
+    ax = gca; ax.YAxis.FontSize = 8; ax.XAxis.FontSize = 8;
+    xlabel('x [m]','Interpreter','latex','FontSize',12);
+    ylabel('y [m]','Interpreter','latex','FontSize',12);
+    xlim([min(reach.beacon_positions(1,:))-10 max(reach.beacon_positions(1,:))+10]);
+    ylim([min(reach.beacon_positions(2,:))-10 max(reach.beacon_positions(2,:))+10]);
+    legend([reach_h roll_h obs_h beac_h],'Reachable sets','Trajectory rollouts','Obstacle','Ranging beacons');
+    set(gca,'fontsize',15)
 end
-for i = 1:params.N_rollouts
-    roll_h = plot(rollouts.X(1,:,i),rollouts.X(2,:,i));
-    roll_h.Color=[0,0,0,0.5];
-end
-obs_h = plot(E_obs,'FaceColor','r','EdgeColor','r','FaceAlpha',0.5,'EdgeAlpha',1.0);
-beac_h = scatter(reach.beacon_positions(1,:),reach.beacon_positions(2,:),100,'black','^','filled');
-axis equal
-ax = gca; ax.YAxis.FontSize = 8; ax.XAxis.FontSize = 8;
-xlabel('x [m]','Interpreter','latex','FontSize',12);
-ylabel('y [m]','Interpreter','latex','FontSize',12);
-xlim([min(reach.beacon_positions(1,:))-10 max(reach.beacon_positions(1,:))+10]);
-ylim([min(reach.beacon_positions(2,:))-10 max(reach.beacon_positions(2,:))+10]);
-legend([reach_h roll_h obs_h beac_h],'Reachable sets','Trajectory rollouts','Obstacle','Ranging beacons');
-set(gca,'fontsize',15)

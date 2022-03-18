@@ -60,9 +60,12 @@ X0 = ellipsoid([0.06 0; 0 0.6],[0.6;70]);
 
 %% run simulations
 
-N_sims = 10;
+N_sims = 1;
 fault_steps = zeros(N_sims,1);
 avg_detect_steps = 0;
+avg_step_time = zeros(N_sims,1);
+missed_detections = 0;
+
 
 for i = 1:N_sims
     % sample initial state
@@ -113,10 +116,20 @@ for i = 1:N_sims
         % set-based estimator update
         O_k = (A{1}*O_k + Bw{1}*W) & (y_k + (-1)*D*V);
         O{k} = O_k;
-        disp(toc)
+        %disp(toc)
+        avg_step_time(i) = avg_step_time(i) + toc;
     end
 
-    avg_detect_steps = avg_detect_steps + fault;
+     if fault == 0
+        disp('Failed to detect fault');
+        missed_detections = missed_detections + 1;
+    else
+        avg_detect_steps = avg_detect_steps + fault;
+    end
+    
+    avg_step_time(i) = avg_step_time(i) / k;
 end
 
-disp(['Average timesteps for detection: ', num2str(avg_detect_steps/N_sims)])
+disp(['Average timesteps for detection: ', num2str(avg_detect_steps/(N_sims-missed_detections))])
+disp(['Average time per timestep: ', num2str(mean(avg_step_time))])
+disp(['Missed detections: ', num2str(missed_detections)])

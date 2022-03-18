@@ -4,7 +4,7 @@
 %
 % Authors: Adam Dai
 % Created: 24 May 2021
-% Updated: 15 Mar 2022 
+% Updated: 17 Mar 2022 (extended the halfspace lines, added plot flag)
 %
 clear ; clc ; close all
 %% user parameters
@@ -22,6 +22,13 @@ d_h = erfinv(P) * h_sigma * sqrt(2);
 
 % sanity check heading confidence interval
 N_samples = 1000;
+
+% whether or not to save figure
+flag_save_figure = true ;
+
+%% automated from here
+% test how many points are inside the tope, given the confidence bound on
+% the Gaussian distribution
 h_samples = normrnd(0,h_sigma,N_samples,1);
 in_count = 0;
 for i = 1:N_samples
@@ -29,8 +36,9 @@ for i = 1:N_samples
         in_count = in_count + 1;
     end
 end
-disp(['P(inside):', num2str(in_count/N_samples)]);
+disp(['P(inside): ', num2str(in_count/N_samples)]);
 
+%% plotting setup
 % rotated body
 E_rot1 = rotation_matrix_2D(d_h) * E_body;
 E_rot2 = rotation_matrix_2D(-d_h) * E_body;
@@ -63,8 +71,9 @@ if d_h < psi
     E_rot = halfspace_intersect(E_rot,h4,f4);
 end
 
-%% plot
-fh = figure(1); clf ; hold on; grid on; axis equal
+%% plotting
+fh = figure(1); clf ; hold on ; grid on ; axis equal
+
 plot(E_circ,'EdgeAlpha',1.0,'FaceAlpha',0.0,'EdgeColor','#D95319','LineWidth',1.0);%,'LineStyle','--');
 plot(E_rot,'FaceColor',[0.5 0.5 0],'EdgeColor',[0.5 0.5 0],'FaceAlpha',0.5,'EdgeAlpha',1.0,'num_points',10000);
 %plot(E_rot,'FaceColor',[0.5 0.5 0],'EdgeColor',[0.5 0.5 0],'FaceAlpha',0.5,'EdgeAlpha',1.0,'num_points',500);
@@ -73,19 +82,22 @@ plot(E_body,'FaceAlpha',1.0,'FaceColor',[0.7 0.7 1],'EdgeColor','b','LineWidth',
 plot(E_rot2,'FaceAlpha',1.0,'FaceColor',[0.7 0.7 1],'EdgeColor','b','LineWidth',1.5); 
 
 % show halfspaces
-plot([x1(1) - 2*h1(2), x1(1) + 2*h1(2)],[x1(2) + 2*h1(1), x1(2) - 2*h1(1)],'c--','LineWidth',1.5)
-plot([x2(1) - 2*h2(2), x2(1) + 2*h2(2)],[x2(2) + 2*h2(1), x2(2) - 2*h2(1)],'c--','LineWidth',1.5)
-plot([x3(1) - h3(2), x3(1) + h3(2)],[x3(2) + h3(1), x3(2) - h3(1)],'c--','LineWidth',1.5)
-plot([x4(1) - h4(2), x4(1) + h4(2)],[x4(2) + h4(1), x4(2) - h4(1)],'c--','LineWidth',1.5)
+plot([x1(1) - 4*h1(2), x1(1) + 4*h1(2)],[x1(2) + 4*h1(1), x1(2) - 4*h1(1)],'--','color',[0 0.8 0.6],'LineWidth',2)
+plot([x2(1) - 4*h2(2), x2(1) + 4*h2(2)],[x2(2) + 4*h2(1), x2(2) - 4*h2(1)],'--','color',[0 0.8 0.6],'LineWidth',2)
+plot([x3(1) - 4*h3(2), x3(1) + 4*h3(2)],[x3(2) + 4*h3(1), x3(2) - 4*h3(1)],'--','color',[0 0.8 0.6],'LineWidth',2)
+plot([x4(1) - 4*h4(2), x4(1) + 4*h4(2)],[x4(2) + 4*h4(1), x4(2) - 4*h4(1)],'--','color',[0 0.8 0.6],'LineWidth',2)
 
 % marker for heading
-marker_verts = 0.1 * rotation_matrix_2D(theta-d_h) * [1 -0.5 -0.5; 0 sqrt(3)/2 -sqrt(3)/2];
+marker_verts = 0.2 * rotation_matrix_2D(theta-d_h) * [2 -0.5 -0.5; 0 sqrt(3)/2 -sqrt(3)/2];
 patch(marker_verts(1,:),marker_verts(2,:),'black');
 
-lim = axis; axis(lim + 0.25*[-2 2 -1 1]);
+% lim = axis; axis(lim + 0.25*[-2 2 -1 1]);
+axis([-4,4,-2.4,2.4])
 legend('Circumscribing Circle','Overbound Ellipsotope','Rotated Body',...
     'location','northwest');
-set(gca,'fontsize',10)
+set(gca,'fontsize',12)
 
-save_figure_to_png(fh,'heading_uncertainty_cropped.png') ;
-save_figure_to_pdf(fh,'heading_uncertainty_cropped.pdf') ;
+if flag_save_figure
+    % exportgraphics(fh,'heading_uncertainty_cropped.png') ;
+    exportgraphics(fh,'heading_uncertainty_cropped.pdf') ;
+end

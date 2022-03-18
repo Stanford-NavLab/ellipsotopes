@@ -59,11 +59,11 @@ K{2} = dlqr(A{2},B{2},eye(2),0.1);
 
 % noise sets
 % zonotope noise
-W = ellipsotope(2,[0;0],eye(2),[],[],{1,2});
-V = ellipsotope(2,[0;0],[0.06 0; 0 0.6],[],[],{1,2});
+%W = ellipsotope(2,[0;0],eye(2),[],[],{1,2});
+%V = ellipsotope(2,[0;0],[0.06 0; 0 0.6],[],[],{1,2});
 % ellipsoidal noise
-% W = ellipsotope(2,[0;0],eye(2));
-% V = ellipsotope(2,[0;0],[0.06 0; 0 0.6]);
+W = ellipsotope(2,[0;0],eye(2));
+V = ellipsotope(2,[0;0],[0.06 0; 0 0.6]);
 
 % initial set of states
 X0 = ellipsotope(2,[0.6;70],[0.06 0; 0 0.6],[],[],{1,2});

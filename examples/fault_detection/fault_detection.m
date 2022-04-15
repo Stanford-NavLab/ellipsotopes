@@ -10,7 +10,7 @@
 clear; clc; close all
 %% user parameters
 % random number generator seed (for replicability)
-rng(3)
+%rng(3)
 
 plot_flag = false;
 
@@ -59,11 +59,11 @@ K{2} = dlqr(A{2},B{2},eye(2),0.1);
 
 % noise sets
 % zonotope noise
-%W = ellipsotope(2,[0;0],eye(2),[],[],{1,2});
-%V = ellipsotope(2,[0;0],[0.06 0; 0 0.6],[],[],{1,2});
+W = ellipsotope(2,[0;0],eye(2),[],[],{1,2});
+V = ellipsotope(2,[0;0],[0.06 0; 0 0.6],[],[],{1,2});
 % ellipsoidal noise
-W = ellipsotope(2,[0;0],eye(2));
-V = ellipsotope(2,[0;0],[0.06 0; 0 0.6]);
+% W = ellipsotope(2,[0;0],eye(2));
+% V = ellipsotope(2,[0;0],[0.06 0; 0 0.6]);
 
 % initial set of states
 X0 = ellipsotope(2,[0.6;70],[0.06 0; 0 0.6],[],[],{1,2});
@@ -73,13 +73,13 @@ n_c = 3; % num constraints
 o_d = 5; % degrees-of-freedom order
 n_g = 13; % corresponding number of generators (for dimension 2)
 
-N_sims = 5; % number of simulations to run
+N_sims = 10; % number of simulations to run
 N = 100; % number of iterations 
 
 %% run simulations
 
 fault_steps = zeros(N_sims,1);
-avg_detect_steps = 0;
+avg_detect_steps = zeros(N_sims,1);
 avg_step_time = zeros(N_sims,1);
 missed_detections = 0;
 
@@ -91,7 +91,7 @@ if plot_flag
 end
 
 for i = 1:N_sims
-    disp(['i = ',num2str(i)])
+    disp(['Sim i = ',num2str(i)])
     % sample initial state
     x_0 = sample_from_ellipsotope(X0);
     %x_0 = samples.x0(:,i);
@@ -113,7 +113,7 @@ for i = 1:N_sims
 
     % apply estimator to nominal model and simulate faulty model 
     for k = 1:N
-        disp([' k = ',num2str(k)])
+        disp([' iteration k = ',num2str(k)])
         % simulate faulty model
         % sample w_k and v_k from W and V
         w_k = sample_from_ellipsotope(W);
@@ -121,8 +121,6 @@ for i = 1:N_sims
         %w_k = samples.w(i,:,k)';
         %v_k = samples.v(i,:,k+1)';
         disp(['  w_k: (',num2str(w_k(1)),', ',num2str(w_k(2)),') v_k: (',num2str(v_k(1)),', ',num2str(v_k(2)),')']);
-%         w_k = [-0.7065; -0.8153];
-%         v_k = [-0.0376; -0.1853];
         % control law
         u_k = u_N - K{2} * (y_k - x_N);
         % apply saturation limits
@@ -141,28 +139,8 @@ for i = 1:N_sims
         tic
         % fault detection step
         F = C * (A{1}*O_k + Bw{1}*W) + D*V;
-%         F_cond = cond(F.constraint_A) ;
-%         
-%         if F_cond > 1e8
-%             dbstop in fault_detection at 116
-%             disp('hi')
-%         end
-        
-        %%% SHREYAS DEBUGGING DEGENERATE CONSTRAINTS %%%
-        
-%         A_test = F.constraint_A ;
-%         b_test = F.constraint_b ;
-%         x_test = pinv(A_test)*b_test ;
-%         if vecnorm(A_test*x_test - b_test) > 1e-7
-%             dbstop in fault_detection at 120
-%             disp('hi')
-%         end
-        %%% SHREYAS DEBUGGING DEGENERATE CONSTRAINTS %%%
-        
-        
 
         % set-based estimator update
-        %O_k = intersect(A{1}*O_k + Bw{1}*W, y_k + (-1)*D*V, C);
         O_k = (C * (A{1}*O_k + Bw{1}*W)) & (y_k + (-1)*D*V);
         O{k} = O_k;
         
@@ -199,11 +177,14 @@ for i = 1:N_sims
         disp('Failed to detect fault');
         missed_detections = missed_detections + 1;
     else
-        avg_detect_steps = avg_detect_steps + fault;
+        avg_detect_steps(i) = fault;
     end
     avg_step_time(i) = avg_step_time(i) / k;
 end
 
-disp(['Average timesteps for detection: ', num2str(avg_detect_steps/(N_sims-missed_detections))])
+avg_detect_steps = avg_detect_steps(~avg_detect_steps==0);
+disp(['Average timesteps for detection: ', num2str(mean(avg_detect_steps))])
 disp(['Average time per timestep: ', num2str(mean(avg_step_time))])
 disp(['Missed detections: ', num2str(missed_detections)])
+disp(['Detection timesteps standard deviation: ', num2str(std(avg_detect_steps))])
+disp(['Time per timestep standard deviation: ', num2str(std(avg_step_time))])

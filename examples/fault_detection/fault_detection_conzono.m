@@ -6,7 +6,7 @@
 %
 clear; clc; close all
 %% for debugging
-%rng(3)
+%rng(2)
 
 plot_flag = false;
 
@@ -57,13 +57,13 @@ K{2} = dlqr(A{2},B{2},eye(2),0.1);
 
 % noise sets
 % zonotope noise
-W = conZonotope([0;0],eye(2));
-V = conZonotope([0;0],[0.06 0; 0 0.6]);
+% W = conZonotope([0;0],eye(2));
+% V = conZonotope([0;0],[0.06 0; 0 0.6]);
 % ellipsoidal noise
-% W_e = ellipsoid(eye(2),[0;0]);
-% V_e = ellipsoid([0.06 0; 0 0.6],[0;0]);
-% W = zonotope(W_e,3,'o:norm');
-% V = zonotope(V_e,3,'o:norm');
+W_e = ellipsoid(eye(2),[0;0]);
+V_e = ellipsoid([0.06 0; 0 0.6],[0;0]);
+W = zonotope(W_e,8,'o:norm');
+V = zonotope(V_e,8,'o:norm');
 
 
 % initial set of states
@@ -82,6 +82,7 @@ fault_steps = zeros(N_sims,1);
 avg_detect_steps = zeros(N_sims,1);
 avg_step_time = zeros(N_sims,1);
 missed_detections = 0;
+skipped_runs = 0;
 
 if plot_flag
     % state domain plot
@@ -91,12 +92,14 @@ if plot_flag
 end
 
 for i = 1:N_sims
-    disp(['i = ',num2str(i)])
+    disp(['Sim i = ',num2str(i)])
     % sample initial state
     x_0 = randPoint(X0);
+    %x_0 = samples.x0(:,i);
     % initial measurement
     % sample v_0
     v_0 = randPoint(V_e);
+    %v_0 = samples.v(i,:,1)';
     y_0 = C * x_0 + D * v_0;
 
     x_k = x_0; y_k = y_0;
@@ -112,9 +115,11 @@ for i = 1:N_sims
         disp([' k = ',num2str(k)])
         % simulate faulty model
         % sample w_k and v_k from W and V
-        w_k = randPoint(W);
-        v_k = randPoint(V);
-        disp(['  w_k: (',num2str(w_k(1)),', ',num2str(w_k(2)),') v_k: (',num2str(v_k(1)),', ',num2str(v_k(2)),')']);
+        w_k = randPoint(W_e);
+        v_k = randPoint(V_e);
+        %w_k = samples.w(i,:,k)';
+        %v_k = samples.v(i,:,k+1)';
+        %disp(['  w_k: (',num2str(w_k(1)),', ',num2str(w_k(2)),') v_k: (',num2str(v_k(1)),', ',num2str(v_k(2)),')']);
         % control law
         u_k = u_N - K{2} * (y_k - x_N);
         % apply saturation limits
@@ -123,7 +128,7 @@ for i = 1:N_sims
         x_k = A{2} * x_k + B{2} * u_k + Bw{2} * w_k;
         % measurement
         y_k = C * x_k + D * v_k;
-        disp(['  x_k: (',num2str(x_k(1)),', ',num2str(x_k(2)),') y_k: (',num2str(y_k(1)),', ',num2str(y_k(2)),')']);
+        %disp(['  x_k: (',num2str(x_k(1)),', ',num2str(x_k(2)),') y_k: (',num2str(y_k(1)),', ',num2str(y_k(2)),')']);
         
         if plot_flag
             figure(1); scatter(x_k(1),x_k(2));
@@ -133,10 +138,16 @@ for i = 1:N_sims
         tic
         % fault detection step
         F = C * (A{1}*O_k + Bw{1}*W) + D*V;
-        if ~in(F,y_k)
-            disp('Fault detected');
-            fault = k;
-            fault_steps(i) = fault;
+        try
+            if ~in(F,y_k)
+                disp('Fault detected');
+                fault = k;
+                fault_steps(i) = fault;
+                break
+            end
+        catch
+            disp('Skipping run');
+            skipped_runs = skipped_runs + 1;
             break
         end
 
@@ -147,7 +158,7 @@ for i = 1:N_sims
         % order reduction 
         O_k = reduce(O_k,'scott',o_d); % reduce to o_d degrees of freedom order
         O_k = reduceConstraints(O_k,n_c); % reduce to n_c constraints
-        disp([' n_c: ',num2str(size(O_k.A,1)),' n_g: ',num2str(size(O_k.A,2))])
+        %disp([' n_c: ',num2str(size(O_k.A,1)),' n_g: ',num2str(size(O_k.A,2))])
 
         if plot_flag
             figure(1); plot(O_k);
@@ -172,8 +183,9 @@ for i = 1:N_sims
 end
 
 avg_detect_steps = avg_detect_steps(~avg_detect_steps==0);
-disp(['Average timesteps for detection: ', num2str(avg_detect_steps/(N_sims-missed_detections))])
+disp(['Average timesteps for detection: ', num2str(mean(avg_detect_steps))])
 disp(['Average time per timestep: ', num2str(mean(avg_step_time))])
 disp(['Missed detections: ', num2str(missed_detections)])
+disp(['Skipped runs: ', num2str(skipped_runs)])
 disp(['Detection timesteps standard deviation: ', num2str(std(avg_detect_steps))])
 disp(['Time per timestep standard deviation: ', num2str(std(avg_step_time))])

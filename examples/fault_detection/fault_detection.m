@@ -10,7 +10,7 @@
 clear; clc; close all
 %% user parameters
 % random number generator seed (for replicability)
-%rng(3)
+rng(2)
 
 plot_flag = false;
 
@@ -73,7 +73,7 @@ n_c = 3; % num constraints
 o_d = 5; % degrees-of-freedom order
 n_g = 13; % corresponding number of generators (for dimension 2)
 
-N_sims = 10; % number of simulations to run
+N_sims = 5; % number of simulations to run
 N = 100; % number of iterations 
 
 %% run simulations
@@ -120,7 +120,7 @@ for i = 1:N_sims
         v_k = sample_from_ellipsotope(V);
         %w_k = samples.w(i,:,k)';
         %v_k = samples.v(i,:,k+1)';
-        disp(['  w_k: (',num2str(w_k(1)),', ',num2str(w_k(2)),') v_k: (',num2str(v_k(1)),', ',num2str(v_k(2)),')']);
+        %disp(['  w_k: (',num2str(w_k(1)),', ',num2str(w_k(2)),') v_k: (',num2str(v_k(1)),', ',num2str(v_k(2)),')']);
         % control law
         u_k = u_N - K{2} * (y_k - x_N);
         % apply saturation limits
@@ -129,7 +129,7 @@ for i = 1:N_sims
         x_k = A{2} * x_k + B{2} * u_k + Bw{2} * w_k;
         % measurement
         y_k = C * x_k + D * v_k;
-        disp(['  x_k: (',num2str(x_k(1)),', ',num2str(x_k(2)),') y_k: (',num2str(y_k(1)),', ',num2str(y_k(2)),')']);
+        %disp(['  x_k: (',num2str(x_k(1)),', ',num2str(x_k(2)),') y_k: (',num2str(y_k(1)),', ',num2str(y_k(2)),')']);
         
         if plot_flag
             figure(1); scatter(x_k(1),x_k(2));
@@ -151,7 +151,7 @@ for i = 1:N_sims
         end
         %disp(['n_c: ',num2str(size(O_k.constraint_A,1)),' n_g: ',num2str(size(O_k.constraint_A,2))])
         O_k = reduce_constraint(O_k,n_c); % reduce to n_c constraints
-        disp([' n_c: ',num2str(size(O_k.constraint_A,1)),' n_g: ',num2str(size(O_k.constraint_A,2))])
+        %disp([' n_c: ',num2str(size(O_k.constraint_A,1)),' n_g: ',num2str(size(O_k.constraint_A,2))])
         
         if plot_flag
             figure(1); plot(O_k);
